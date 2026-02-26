@@ -20,30 +20,26 @@ Her node, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek için
 
 Merkezi Peltier modülü (ana ünitede) iki ayrı hava kanalı besler: biri soğuk taraftan, diğeri sıcak taraftan. Her node, bu iki kanaldan aldığı hava akışını bağımsız valfler aracılığıyla karıştırarak hedef ortam sıcaklığını dinamik olarak oluşturur.
 
-```
-ANA ÜNİTE
-┌──────────────────────────────┐
-│      Peltier Modülü          │
-│  [Soğuk Taraf] [Sıcak Taraf] │
-│                              │
-│  ← Egzoz girişi (dışarıya)  │
-└────┬──────────────┬──────────┘
-     │ Soğuk Kanal  │ Sıcak Kanal
-     │              │
-     ▼              ▼
-  NODE (örnek)
-┌──────────────────────────────┐
-│  [Soğuk Valf]  [Sıcak Valf]  │
-│         ↘         ↙          │
-│       Karışım Odası           │
-│    → → [Batarya Bölmesi] → → │  ← hava pilden geçerek akar
-│      [TMP117 ölçüm]          │
-│      [PID kontrol]            │
-│      [Çek Valf] → Egzoz →   │
-└──────────────────────────────┘
-          │ Egzoz Kanalı
-          ▼
-      ANA ÜNİTE → Dışarı
+```mermaid
+flowchart TD
+    subgraph ANA["Ana Ünite"]
+        P["Peltier Modülü"]
+        EX["Egzoz Çıkışı (Dışarı)"]
+    end
+
+    P -->|Soğuk Kanal| SV["Soğuk Valf"]
+    P -->|Sıcak Kanal| HV["Sıcak Valf"]
+
+    subgraph NODE["Node"]
+        SV
+        HV
+        SV & HV --> MIX["Karışım Odası"]
+        MIX -->|"hava pilden geçer"| BAT["Batarya Bölmesi"]
+        BAT --> TMP["TMP117 ölçüm · PID kontrol"]
+        TMP --> CV["Çek Valf"]
+    end
+
+    CV -->|Egzoz Kanalı| EX
 ```
 
 ### Valf Kontrolü
