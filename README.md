@@ -1,4 +1,4 @@
-*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
+TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi
 
 ---
 ![TRONLOOP](docs/01-project-general/assets/logo-small.png)
