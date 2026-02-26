@@ -5,7 +5,9 @@ durum: "taslak"
 son_guncelleme: "2026-02-26"
 guncelleyen: "—"
 ---
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
+---
 # Yazılım Mimarisi
 
 Node firmware'i + ana ünite koordinasyon yazılımı + analiz araçlarından oluşan üç katmanlı yapı. Node'lar ile ana ünite CAN bus üzerinden haberleşir.

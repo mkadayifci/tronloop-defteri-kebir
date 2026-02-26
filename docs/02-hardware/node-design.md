@@ -5,7 +5,9 @@ durum: "taslak"
 son_guncelleme: "2026-02-26"
 guncelleyen: "—"
 ---
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
+---
 # Node Tasarımı
 
 Her node bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne alır; elektriksel parametreler ve iklim koşullarını ölçer.
@@ -88,7 +90,7 @@ Pil yüzeyine temas ettirilerek BQ34Z100'ün `TS` (Temperature Sense) pinine ba�
 
 ### Ortam Sıcaklığı Ölçümü
 
-**TMP117 (Texas Instruments) — Dijital Sıcaklık Sensörü**
+**[TMP117 (Texas Instruments)](https://www.ti.com/lit/ds/symlink/tmp117.pdf) — Dijital Sıcaklık Sensörü**
 
 Pilin bulunduğu ortam sıcaklığını ölçer. I2C üzerinden doğrudan MCU'ya bağlanır. Yüksek hassasiyeti sayesinde pil yüzeyi ile ortam sıcaklığı arasındaki fark (ısınma etkisi) analiz edilebilir.
 

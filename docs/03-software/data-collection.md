@@ -5,7 +5,9 @@ durum: "taslak"
 son_guncelleme: "2026-02-26"
 guncelleyen: "—"
 ---
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
+---
 # Veri Toplama
 
 ---

@@ -5,7 +5,9 @@ durum: "taslak"
 son_guncelleme: "2026-02-26"
 guncelleyen: "—"
 ---
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
+---
 # Toplantı Takvimi
 
 Toplantı notları `notes/` klasörüne `YYYY-MM-DD_toplanti.md` formatında kaydedilir.

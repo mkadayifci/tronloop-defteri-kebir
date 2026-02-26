@@ -5,7 +5,9 @@ durum: "taslak"
 son_guncelleme: "2026-02-26"
 guncelleyen: "—"
 ---
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
+---
 # Ana Ünite Tasarımı
 
 Tüm node'ları koordine eden, verileri toplayan ve depolayan merkezi sistem.

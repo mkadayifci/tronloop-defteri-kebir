@@ -1,3 +1,7 @@
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
+
+---
+
 # Batarya Kapasite Kayıp İzleme Sistemi
 
 > Ana ünite ve node'lardan oluşan, bataryaları sürekli şarj/deşarj döngüsüne alarak iklim koşullarıyla birlikte kapasite kayıplarını uzun vadeli izleyen araştırma platformu.
@@ -8,21 +12,19 @@
 
 ## Hızlı Erişim
 
-| Alan | Dosya |
-|------|-------|
-| 📋 Proje Tanımı & Hedefler | [docs/01-project-general/project-definition.md](docs/01-project-general/project-definition.md) |
-| 👥 Ekip & Roller | [docs/01-project-general/team.md](docs/01-project-general/team.md) |
-| 🗺️ Yol Haritası & Milestone'lar | [docs/01-project-general/roadmap.md](docs/01-project-general/roadmap.md) |
-| 🔌 Ana Ünite Tasarımı | [docs/02-hardware/main-unit.md](docs/02-hardware/main-unit.md) |
-| 🔋 Node Tasarımı | [docs/02-hardware/node-design.md](docs/02-hardware/node-design.md) |
-| 🌡️ İklim İzleme | [docs/02-hardware/climate-monitoring.md](docs/02-hardware/climate-monitoring.md) |
-| 📦 Malzeme Listesi (BOM) | [docs/02-hardware/bill-of-materials.md](docs/02-hardware/bill-of-materials.md) |
-| 💻 Yazılım Mimarisi | [docs/03-software/architecture.md](docs/03-software/architecture.md) |
-| 🧪 Test Protokolü | [docs/04-tests/test-protocol.md](docs/04-tests/test-protocol.md) |
-| 📚 Literatür Taraması | [docs/05-research/literature.md](docs/05-research/literature.md) |
-| 📰 Yayın Planı | [docs/05-research/publications.md](docs/05-research/publications.md) |
-| 🤖 AI Asistan Konfig | [CLAUDE.md](CLAUDE.md) |
-| 📝 Değişiklik Geçmişi | [CHANGELOG.md](CHANGELOG.md) |
+- [Proje Tanımı & Hedefler](docs/01-project-general/project-definition.md)
+- [Ekip & Roller](docs/01-project-general/team.md)
+- [Yol Haritası & Milestone'lar](docs/01-project-general/roadmap.md)
+- [Ana Ünite Tasarımı](docs/02-hardware/main-unit.md)
+- [Node Tasarımı](docs/02-hardware/node-design.md)
+- [İklim İzleme](docs/02-hardware/climate-monitoring.md)
+- [Malzeme Listesi (BOM)](docs/02-hardware/bill-of-materials.md)
+- [Yazılım Mimarisi](docs/03-software/architecture.md)
+- [Test Protokolü](docs/04-tests/test-protocol.md)
+- [Literatür Taraması](docs/05-research/literature.md)
+- [Yayın Planı](docs/05-research/publications.md)
+- [AI Asistan Konfig](CLAUDE.md)
+- [Değişiklik Geçmişi](CHANGELOG.md)
 
 ---
 

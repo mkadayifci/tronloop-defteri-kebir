@@ -1,3 +1,7 @@
+*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
+
+---
+
 # Değişiklik Geçmişi
 
 Tüm önemli değişiklikler bu dosyada belgelenir.
