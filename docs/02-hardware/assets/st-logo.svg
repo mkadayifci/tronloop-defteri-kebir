@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" width="280" height="80">
+  <!-- ST mavi kutu -->
+  <rect x="0" y="10" width="60" height="60" rx="6" ry="6" fill="#03318C"/>
+  <!-- ST yazısı -->
+  <text x="30" y="54" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">ST</text>
+  <!-- STMicroelectronics yazısı -->
+  <text x="75" y="38" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#03318C">STMicroelectronics</text>
+  <text x="75" y="56" font-family="Arial, sans-serif" font-size="10" fill="#555555">stm32l476rg</text>
+</svg>
