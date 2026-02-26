@@ -19,7 +19,7 @@ Sistem regeneratif bir döngü üzerine kuruludur:
 ```mermaid
 flowchart LR
     KP["Kaynak Pil Paketi"]
-    TP["Test Pili\n(node içindeki)"]
+    TP["Test Pili<br/>(node içindeki)"]
     KP -->|"şarj — kaynak paketten enerji alır"| TP
     TP -->|"deşarj — kaynak paketi şarj eder"| KP
 ```
@@ -107,12 +107,9 @@ Pilin bulunduğu ortam sıcaklığını ölçer. I2C üzerinden doğrudan MCU'ya
 
 ## Mikrodenetleyici (MCU)
 
-
-
 ![STMicroelectronics](assets/st-logo.png)
 
-**STM32L476RG (STMicroelectronics)         **
-
+##### STM32L476RG (STMicroelectronics)
 Dev board: Nucleo-L476RG. Üretimde daha küçük paket olan STM32L476CB (LQFP48) kullanılacak.
 
 ![STM32L476 64LQFP](assets/476-64LQFP.webp)

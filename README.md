@@ -32,11 +32,11 @@
 
 ```mermaid
 flowchart TD
-    ANA["Ana Ünite\nKoordinasyon · Veri Toplama · İletişim · Depolama"]
-    ANA --> N1["Node 1\nŞarj/Deşarj + İklim"]
-    ANA --> N2["Node 2\nŞarj/Deşarj + İklim"]
-    ANA --> NN["Node N\nŞarj/Deşarj + İklim"]
-    N1 & N2 & NN --> ANL["Kapasite Analizi &\nAkademik Yayınlar"]
+    ANA["Ana Ünite<br/>Koordinasyon · Veri Toplama · İletişim · Depolama"]
+    ANA --> N1["Node 1<br/>Şarj/Deşarj + İklim"]
+    ANA --> N2["Node 2<br/>Şarj/Deşarj + İklim"]
+    ANA --> NN["Node N<br/>Şarj/Deşarj + İklim"]
+    N1 & N2 & NN --> ANL["Kapasite Analizi &<br/>Akademik Yayınlar"]
 ```
 
 ---

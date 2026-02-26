@@ -60,9 +60,9 @@ Her node iki bağımsız oransal valf içerir — biri soğuk kanala, biri sıca
 ```mermaid
 flowchart LR
     T["TMP117 ölçüm"] --> P["PID hesap"]
-    P --> SV["Soğuk valf\nPWM güncelle"]
-    P --> HV["Sıcak valf\nPWM güncelle"]
-    SV & HV --> L["Döngü tekrar\n~1 sn"]
+    P --> SV["Soğuk valf<br/>PWM güncelle"]
+    P --> HV["Sıcak valf<br/>PWM güncelle"]
+    SV & HV --> L["Döngü tekrar<br/>~1 sn"]
     L --> T
 ```
 
@@ -91,6 +91,61 @@ Hava karışım odasından doğrudan pil yüzeyinin üzerinden geçerek egzoza u
 - Yoğuşmayı önlemek için soğuk kanal iç yüzeyi nem geçirmez malzemeyle kaplanmalıdır
 - Peltier boyutlandırması en kötü senaryoya göre yapılmalıdır: tüm node'ların eş zamanlı maksimum soğutma talebi
 - Node bölmesi hava sızdırmaz tasarlanmalı; tek giriş (karışım odası) ve tek çıkış (egzoz çek valf) noktası olmalıdır
+
+---
+
+## Boru ve Manifold Sistemi (50 Node)
+
+### Yapı
+
+50 node, 5 adet 10'lu gruba bölünür. Her grup bir alt manifolda bağlanır; alt manifoldlar ana hattan beslenir.
+
+```mermaid
+flowchart TD
+    P["Peltier\n(Ana Ünite)"] -->|"125mm izolasyonlu HVAC flex"| AM["Ana Hat"]
+    AM --> M1["Alt Manifold A\n10 node"]
+    AM --> M2["Alt Manifold B\n10 node"]
+    AM --> M3["Alt Manifold C\n10 node"]
+    AM --> M4["Alt Manifold D\n10 node"]
+    AM --> M5["Alt Manifold E\n10 node"]
+    M1 & M2 & M3 & M4 & M5 -->|"25mm flex hortum"| N["Node (×50)"]
+    N -->|"Egzoz kanalı"| EM["Egzoz Toplama\n(aynı yapı, ters yön)"]
+    EM --> OUT["Dışarı"]
+```
+
+> Sistem iki kez kurulur: biri soğuk kanal, biri sıcak kanal için. Egzoz tarafı 25mm → 63mm → 125mm olarak toplar.
+
+### Boyutlar
+
+| Bileşen | Çap | Malzeme | Not |
+|---------|-----|---------|-----|
+| Ana hat | 125mm | İzolasyonlu HVAC flex | Soğuk + sıcak için ayrı |
+| Alt manifold giriş | 63mm | 3D baskı PETG | 10 node başına 1 adet |
+| Alt manifold çıkış | 10 × 25mm | 3D baskı PETG | 150mm aralıklı |
+| Alt manifold boyu | 1500mm | 3D baskı PETG | 10 × 150mm node aralığı |
+| Node bağlantısı | 25mm | İzolasyonlu HVAC flex | Maks 1.5m |
+| Duvar kalınlığı | 3mm | PETG | Manifold gövdesi |
+
+### Debi ve Basınç
+
+| Parametre | Değer |
+|-----------|-------|
+| Node başına debi | 10 L/min |
+| Alt manifold toplam debi | 100 L/min |
+| Ana hat toplam debi | 500 L/min |
+| Sistem basınç kaybı | ~80 Pa |
+| Fan gereksinimi | Min. 500 L/min @ 80 Pa statik basınç |
+
+### Basınç Tahliye Valfi
+
+Tüm node valflerinin eş zamanlı kapanması durumunda kanal içinde basınç birikmesini önlemek için ana hatta bir **basınç tahliye valfi** bulunmalıdır. Ayarlı basınç aşıldığında otomatik açılarak fazla havayı ana üniteye geri verir.
+
+### Manifold Tasarım İpuçları (Onshape / 3D Baskı)
+
+- İç çap boyunca sabit kesit (plenum tasarımı) → tüm çıkışlara eşit basınç
+- Çıkış fittingleri 45° açılı yerleştirilirse akış dağılımı iyileşir
+- Soğuk manifold iç yüzeyi pürüzsüz olmalı; yoğuşma birikintisi oluşmaması için en alçak noktaya tahliye deliği eklenebilir
+- PETG yeterli; sıcak kanal 60°C'yi geçmeyeceği için PLA kullanılmamalı
 
 ---
 
