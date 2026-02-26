@@ -16,11 +16,12 @@ Her node bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne al
 
 Sistem regeneratif bir döngü üzerine kuruludur:
 
-```
-Kaynak Pil Paketi
-      ↑  deşarj → kaynak paketi şarj eder
-      ↓  şarj   → kaynak paketten enerji alır
-  Test Pili (node içindeki)
+```mermaid
+flowchart LR
+    KP["Kaynak Pil Paketi"]
+    TP["Test Pili\n(node içindeki)"]
+    KP -->|"şarj — kaynak paketten enerji alır"| TP
+    TP -->|"deşarj — kaynak paketi şarj eder"| KP
 ```
 
 Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı test pilinden yüksek voltajlı kaynak pakete enerji aktarımı IC'nin dahili boost dönüştürücüsü ile sağlanır.

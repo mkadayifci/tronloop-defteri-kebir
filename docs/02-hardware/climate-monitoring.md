@@ -57,10 +57,13 @@ Her node iki bağımsız oransal valf içerir — biri soğuk kanala, biri sıca
 
 ### Kontrol Döngüsü
 
-```
-TMP117 ölçüm → PID hesap → Soğuk valf PWM güncelle
-                         → Sıcak valf PWM güncelle
-                         → Döngü tekrar (ör. 1 sn)
+```mermaid
+flowchart LR
+    T["TMP117 ölçüm"] --> P["PID hesap"]
+    P --> SV["Soğuk valf\nPWM güncelle"]
+    P --> HV["Sıcak valf\nPWM güncelle"]
+    SV & HV --> L["Döngü tekrar\n~1 sn"]
+    L --> T
 ```
 
 ### Egzoz Sistemi

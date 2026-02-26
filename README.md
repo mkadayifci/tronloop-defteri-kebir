@@ -30,25 +30,13 @@
 
 ## Sistem Mimarisi (Özet)
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                      ANA ÜNİTE                          │
-│   Koordinasyon · Veri Toplama · İletişim · Depolama     │
-└───────────────────────┬─────────────────────────────────┘
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-    ┌──────────┐  ┌──────────┐  ┌──────────┐
-    │  NODE 1  │  │  NODE 2  │  │  NODE N  │
-    │ Şarj/    │  │ Şarj/    │  │ Şarj/    │
-    │ Deşarj   │  │ Deşarj   │  │ Deşarj   │
-    │ +İklim   │  │ +İklim   │  │ +İklim   │
-    └──────────┘  └──────────┘  └──────────┘
-          │             │             │
-          └─────────────┼─────────────┘
-                        ▼
-              Kapasite Analizi &
-              Akademik Yayınlar
+```mermaid
+flowchart TD
+    ANA["Ana Ünite\nKoordinasyon · Veri Toplama · İletişim · Depolama"]
+    ANA --> N1["Node 1\nŞarj/Deşarj + İklim"]
+    ANA --> N2["Node 2\nŞarj/Deşarj + İklim"]
+    ANA --> NN["Node N\nŞarj/Deşarj + İklim"]
+    N1 & N2 & NN --> ANL["Kapasite Analizi &\nAkademik Yayınlar"]
 ```
 
 ---
