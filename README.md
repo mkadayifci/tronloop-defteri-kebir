@@ -1,6 +1,7 @@
 *🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
 ---
+![TRONLOOP](docs/01-project-general/assets/logo-small.png)
 
 # Batarya Kapasite Kayıp İzleme Sistemi
 
@@ -11,7 +12,7 @@
 | | Faz 1 | Faz 2 |
 |--|-------|-------|
 | **Kapsam** | Temel şarj/deşarj + kapasite ölçümü | + İklim kontrol entegrasyonu |
-| **İklimlendirme** | ❌ Yok — oda sıcaklığı | ✅ 10°C – 40°C kontrollü |
+| **İklimlendirme** | ❌ Yok — oda sıcaklığı | ✅ -20°C – +40°C kontrollü |
 | **Durum** | 🟡 Aktif | ⚪ Faz 1 sonrası başlar |
 
 ---

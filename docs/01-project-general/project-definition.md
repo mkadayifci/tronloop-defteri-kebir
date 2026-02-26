@@ -1,14 +1,9 @@
----
-baslik: "Proje Tanımı"
-kategori: "01-project-general"
-durum: "taslak"
-son_guncelleme: "2026-02-26"
-guncelleyen: "—"
----
 *🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
 ---
 # Proje Tanımı
+
+**Kurum:** Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
 
 Farklı iklim koşullarında sürekli şarj/deşarj döngülerine maruz kalan bataryaların uzun vadeli kapasite kayıplarını izleyen, akademik yayın üretmeyi hedefleyen donanım araştırma sistemi.
 
@@ -36,7 +31,7 @@ Faz 1 üzerine eklenen kapalı döngü iklimlendirme sistemi. Peltier soğutma, 
 - Peltier soğutma + kondenzasyon tuzağı + hot side ısı eşanjörü
 - 50W trim PTC ısıtıcı
 - ASA/PETG manifold + Armaflex yalıtım
-- Sıcaklık kontrollü test senaryoları (10°C – 40°C)
+- Sıcaklık kontrollü test senaryoları (-20°C – +40°C)
 
 ---
 

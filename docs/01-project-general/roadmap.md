@@ -1,10 +1,3 @@
----
-baslik: "Yol Haritası"
-kategori: "01-project-general"
-durum: "taslak"
-son_guncelleme: "2026-02-26"
-guncelleyen: "—"
----
 *🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
 
 ---
@@ -39,7 +32,7 @@ Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test al
 | Peltier + soğutma tasarımı | ⚪ Başlamadı | Kapalı döngü, kondenzasyon tuzağı, hot side ısı eşanjörü |
 | PTC trim ısıtıcı entegrasyonu | ⚪ Başlamadı | 50W, 24V, PWM kontrol |
 | Manifold + boru sistemi | ⚪ Başlamadı | ASA/PETG 3D baskı, Armaflex yalıtım |
-| Nem ve sıcaklık kontrolü | ⚪ Başlamadı | TMP117 + PID + valf kontrolü |
+| Nem ve sıcaklık kontrolü | ⚪ Başlamadı | TMP117 + PID + valf kontrolü (-20°C – +40°C) |
 | İklim firmware | ⚪ Başlamadı | Kapalı döngü PID, basınç tahliyesi |
 | 50 node ölçekleme | ⚪ Başlamadı | Alt manifold sistemi, tam kapasite test |
 | Faz 2 doğrulama | ⚪ Başlamadı | Çok sıcaklıklı eş zamanlı senaryo testi |

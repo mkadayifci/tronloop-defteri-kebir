@@ -11,7 +11,7 @@
 |------|-------|
 | **Proje Adı** | Batarya Kapasite Kayıp İzleme Sistemi |
 | **Tür** | Uzun vadeli donanım + araştırma projesi |
-| **Kurum** | _(Üniversite adını buraya ekleyin)_ |
+| **Kurum** | Biruni Üniversitesi — Elektrik Elektronik Mühendisliği |
 | **Başlangıç Tarihi** | 2026 |
 | **Durum** | 🟡 Aktif — Kurulum Aşaması |
 
