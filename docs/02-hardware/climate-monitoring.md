@@ -10,6 +10,8 @@ guncelleyen: "—"
 ---
 # İklim İzleme Sistemi
 
+> ⚠️ **Bu belge Faz 2 kapsamındadır.** Faz 1'de iklimlendirme sistemi devrede değildir; node'lar oda sıcaklığında çalışır. İklim kontrol entegrasyonu Faz 1 doğrulandıktan sonra başlar.
+
 Her node, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek için ortam koşullarını elektriksel ölçümlerle eş zamanlı olarak kaydeder.
 
 ---
@@ -18,7 +20,22 @@ Her node, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek için
 
 ### Genel Yaklaşım
 
-Merkezi Peltier modülü (ana ünitede) iki ayrı hava kanalı besler: biri soğuk taraftan, diğeri sıcak taraftan. Her node, bu iki kanaldan aldığı hava akışını bağımsız valfler aracılığıyla karıştırarak hedef ortam sıcaklığını dinamik olarak oluşturur.
+Soğuk kanal **Peltier soğuk tarafından**, sıcak kanal ise bağımsız bir **PTC ısıtıcıdan** beslenir. Bu ayrım kritiktir: sıcak taraf için 40°C hedeflendiğinde Peltier hot side'ının yeterince sıcak olması garanti edilemez — özellikle soğuk tarafı düşük tutmak için sıcak taraf aktif soğutuluyorsa. PTC ısıtıcı bu bağımlılığı ortadan kaldırır, iki kanalı birbirinden bağımsız kontrol edilebilir kılar.
+
+```
+T_soğuk = T_sıcak − ΔT_aktif
+
+→ Soğuk tarafı düşürmek için sıcak tarafı soğutursun
+→ Ama sıcak tarafı soğutunca hot side kanalı için 40°C üretemezsin
+→ Çözüm: hot side kanalını Peltier'den değil PTC ısıtıcıdan besle
+```
+
+| Kanal | Kaynak | Sıcaklık aralığı |
+|-------|--------|------------------|
+| Soğuk | Peltier soğuk tarafı | ~5°C (nem alma) → düşük node sıcaklıkları |
+| Sıcak | PTC ısıtıcı | 24°C → 40°C+ (bağımsız kontrol) |
+
+Merkezi Peltier modülü (ana ünitede) soğuk kanalı besler ve kapalı döngüde nem alma görevini üstlenir. PTC ısıtıcı sıcak kanalı bağımsız olarak ısıtır. Her node, bu iki kanaldan aldığı hava akışını bağımsız valfler aracılığıyla karıştırarak hedef ortam sıcaklığını dinamik olarak oluşturur.
 
 ```mermaid
 flowchart TD
@@ -66,15 +83,40 @@ flowchart LR
     L --> T
 ```
 
-### Egzoz Sistemi
+### Egzoz ve Kapalı Döngü Sistemi
 
-Her node bölmesinin çıkışında bir **çek valf (check valve)** bulunur. Egzoz havası buradan tek yönlü olarak merkezi egzoz kanalına verilir; kanal ana ünite üzerinden dışarıya bağlanır. Çek valf, ana kanaldan geri akış olması durumunda komşu node'ların birbirini kirletmesini önler.
+Sistem **kapalı döngü** olarak çalışır — dışarıdan sürekli taze hava çekmek yerine aynı hava dolaştırılır. Her node bölmesinin çıkışındaki **çek valf** egzozu merkezi toplama kanalına yönlendirir; buradan tüm hava ana ünitedeki **Peltier soğuk yüzeyine** gönderilir.
+
+```mermaid
+flowchart LR
+    N["Node Egzozları<br/>~20°C karışık"] -->|"Çek valf"| PC["Peltier Soğuk Yüzeyi<br/>~5°C · nem alınır"]
+    PC --> SC["Soğuk Kanal<br/>→ düşük sıcaklık nodeları"]
+    PC --> PTC["PTC Isıtıcı<br/>5°C → 40°C+"]
+    PTC --> HC["Sıcak Kanal<br/>→ yüksek sıcaklık nodeları"]
+```
+
+Peltier soğuk yüzeyi hem **soğuk hava kaynağı** hem de **nem alma** noktasıdır. Yoğuşan su drene edilir; kuru hava iki yola ayrılır.
+
+**Sıcak kanal için ısıtma — iki aşamalı:**
+Kuru soğuk hava (~5°C) önce **Peltier hot side ısı eşanjöründen** geçer. Hot side zaten ~40-50°C'de olduğundan hava burada ~35-45°C'ye çıkar. Arkasından küçük bir **trim PTC (50W)** hassas ayarı tamamlar. Bu sayede Peltier'in atık ısısı değerlendirilmiş olur, PTC yalnızca fark kadar çalışır.
+
+```mermaid
+flowchart LR
+    N["Node Egzozları<br/>~20°C karışık"] -->|"Çek valf"| PC["Peltier Soğuk Yüzeyi<br/>~5°C · nem alınır"]
+    PC --> SC["Soğuk Kanal<br/>→ düşük sıcaklık nodeları"]
+    PC --> HS["Peltier Hot Side<br/>Isı Eşanjörü<br/>~5°C → ~40°C"]
+    HS --> PTC["Trim PTC (50W)<br/>hassas ayar"]
+    PTC --> HC["Sıcak Kanal<br/>→ yüksek sıcaklık nodeları"]
+```
 
 | Bileşen | Görev |
 |---------|-------|
 | Çek valf (node çıkışı) | Geri akışı engeller, node bölmesini izole eder |
-| Merkezi egzoz kanalı | Tüm node egzozlarını ana üniteye taşır |
-| Ana ünite egzoz çıkışı | Havayı dışarıya atar |
+| Merkezi egzoz kanalı | Tüm node egzozlarını Peltier soğuk yüzeyine taşır |
+| Peltier soğuk yüzeyi | Soğuk hava üretimi + nem alma (kondenzasyon tuzağı) |
+| Kondenzat drenajı | Yoğuşan suyu en alt noktadan tahliye eder |
+| Peltier hot side ısı eşanjörü | Atık ısıyı geri kazanır, soğuk havayı ~40°C'ye çeker |
+| Trim PTC ısıtıcı (50W) | Son hassas sıcaklık ayarı, TMP117 + PID ile kontrol |
 
 ### Pilden Geçen Hava Akışı
 
@@ -138,7 +180,26 @@ flowchart TD
 
 ### Basınç Tahliye Valfi
 
-Tüm node valflerinin eş zamanlı kapanması durumunda kanal içinde basınç birikmesini önlemek için ana hatta bir **basınç tahliye valfi** bulunmalıdır. Ayarlı basınç aşıldığında otomatik açılarak fazla havayı ana üniteye geri verir.
+Kapalı döngüde tüm node valflerinin eş zamanlı kapanması durumunda kanal içinde basınç birikir ve fan zarar görür. Bunu önlemek için ana hatta **yay yüklü pasif basınç tahliye valfi** bulunur.
+
+```mermaid
+flowchart LR
+    FAN["Fan"] -->|"Basınçlı hava"| ANA["Ana Hat"]
+    ANA --> N["Node Valfler\n(kapalı)"]
+    ANA -->|"Eşik aşılınca açılır"| BTV["Basınç Tahliye Valfi"]
+    BTV -->|"Kapalı döngüye geri"| PG["Peltier Girişi\n(egzoz tarafı)"]
+```
+
+Fazla hava dışarı atılmaz — kapalı döngüde Peltier girişine (egzoz tarafına) geri yönlendirilir. Valf mekaniktir, elektrik gerektirmez ve yazılım arızasına karşı bağımsız çalışır.
+
+| Parametre | Değer |
+|-----------|-------|
+| Tür | Yay yüklü pasif (ayarlı) |
+| Eşik basınç | ~100 Pa (sistem nominal basıncının ~%25 üzeri) |
+| Bağlantı | Ana hat → Peltier egzoz girişi |
+| Kontrol | Mekanik, yazılımdan bağımsız |
+
+**İkincil güvence:** MCU tüm node valflerinin kapandığını tespit ederse fan hızını da düşürür. Donanım + yazılım çift katmanlı koruma sağlar.
 
 ### Manifold Tasarım İpuçları (Onshape / 3D Baskı)
 

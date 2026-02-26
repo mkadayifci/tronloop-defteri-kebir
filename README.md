@@ -6,7 +6,13 @@
 
 > Ana ünite ve node'lardan oluşan, bataryaları sürekli şarj/deşarj döngüsüne alarak iklim koşullarıyla birlikte kapasite kayıplarını uzun vadeli izleyen araştırma platformu.
 
-**Durum:** 🟡 Kurulum Aşaması &nbsp;|&nbsp; **Başlangıç:** 2026 &nbsp;|&nbsp; **Son Güncelleme:** 2026-02-26
+**Durum:** 🟡 Faz 1 — Kurulum Aşaması &nbsp;|&nbsp; **Başlangıç:** 2026 &nbsp;|&nbsp; **Son Güncelleme:** 2026-02-26
+
+| | Faz 1 | Faz 2 |
+|--|-------|-------|
+| **Kapsam** | Temel şarj/deşarj + kapasite ölçümü | + İklim kontrol entegrasyonu |
+| **İklimlendirme** | ❌ Yok — oda sıcaklığı | ✅ 10°C – 40°C kontrollü |
+| **Durum** | 🟡 Aktif | ⚪ Faz 1 sonrası başlar |
 
 ---
 

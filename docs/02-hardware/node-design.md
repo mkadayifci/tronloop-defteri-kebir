@@ -12,6 +12,8 @@ guncelleyen: "—"
 
 Her node bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne alır; elektriksel parametreler ve iklim koşullarını ölçer.
 
+> **Faz 1** kapsamında node, iklimlendirme olmadan oda sıcaklığında çalışır. TMP117 ve NTC termistör Faz 1'de de mevcuttur; sıcaklık verisi kaydedilir ancak iklim kontrolü yapılmaz. Hava kanalı bağlantıları ve valf mekanizması **Faz 2** ile devreye girer.
+
 ## Enerji Döngüsü (Loop) Mimarisi
 
 Sistem regeneratif bir döngü üzerine kuruludur:

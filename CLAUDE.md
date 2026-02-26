@@ -116,14 +116,29 @@ _(Ekip üyeleri bu tabloyu dolduracak)_
 
 **Son Güncelleme:** 2026-02-26
 
+**Aktif Faz: Faz 1 — Temel Test Sistemi (İklimlendirmesiz)**
+
+**Faz 1 Bileşenleri:**
+
 | Bileşen | Durum | Not |
 |---------|-------|-----|
-| Ana Ünite Tasarımı | ⚪ Başlamadı | — |
-| Node Tasarımı | ⚪ Başlamadı | — |
-| İklim Sensör Entegrasyonu | ⚪ Başlamadı | — |
-| Yazılım Altyapısı | ⚪ Başlamadı | — |
-| İlk Test Protokolü | ⚪ Başlamadı | — |
+| Node Donanım Tasarımı | ⚪ Başlamadı | BQ25756 + BQ34Z100 + STM32L476, KiCad |
+| Node PCB Üretimi | ⚪ Başlamadı | İlk prototip 1–3 node |
+| Şarj/Deşarj Firmware | ⚪ Başlamadı | STM32 temel döngü |
+| CAN Haberleşme | ⚪ Başlamadı | Node ↔ BeagleBone |
+| BeagleBone Veri Toplama | ⚪ Başlamadı | mdadm RAID1 + loglama |
+| İlk Test Protokolü | ⚪ Başlamadı | 1C şarj/deşarj |
 | Literatür Taraması | ⚪ Başlamadı | — |
+
+**Faz 2 Bileşenleri (Faz 1 tamamlandıktan sonra):**
+
+| Bileşen | Durum | Not |
+|---------|-------|-----|
+| Peltier + Soğutma Tasarımı | ⚪ Başlamadı | Kapalı döngü, kondenzasyon tuzağı |
+| PTC Trim Isıtıcı | ⚪ Başlamadı | 50W, 24V |
+| Manifold + Boru Sistemi | ⚪ Başlamadı | ASA/PETG 3D baskı, Armaflex |
+| İklim Firmware | ⚪ Başlamadı | PID valf kontrolü |
+| 50 Node Ölçekleme | ⚪ Başlamadı | Alt manifold sistemi |
 
 **Durum Simgeleri:** ⚪ Başlamadı → 🟡 Devam Ediyor → 🔵 İncelemede → ✅ Tamamlandı → ❌ Engellendi
 
