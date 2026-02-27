@@ -9,15 +9,37 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Jekyll/kramdown, ```mermaid bloklarını
-    // <pre><code class="language-mermaid">...</code></pre> olarak render eder.
-    // Bunları Mermaid'in beklediği <div class="mermaid"> formatına dönüştürüyoruz.
-    const codeBlocks = document.querySelectorAll('pre > code.language-mermaid');
-    codeBlocks.forEach((code) => {
+    /*
+     * Jekyll/kramdown çıktısı:
+     *   <div class="language-mermaid highlighter-rouge">
+     *     <div class="highlight">
+     *       <pre class="highlight">
+     *         <code>...diyagram içeriği...</code>
+     *       </pre>
+     *     </div>
+     *   </div>
+     *
+     * code.parentElement       → pre.highlight
+     * code.parentElement x2   → div.highlight
+     * code.parentElement x3   → div.language-mermaid  ← bunu replace et
+     */
+
+    document.querySelectorAll('code.language-mermaid').forEach((code) => {
+      // İçeriği al — textContent HTML entity'leri çözer
+      const content = code.textContent.trim();
+
       const div = document.createElement('div');
       div.className = 'mermaid';
-      div.textContent = code.textContent;
-      code.parentElement.replaceWith(div);
+      div.textContent = content;
+
+      // Üç seviye yukarı çık, en dış wrapper'ı bul ve değiştir
+      const outerWrapper = code.parentElement?.parentElement?.parentElement;
+      if (outerWrapper) {
+        outerWrapper.replaceWith(div);
+      } else {
+        // Fallback: sadece <pre>'yi değiştir
+        code.parentElement.replaceWith(div);
+      }
     });
 
     mermaid.run();
