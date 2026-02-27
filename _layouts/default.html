@@ -6,32 +6,164 @@
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown-light.min.css">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       background: #fff;
+      display: flex;
+      min-height: 100vh;
     }
-    .markdown-body { min-height: 100vh; }
+
+    /* ── Sol Navigasyon ── */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      border-right: 1px solid #e1e4e8;
+      padding: 1.5rem 1rem;
+      background: #f6f8fa;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar .logo {
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: #24292f;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid #d0d7de;
+    }
+    .sidebar .nav-section {
+      margin-bottom: 0.75rem;
+    }
+    .sidebar .nav-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #656d76;
+      margin-bottom: 0.35rem;
+      padding-left: 0.5rem;
+    }
+    .sidebar a {
+      display: block;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.85rem;
+      color: #24292f;
+      text-decoration: none;
+      border-radius: 6px;
+      line-height: 1.4;
+    }
+    .sidebar a:hover { background: #e1e4e8; }
+    .sidebar a.active {
+      background: #ddf4ff;
+      color: #0969da;
+      font-weight: 500;
+    }
+
+    /* ── Ana İçerik ── */
+    .main {
+      flex: 1;
+      max-width: 980px;
+      padding: 2rem 2.5rem;
+    }
+    .markdown-body { min-height: calc(100vh - 6rem); }
     .mermaid { text-align: center; margin: 1.5rem 0; }
     pre.mermaid { background: none; border: none; padding: 0; }
     .site-footer {
       margin-top: 3rem;
       padding-top: 1rem;
       border-top: 1px solid #e1e4e8;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: #6a737d;
+    }
+
+    /* ── Mobil hamburger ── */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 100;
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      border-radius: 6px;
+      padding: 0.4rem 0.6rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+      .sidebar {
+        position: fixed;
+        z-index: 99;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { padding: 2rem 1.25rem; padding-top: 3.5rem; }
     }
   </style>
 </head>
-<body class="markdown-body">
+<body>
 
-{{ content }}
+<!-- Mobil menü butonu -->
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')" aria-label="Menü">☰</button>
 
-<footer class="site-footer">
-  Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
-  · <a href="{{ site.github.repository_url }}">GitHub Repo</a>
-</footer>
+<!-- Sol navigasyon -->
+<nav class="sidebar">
+  <a class="logo" href="{{ '/' | relative_url }}">Tronloop</a>
+
+  <div class="nav-section">
+    <div class="nav-title">Proje</div>
+    <a href="{{ '/' | relative_url }}">Ana Sayfa</a>
+    <a href="{{ '/docs/01-project-general/project-definition' | relative_url }}">Proje Tanımı</a>
+    <a href="{{ '/docs/01-project-general/roadmap' | relative_url }}">Yol Haritası</a>
+    <a href="{{ '/docs/01-project-general/team' | relative_url }}">Ekip</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-title">Donanım</div>
+    <a href="{{ '/docs/02-hardware/node-design' | relative_url }}">Node Tasarımı</a>
+    <a href="{{ '/docs/02-hardware/main-unit' | relative_url }}">Ana Ünite</a>
+    <a href="{{ '/docs/02-hardware/climate-monitoring' | relative_url }}">İklimlendirme</a>
+    <a href="{{ '/docs/02-hardware/bill-of-materials' | relative_url }}">Malzeme Listesi</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-title">Yazılım</div>
+    <a href="{{ '/docs/03-software/architecture' | relative_url }}">Mimari</a>
+    <a href="{{ '/docs/03-software/data-collection' | relative_url }}">Veri Toplama</a>
+    <a href="{{ '/docs/03-software/analysis' | relative_url }}">Analiz</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-title">Test & Araştırma</div>
+    <a href="{{ '/docs/04-tests/test-protocol' | relative_url }}">Test Protokolü</a>
+    <a href="{{ '/docs/05-research/literature' | relative_url }}">Literatür</a>
+    <a href="{{ '/docs/05-research/publications' | relative_url }}">Yayınlar</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-title">Toplantılar</div>
+    <a href="{{ '/docs/06-meetings/meeting-schedule' | relative_url }}">Toplantı Planı</a>
+  </div>
+</nav>
+
+<!-- Ana içerik -->
+<div class="main">
+  <article class="markdown-body">
+    {{ content }}
+  </article>
+
+  <footer class="site-footer">
+    Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
+    · <a href="{{ site.github.repository_url }}">GitHub Repo</a>
+  </footer>
+</div>
 
 <!-- Mermaid.js -->
 <script type="module">
@@ -51,6 +183,14 @@
   });
 
   await mermaid.run();
+</script>
+
+<!-- Aktif sayfa vurgulama -->
+<script>
+  const path = window.location.pathname;
+  document.querySelectorAll('.sidebar a:not(.logo)').forEach(a => {
+    if (a.getAttribute('href') === path) a.classList.add('active');
+  });
 </script>
 
 </body>
