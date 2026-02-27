@@ -2,75 +2,56 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
-  <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 }}">
-
-  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown-light.min.css">
   <style>
-    /* Mermaid diyagramları */
-    .mermaid {
-      text-align: center;
-      margin: 1.5rem 0;
-      background: transparent;
+    body {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      background: #fff;
     }
-    /* Mermaid bloklarının code arka planını kaldır */
-    pre.mermaid {
-      background: none;
-      border: none;
-      padding: 0;
+    .markdown-body { min-height: 100vh; }
+    .mermaid { text-align: center; margin: 1.5rem 0; }
+    pre.mermaid { background: none; border: none; padding: 0; }
+    .site-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e1e4e8;
+      font-size: 0.85rem;
+      color: #6a737d;
     }
   </style>
 </head>
-<body>
+<body class="markdown-body">
 
-  <header class="page-header" role="banner">
-    <h1 class="project-name">{{ site.title | default: site.github.repository_name }}</h1>
-    <h2 class="project-tagline">{{ site.description | default: site.github.project_tagline }}</h2>
-    {% if site.github.is_project_page %}
-      <a href="{{ site.github.repository_url }}" class="btn">GitHub Repo</a>
-    {% endif %}
-  </header>
+{{ content }}
 
-  <main id="content" class="main-content" role="main">
-    {{ content }}
+<footer class="site-footer">
+  Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
+  · <a href="{{ site.github.repository_url }}">GitHub Repo</a>
+</footer>
 
-    <footer class="site-footer">
-      {% if site.github.is_project_page %}
-        <span class="site-footer-owner">
-          <a href="{{ site.github.repository_url }}">{{ site.github.repository_name }}</a>
-          — {{ site.title }}
-        </span>
-      {% endif %}
-      <span class="site-footer-credits">
-        Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
-      </span>
-    </footer>
-  </main>
+<!-- Mermaid.js -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
 
-  <!-- Mermaid.js -->
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose'
+  });
 
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'default',
-      securityLevel: 'loose'
-    });
+  document.querySelectorAll('code.language-mermaid').forEach((code) => {
+    const pre = document.createElement('pre');
+    pre.className = 'mermaid';
+    pre.textContent = code.textContent.trim();
+    code.parentElement.replaceWith(pre);
+  });
 
-    // kramdown: <pre><code class="language-mermaid">...</code></pre>
-    //        → <pre class="mermaid">...</pre>
-    document.querySelectorAll('code.language-mermaid').forEach((code) => {
-      const pre = document.createElement('pre');
-      pre.className = 'mermaid';
-      pre.textContent = code.textContent.trim();
-      code.parentElement.replaceWith(pre);
-    });
-
-    await mermaid.run();
-  </script>
+  await mermaid.run();
+</script>
 
 </body>
 </html>
