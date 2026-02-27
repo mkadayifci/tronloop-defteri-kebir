@@ -1,5 +1,3 @@
-*🔋 TRONLOOP — Batarya Kapasite Kayıp İzleme Sistemi*
-
 ---
 # İklim İzleme Sistemi
 
