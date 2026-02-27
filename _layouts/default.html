@@ -27,14 +27,15 @@
       overflow-y: auto;
     }
     .sidebar .logo {
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: #24292f;
-      text-decoration: none;
       display: block;
       margin-bottom: 1.25rem;
       padding-bottom: 0.75rem;
       border-bottom: 1px solid #d0d7de;
+      text-decoration: none;
+    }
+    .sidebar .logo img {
+      width: 140px;
+      height: auto;
     }
     .sidebar .nav-section {
       margin-bottom: 0.75rem;
@@ -115,7 +116,7 @@
 
 <!-- Sol navigasyon -->
 <nav class="sidebar">
-  <a class="logo" href="{{ '/' | relative_url }}">Tronloop</a>
+  <a class="logo" href="{{ '/' | relative_url }}"><img src="{{ '/docs/01-project-general/assets/logo-small.png' | relative_url }}" alt="Tronloop"></a>
 
   <div class="nav-section">
     <div class="nav-title">Proje</div>
