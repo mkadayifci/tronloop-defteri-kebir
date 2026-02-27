@@ -137,14 +137,14 @@ Hava karışım odasından doğrudan pil yüzeyinin üzerinden geçerek egzoza u
 
 ```mermaid
 flowchart TD
-    P["Peltier\n(Ana Ünite)"] -->|"125mm izolasyonlu HVAC flex"| AM["Ana Hat"]
-    AM --> M1["Alt Manifold A\n10 node"]
-    AM --> M2["Alt Manifold B\n10 node"]
-    AM --> M3["Alt Manifold C\n10 node"]
-    AM --> M4["Alt Manifold D\n10 node"]
-    AM --> M5["Alt Manifold E\n10 node"]
+    P["Peltier<br/>(Ana Ünite)"] -->|"125mm izolasyonlu HVAC flex"| AM["Ana Hat"]
+    AM --> M1["Alt Manifold A<br/>10 node"]
+    AM --> M2["Alt Manifold B<br/>10 node"]
+    AM --> M3["Alt Manifold C<br/>10 node"]
+    AM --> M4["Alt Manifold D<br/>10 node"]
+    AM --> M5["Alt Manifold E<br/>10 node"]
     M1 & M2 & M3 & M4 & M5 -->|"25mm flex hortum"| N["Node (×50)"]
-    N -->|"Egzoz kanalı"| EM["Egzoz Toplama\n(aynı yapı, ters yön)"]
+    N -->|"Egzoz kanalı"| EM["Egzoz Toplama<br/>(aynı yapı, ters yön)"]
     EM --> OUT["Dışarı"]
 ```
 
@@ -178,9 +178,9 @@ Kapalı döngüde tüm node valflerinin eş zamanlı kapanması durumunda kanal 
 ```mermaid
 flowchart LR
     FAN["Fan"] -->|"Basınçlı hava"| ANA["Ana Hat"]
-    ANA --> N["Node Valfler\n(kapalı)"]
+    ANA --> N["Node Valfler<br/>(kapalı)"]
     ANA -->|"Eşik aşılınca açılır"| BTV["Basınç Tahliye Valfi"]
-    BTV -->|"Kapalı döngüye geri"| PG["Peltier Girişi\n(egzoz tarafı)"]
+    BTV -->|"Kapalı döngüye geri"| PG["Peltier Girişi<br/>(egzoz tarafı)"]
 ```
 
 Fazla hava dışarı atılmaz — kapalı döngüde Peltier girişine (egzoz tarafına) geri yönlendirilir. Valf mekaniktir, elektrik gerektirmez ve yazılım arızasına karşı bağımsız çalışır.

@@ -1,0 +1,21 @@
+title: "Tronloop"
+description: "Batarya Kapasite Kayıp İzleme Sistemi — Biruni Üniversitesi EEE"
+theme: minima
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: true
+
+# GitHub Pages kaynak klasörü (root)
+exclude:
+  - src/
+  - "*.sh"
+  - "*.py"

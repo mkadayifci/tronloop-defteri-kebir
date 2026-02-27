@@ -11,11 +11,11 @@ Ana ünite (BeagleBone), CAN bus üzerinden node'lardan gelen ölçümleri topla
 
 ```mermaid
 flowchart LR
-    N["Node\nCAN Frame"] -->|"CAN bus"| BB["BeagleBone\nCAN Alıcı"]
-    BB --> CSV["Yerel CSV\n(RAID1)"]
-    BB --> BUF["SQLite Buffer\n(offline)"]
-    BUF -->|"her 1 dk\ninternet varsa"| INFLUX["InfluxDB Cloud\nÖlçüm Verisi"]
-    BUF -->|"konfigürasyon\ndeğişikliği"| PG["PostgreSQL\nMetadata"]
+    N["Node<br/>CAN Frame"] -->|"CAN bus"| BB["BeagleBone<br/>CAN Alıcı"]
+    BB --> CSV["Yerel CSV<br/>(RAID1)"]
+    BB --> BUF["SQLite Buffer<br/>(offline)"]
+    BUF -->|"her 1 dk<br/>internet varsa"| INFLUX["InfluxDB Cloud<br/>Ölçüm Verisi"]
+    BUF -->|"konfigürasyon<br/>değişikliği"| PG["PostgreSQL<br/>Metadata"]
 ```
 
 ---
