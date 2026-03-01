@@ -1,4 +1,3 @@
----
 # Literatür Taraması
 
 ---

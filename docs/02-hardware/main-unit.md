@@ -1,4 +1,3 @@
----
 # Ana Ünite Tasarımı
 
 Tüm node'ları koordine eden, verileri toplayan ve depolayan merkezi sistem.

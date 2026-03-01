@@ -1,4 +1,3 @@
----
 # Malzeme Listesi (BOM)
 
 ---

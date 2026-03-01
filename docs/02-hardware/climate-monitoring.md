@@ -1,4 +1,3 @@
----
 # İklim İzleme Sistemi
 
 > ⚠️ **Bu belge Faz 2 kapsamındadır.** Faz 1'de iklimlendirme sistemi devrede değildir; node'lar oda sıcaklığında çalışır. İklim kontrol entegrasyonu Faz 1 doğrulandıktan sonra başlar.

@@ -1,4 +1,3 @@
----
 # Yol Haritası
 
 Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test altyapısını kurar ve doğrular; ikinci faz iklim kontrol sistemini entegre ederek çok değişkenli test senaryolarını etkinleştirir.

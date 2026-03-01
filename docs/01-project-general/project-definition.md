@@ -1,4 +1,3 @@
----
 # Proje Tanımı
 
 **Kurum:** Biruni Üniversitesi — Elektrik Elektronik Mühendisliği

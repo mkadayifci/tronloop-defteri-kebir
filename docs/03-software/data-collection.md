@@ -1,4 +1,3 @@
----
 # Veri Toplama
 
 Ana ünite (BeagleBone), CAN bus üzerinden node'lardan gelen ölçümleri toplar, yerel RAID1 depolamaya yazar ve her 1 dakikada bir cloud'a senkronize eder.

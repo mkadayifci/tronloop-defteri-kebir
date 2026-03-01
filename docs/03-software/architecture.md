@@ -1,4 +1,3 @@
----
 # Yazılım Mimarisi
 
 Node firmware'i + ana ünite koordinasyon yazılımı + analiz araçlarından oluşan üç katmanlı yapı. Node'lar ile ana ünite CAN bus üzerinden haberleşir. Ana ünite topladığı veriyi her 1 dakikada bir cloud'a senkronize eder.

@@ -1,4 +1,3 @@
----
 # Node Tasarımı
 
 Her node bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne alır; elektriksel parametreler ve iklim koşullarını ölçer.

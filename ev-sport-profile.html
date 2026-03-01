@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sportif EV Sürüş Profili — Tronloop</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f6f8fa;
+    padding: 2rem;
+    color: #24292f;
+  }
+  h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .subtitle { color: #656d76; font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .charts { display: flex; flex-direction: column; gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+  .card {
+    background: #fff;
+    border: 1px solid #d0d7de;
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+  .card h2 { font-size: 1rem; margin-bottom: 0.75rem; color: #24292f; }
+  .legend-info {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+    margin-top: 1rem; font-size: 0.8rem; color: #656d76;
+  }
+  .legend-info span { display: flex; align-items: center; gap: 0.3rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .stats {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem; margin-top: 1.5rem;
+  }
+  .stat {
+    background: #f6f8fa; border: 1px solid #e1e4e8;
+    border-radius: 8px; padding: 0.75rem 1rem;
+  }
+  .stat .label { font-size: 0.75rem; color: #656d76; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat .value { font-size: 1.3rem; font-weight: 700; margin-top: 0.2rem; }
+  .phase-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 1rem; }
+  .phase-table th, .phase-table td { padding: 0.4rem 0.6rem; border: 1px solid #e1e4e8; text-align: left; }
+  .phase-table th { background: #f6f8fa; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  .phase-table tr:nth-child(even) { background: #f9fafb; }
+</style>
+</head>
+<body>
+
+<h1>Sportif EV Sürüş Profili — Şarj/Deşarj Test Senaryosu</h1>
+<p class="subtitle">3Ah LFP hücre · BQ25756 bidirectional buck-boost · 900 saniyelik döngü (~15 dk)</p>
+
+<div class="charts">
+
+  <!-- Akım Profili -->
+  <div class="card">
+    <h2>Akım Profili (A) — Zamana Göre</h2>
+    <canvas id="currentChart" height="100"></canvas>
+    <div class="legend-info">
+      <span><span class="dot" style="background:#d73a49"></span> Deşarj (negatif = pilden çekilen akım)</span>
+      <span><span class="dot" style="background:#2ea44f"></span> Rejeneratif frenleme (pozitif = pile geri besleme)</span>
+      <span><span class="dot" style="background:#6f42c1"></span> Dinlenme / boşta</span>
+    </div>
+  </div>
+
+  <!-- SoC Profili -->
+  <div class="card">
+    <h2>Tahmini SoC (%) — Zamana Göre</h2>
+    <canvas id="socChart" height="80"></canvas>
+  </div>
+
+  <!-- Voltaj Profili -->
+  <div class="card">
+    <h2>Hücre Voltajı (V) — Zamana Göre</h2>
+    <canvas id="voltageChart" height="80"></canvas>
+  </div>
+
+  <!-- Faz Tablosu -->
+  <div class="card">
+    <h2>Sürüş Fazları</h2>
+    <table class="phase-table">
+      <thead>
+        <tr><th>Faz</th><th>Süre</th><th>Akım</th><th>C Hızı</th><th>Senaryo</th></tr>
+      </thead>
+      <tbody id="phaseTable"></tbody>
+    </table>
+  </div>
+
+  <!-- İstatistikler -->
+  <div class="stats" id="statsBox"></div>
+
+</div>
+
+<script>
+// ── Sportif EV Sürüş Profili Tanımı ──
+// 3Ah hücre, negatif = deşarj, pozitif = rejeneratif şarj
+const phases = [
+  { name: "Çıkış — Tam gaz",        duration: 30,  current: -9.0,  desc: "0→100 km/h sert kalkış (3C)" },
+  { name: "Agresif hızlanma",        duration: 20,  current: -12.0, desc: "100→160 km/h tam güç (4C)" },
+  { name: "Yüksek hız seyir",        duration: 40,  current: -6.0,  desc: "160 km/h otoyol (2C)" },
+  { name: "Sert frenleme",           duration: 10,  current: 4.5,   desc: "Rejeneratif frenleme (1.5C geri)" },
+  { name: "Şehir içi dur-kalk",      duration: 60,  current: -3.0,  desc: "Trafik, düşük hız (1C)" },
+  { name: "Kısa frenleme",           duration: 8,   current: 3.0,   desc: "Kırmızı ışık freni (1C geri)" },
+  { name: "Dinlenme — bekleme",      duration: 15,  current: 0.0,   desc: "Işıkta bekleme" },
+  { name: "Ani hızlanma",            duration: 15,  current: -10.5, desc: "Geçiş manevası (3.5C)" },
+  { name: "Orta hız seyir",          duration: 50,  current: -4.5,  desc: "80 km/h şehir dışı (1.5C)" },
+  { name: "Uzun frenleme",           duration: 15,  current: 6.0,   desc: "Yokuş aşağı regen (2C geri)" },
+  { name: "Sprint hızlanma",         duration: 12,  current: -12.0, desc: "Kısa anlık 4C burst" },
+  { name: "Yüksek hız seyir 2",     duration: 35,  current: -7.5,  desc: "140 km/h (2.5C)" },
+  { name: "Keskin frenleme",         duration: 8,   current: 7.5,   desc: "Acil fren (2.5C geri)" },
+  { name: "Şehir içi seyir",        duration: 45,  current: -3.0,  desc: "Düşük hız (1C)" },
+  { name: "Hafif frenleme",          duration: 10,  current: 2.0,   desc: "Yavaşlama (0.67C geri)" },
+  { name: "Boşta / park",            duration: 20,  current: 0.0,   desc: "Motor kapalı" },
+  { name: "Son sprint",              duration: 15,  current: -9.0,  desc: "Hızlı kalkış (3C)" },
+  { name: "Seyir kapanış",           duration: 40,  current: -4.5,  desc: "Eve dönüş (1.5C)" },
+  { name: "Rejeneratif iniş",        duration: 20,  current: 5.0,   desc: "Garaj inişi regen (1.67C)" },
+  { name: "Park — döngü sonu",       duration: 30,  current: 0.0,   desc: "Dinlenme" },
+];
+
+// ── Veri Üretimi ──
+const CAPACITY = 3.0; // Ah
+let time = 0;
+let soc = 95.0; // başlangıç SoC
+const timeData = [], currentData = [], socData = [], voltageData = [];
+const bgColors = [];
+
+// LFP voltaj eğrisi tahmini (SoC → V)
+function lfpVoltage(soc) {
+  if (soc > 90) return 3.35 + (soc - 90) * 0.005;
+  if (soc > 15) return 3.20 + (soc - 15) * 0.002;
+  if (soc > 5)  return 2.80 + (soc - 5) * 0.04;
+  return 2.50 + soc * 0.06;
+}
+
+phases.forEach(p => {
+  const steps = Math.max(p.duration, 1);
+  for (let s = 0; s < steps; s++) {
+    // Akıma hafif gürültü ekle (gerçekçilik)
+    const noise = (Math.random() - 0.5) * Math.abs(p.current) * 0.08;
+    const i = p.current + (p.current !== 0 ? noise : 0);
+
+    timeData.push(time);
+    currentData.push(parseFloat(i.toFixed(2)));
+
+    // SoC güncelle (coulomb sayımı)
+    soc -= (i / CAPACITY) * (1 / 3600) * 100; // her 1 saniye
+    soc = Math.max(0, Math.min(100, soc));
+    socData.push(parseFloat(soc.toFixed(2)));
+
+    voltageData.push(parseFloat(lfpVoltage(soc).toFixed(3)));
+
+    // Renk: kırmızı=deşarj, yeşil=regen, mor=dinlenme
+    if (p.current < -0.5) bgColors.push('rgba(215, 58, 73, 0.7)');
+    else if (p.current > 0.5) bgColors.push('rgba(46, 164, 79, 0.7)');
+    else bgColors.push('rgba(111, 66, 193, 0.4)');
+
+    time++;
+  }
+});
+
+// ── İstatistik Hesapla ──
+const totalTime = time;
+const dischargeAh = currentData.filter(c => c < 0).reduce((s, c) => s + Math.abs(c) / 3600, 0);
+const regenAh = currentData.filter(c => c > 0).reduce((s, c) => s + c / 3600, 0);
+const maxDischarge = Math.min(...currentData);
+const maxRegen = Math.max(...currentData);
+const avgCurrent = currentData.reduce((s, c) => s + c, 0) / currentData.length;
+const socDrop = socData[0] - socData[socData.length - 1];
+const regenRatio = (regenAh / dischargeAh * 100);
+
+document.getElementById('statsBox').innerHTML = `
+  <div class="stat"><div class="label">Toplam Süre</div><div class="value">${(totalTime / 60).toFixed(1)} dk</div></div>
+  <div class="stat"><div class="label">Deşarj Kapasitesi</div><div class="value">${dischargeAh.toFixed(2)} Ah</div></div>
+  <div class="stat"><div class="label">Regen Geri Kazanım</div><div class="value">${regenAh.toFixed(2)} Ah</div></div>
+  <div class="stat"><div class="label">Regen Oranı</div><div class="value">${regenRatio.toFixed(1)}%</div></div>
+  <div class="stat"><div class="label">Max Deşarj</div><div class="value" style="color:#d73a49">${maxDischarge.toFixed(1)}A (${(Math.abs(maxDischarge)/CAPACITY).toFixed(1)}C)</div></div>
+  <div class="stat"><div class="label">Max Regen</div><div class="value" style="color:#2ea44f">+${maxRegen.toFixed(1)}A (${(maxRegen/CAPACITY).toFixed(1)}C)</div></div>
+  <div class="stat"><div class="label">SoC Düşüşü</div><div class="value">${socDrop.toFixed(1)}%</div></div>
+  <div class="stat"><div class="label">Ort. Akım</div><div class="value">${avgCurrent.toFixed(2)}A</div></div>
+`;
+
+// ── Faz Tablosu ──
+let tAcc = 0;
+document.getElementById('phaseTable').innerHTML = phases.map(p => {
+  const startT = tAcc;
+  tAcc += p.duration;
+  const cRate = (Math.abs(p.current) / CAPACITY).toFixed(1);
+  const color = p.current < -0.5 ? '#d73a49' : p.current > 0.5 ? '#2ea44f' : '#6f42c1';
+  return `<tr>
+    <td><strong>${p.name}</strong></td>
+    <td>${startT}s → ${tAcc}s (${p.duration}s)</td>
+    <td style="color:${color};font-weight:600">${p.current > 0 ? '+' : ''}${p.current}A</td>
+    <td>${cRate}C</td>
+    <td>${p.desc}</td>
+  </tr>`;
+}).join('');
+
+// ── Chart.js — Akım Profili ──
+const timeLabels = timeData.map(t => {
+  const m = Math.floor(t / 60);
+  const s = t % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+});
+
+new Chart(document.getElementById('currentChart'), {
+  type: 'bar',
+  data: {
+    labels: timeLabels,
+    datasets: [{
+      data: currentData,
+      backgroundColor: bgColors,
+      borderWidth: 0,
+      barPercentage: 1.0,
+      categoryPercentage: 1.0,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          title: ctx => `t = ${ctx[0].label}`,
+          label: ctx => {
+            const v = ctx.parsed.y;
+            const cRate = (Math.abs(v) / CAPACITY).toFixed(1);
+            return v < 0
+              ? `Deşarj: ${v.toFixed(1)}A (${cRate}C)`
+              : v > 0
+              ? `Regen: +${v.toFixed(1)}A (${cRate}C)`
+              : 'Dinlenme';
+          }
+        }
+      },
+      annotation: {
+        annotations: {
+          zeroLine: { type: 'line', yMin: 0, yMax: 0, borderColor: '#24292f', borderWidth: 1.5, borderDash: [4, 4] }
+        }
+      }
+    },
+    scales: {
+      x: {
+        display: true,
+        title: { display: true, text: 'Zaman (dk:sn)' },
+        ticks: {
+          maxTicksLimit: 20,
+          callback: function(val, idx) {
+            const t = timeData[idx];
+            return t % 60 === 0 ? `${t / 60}:00` : null;
+          }
+        },
+        grid: { display: false }
+      },
+      y: {
+        title: { display: true, text: 'Akım (A)' },
+        min: -15,
+        max: 10,
+        grid: { color: '#e1e4e8' }
+      }
+    }
+  }
+});
+
+// ── Chart.js — SoC ──
+new Chart(document.getElementById('socChart'), {
+  type: 'line',
+  data: {
+    labels: timeLabels,
+    datasets: [{
+      label: 'SoC (%)',
+      data: socData,
+      borderColor: '#0969da',
+      backgroundColor: 'rgba(9, 105, 218, 0.1)',
+      fill: true,
+      pointRadius: 0,
+      borderWidth: 2,
+      tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          title: ctx => `t = ${ctx[0].label}`,
+          label: ctx => `SoC: ${ctx.parsed.y.toFixed(1)}%`
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Zaman (dk:sn)' },
+        ticks: { maxTicksLimit: 20, callback: function(val, idx) { const t = timeData[idx]; return t % 60 === 0 ? `${t/60}:00` : null; } },
+        grid: { display: false }
+      },
+      y: {
+        title: { display: true, text: 'SoC (%)' },
+        min: 0, max: 100,
+        grid: { color: '#e1e4e8' }
+      }
+    }
+  }
+});
+
+// ── Chart.js — Voltaj ──
+new Chart(document.getElementById('voltageChart'), {
+  type: 'line',
+  data: {
+    labels: timeLabels,
+    datasets: [{
+      label: 'Hücre Voltajı (V)',
+      data: voltageData,
+      borderColor: '#bf8700',
+      backgroundColor: 'rgba(191, 135, 0, 0.1)',
+      fill: true,
+      pointRadius: 0,
+      borderWidth: 2,
+      tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          title: ctx => `t = ${ctx[0].label}`,
+          label: ctx => `Voltaj: ${ctx.parsed.y.toFixed(3)}V`
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Zaman (dk:sn)' },
+        ticks: { maxTicksLimit: 20, callback: function(val, idx) { const t = timeData[idx]; return t % 60 === 0 ? `${t/60}:00` : null; } },
+        grid: { display: false }
+      },
+      y: {
+        title: { display: true, text: 'Voltaj (V)' },
+        grid: { color: '#e1e4e8' }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

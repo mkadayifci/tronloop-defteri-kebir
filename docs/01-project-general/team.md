@@ -1,4 +1,3 @@
----
 # Ekip ve Roller
 
 **Kurum:** Biruni Üniversitesi — Elektrik Elektronik Mühendisliği

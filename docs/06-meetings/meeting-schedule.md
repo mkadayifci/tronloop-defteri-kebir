@@ -1,4 +1,3 @@
----
 # Toplantı Takvimi
 
 Toplantı notları `notes/` klasörüne `YYYY-MM-DD_toplanti.md` formatında kaydedilir.
