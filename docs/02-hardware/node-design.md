@@ -25,6 +25,8 @@ Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı te
 
 **Seçilen IC: BQ25756 (Texas Instruments)**
 
+![BQ25756](assets/BQ25756-small.png)
+
 1–14 hücre Li-ion / LFP destekli, I2C programlanabilir bidirectional buck-boost kontrolcü.
 
 | Parametre | Değer |
@@ -51,6 +53,8 @@ Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı te
 
 **BQ34Z100 (Texas Instruments)**
 
+![BQ34Z100](assets/BQ34Z100-small.png)
+
 Her iki yönde coulomb sayımı yaparak anlık kapasite ve SoH değerlerini raporlar. LFP'nin düz voltaj eğrisinde SoC tespiti için kritik — voltaj bazlı tahmin bu kimyada güvenilmez.
 
 ### Impedance Track™ Algoritması
@@ -70,6 +74,8 @@ Bu proje için kritik avantaj: batarya yaşlandıkça artan iç empedans zaten i
 
 **BN35-3H103FB-50 (TDK) — NTC Termistör**
 
+![BN35-3H103FB-50](assets/BN35-3H103FB-50-small.jpg)
+
 Pil yüzeyine temas ettirilerek BQ34Z100'ün `TS` (Temperature Sense) pinine bağlanır. Gauge bu sinyali dahili ADC ile okuyarak sıcaklık kompanzasyonunu ve JEITA korumalarını otomatik uygular.
 
 | Parametre | Değer |
@@ -85,6 +91,8 @@ Pil yüzeyine temas ettirilerek BQ34Z100'ün `TS` (Temperature Sense) pinine ba�
 ### Ortam Sıcaklığı Ölçümü
 
 **[TMP117 (Texas Instruments)](https://www.ti.com/lit/ds/symlink/tmp117.pdf) — Dijital Sıcaklık Sensörü**
+
+![TMP117](assets/TMP117-small.png)
 
 Pilin bulunduğu ortam sıcaklığını ölçer. I2C üzerinden doğrudan MCU'ya bağlanır. Yüksek hassasiyeti sayesinde pil yüzeyi ile ortam sıcaklığı arasındaki fark (ısınma etkisi) analiz edilebilir.
 
