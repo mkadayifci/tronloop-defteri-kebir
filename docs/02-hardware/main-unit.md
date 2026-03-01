@@ -6,6 +6,8 @@ Tüm node'ları koordine eden, verileri toplayan ve depolayan merkezi sistem.
 
 **BeagleBone Black Rev C — TI AM3358BZCZ**
 
+![BeagleBone Black](assets/beaglebone-small.webp)
+
 | Parametre | Değer |
 |-----------|-------|
 | İşlemci | AM3358BZCZ ARM Cortex-A8 @ 1GHz |
