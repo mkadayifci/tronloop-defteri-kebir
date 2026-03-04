@@ -4,6 +4,8 @@
 
 Farklı iklim koşullarında sürekli şarj/deşarj döngülerine maruz kalan bataryaların uzun vadeli kapasite kayıplarını izleyen, akademik yayın üretmeyi hedefleyen donanım araştırma sistemi.
 
+Bu proje kapsamında, değişik kimyalara sahip pillerin farklı çalışma koşullarında degradasyon seviyelerini ölçebilecek kontrollü bir deney ortamı sağlayan bir test cihazı geliştirilecek; bu cihazlar kullanılarak belirlenen senaryolar uygulanacak ve elde edilen sonuçlar bilimsel olarak yayımlanacaktır.
+
 ---
 
 ## Geliştirme Yaklaşımı
@@ -35,7 +37,9 @@ Faz 1 üzerine eklenen kapalı döngü iklimlendirme sistemi. Peltier soğutma, 
 ## Hedef Çıktılar
 
 - Uzun vadeli batarya degradasyon veri seti
+- EV sürüş prfilleri eğitim?
 - Akademik yayınlar (iklim × kapasite kaybı ilişkisi)
+- Yapay zeka ile pillerin kalan ömürlerini tahmin etmek için yapay zeka veri seti üretimi.
 
 ---
 

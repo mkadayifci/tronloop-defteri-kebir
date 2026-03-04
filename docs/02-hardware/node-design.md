@@ -24,6 +24,8 @@ Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı te
 
 **Seçilen IC: BQ25756 (Texas Instruments)**
 
+[📄 Datasheet](https://www.ti.com/lit/ds/symlink/bq25756.pdf)
+
 ![BQ25756](assets/BQ25756-small.png)
 
 1–14 hücre Li-ion / LFP destekli, I2C programlanabilir bidirectional buck-boost kontrolcü.
@@ -51,6 +53,8 @@ Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı te
 ## Kapasite Ölçümü
 
 **BQ34Z100 (Texas Instruments)**
+
+[📄 Datasheet](https://www.ti.com/lit/ds/symlink/bq34z100-r2.pdf)
 
 ![BQ34Z100](assets/BQ34Z100-small.png)
 
@@ -89,7 +93,9 @@ Pil yüzeyine temas ettirilerek BQ34Z100'ün `TS` (Temperature Sense) pinine ba�
 
 ### Ortam Sıcaklığı Ölçümü
 
-**[TMP117 (Texas Instruments)](https://www.ti.com/lit/ds/symlink/tmp117.pdf) — Dijital Sıcaklık Sensörü**
+**TMP117 (Texas Instruments) — Dijital Sıcaklık Sensörü**
+
+[📄 Datasheet](https://www.ti.com/lit/ds/symlink/tmp117.pdf)
 
 ![TMP117](assets/TMP117-small.png)
 
