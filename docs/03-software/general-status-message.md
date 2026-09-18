@@ -1,24 +1,24 @@
 ---
-baslik: "Genel Durum Mesajı — 7 Bayt"
+baslik: "Genel Durum Mesajı — 11 Bayt"
 kategori: "03-software"
 durum: "onaylandı"
 son_guncelleme: "2026-09-18"
 guncelleyen: "Codex"
 ---
 
-# Genel Durum Mesajı — 7 Bayt
+# Genel Durum Mesajı — 11 Bayt
 
 **Son Güncelleme:** 2026-09-18
 
 ## Paketin son hali
 
-Genel durumu **7 baytlık `VertexStatusPayload`** ile gönderiyoruz. Önceki 10 baytlık yapı değişti; firmware 2026-09-18’de [bu karara](../07-decisions/ADR-0010-message-type-and-operation-mode.md) göre güncellendi. ClusterPilot alıcısını daha uyarlamadık. TSphere tarafındaki MQTT konusu ve içerik biçimi de henüz belli değil.
+Genel durumu **11 baytlık `VertexStatusPayload`** ile gönderiyoruz. Pil ve ortam sıcaklığını paketin sonuna ekledik. Önceki 7 baytlık biçim [ADR-0014](../07-decisions/ADR-0014-status-temperatures.md) ile değişti. ClusterPilot alıcısını daha uyarlamadık. TSphere tarafındaki MQTT konusu ve içerik biçimi de henüz belli değil.
 
 | Özellik | Değer |
 |---|---|
 | Yön | Vertex → ClusterPilot |
-| Taşıma | CAN/ISO-TP, tek çerçeve |
-| Uygulama verisi | **7 bayt** |
+| Taşıma | CAN/ISO-TP, 2 veri çerçevesi + 1 Flow Control |
+| Uygulama verisi | **11 bayt** |
 | Tür | `0x03` (`PAYLOAD_TYPE_GENERAL_STATUS`) |
 | Çok baytlı alan sırası | Little-endian |
 | Hedef gönderim aralığı | 3000 ms |
@@ -34,8 +34,10 @@ Baytları sıfırdan sayıyoruz. Tabloya ISO-TP başlığını dahil etmiyoruz.
 | 3 | `scenario_player_state` | `uint8_t` / 1 bayt | Oynatıcı durumu |
 | 4 | `charger_mode` | `uint8_t` / 1 bayt | Idle / şarj / deşarj |
 | 5–6 | `battery_current_ma` | `int16_t` / 2 bayt | Pil akımı, mA; pozitif şarj, negatif deşarj |
+| 7–8 | `battery_temperature_dc` | `int16_t` / 2 bayt | Pil sıcaklığı, °C × 10 |
+| 9–10 | `ambient_temperature_dc` | `int16_t` / 2 bayt | Ortam sıcaklığı, °C × 10 |
 
-Toplam **1 + 2 + 1 + 1 + 2 = 7 bayt**. Boyut ve alan yerleri derlemede kontrol ediliyor. Oynatıcıyla charger modunu ayrı baytlarda tutuyoruz. Bu pakette zaman, sıra numarası, sıcaklık, SOC/SOH, test kimliği veya hata ayrıntısı yok.
+Toplam **1 + 2 + 1 + 1 + 2 + 2 + 2 = 11 bayt**. Boyut ve alan yerleri derlemede kontrol ediliyor. Oynatıcıyla charger modunu ayrı baytlarda tutuyoruz. Bu pakette zaman, sıra numarası, SOC/SOH, test kimliği veya hata ayrıntısı yok.
 
 ## Durum kodları
 
@@ -63,33 +65,34 @@ Deşarj sırasında senaryo kodu `enabled=false`, `is_reverse_mode=true` kullan�
 - Akım `g_tl_context.dut.current_mA` üzerinden alınır; bu alan fuel gauge ölçümünden güncellenir. Dahili context alanı `int32_t` kalmıştır.
 - Akım −32768…+32767 mA dışındaysa **genel durum paketi o tur gönderilmez**, hata loglanır ve sonraki deneme 3 saniye sonra yapılır. Değer kırpılmaz veya taşarak farklı bir ölçüm gibi gönderilmez. Bu koruma genel durum paketine aittir; diğer telemetri davranışları değiştirilmedi.
 
+Pil sıcaklığı `g_tl_context.dut.temperature_dC`, ortam sıcaklığı `g_tl_context.ambient_temperature_dC` alanından geliyor. İkisi de °C × 10; −32768 ölçüm yok demek. Sensör okumaları henüz bağlı değil, bu yüzden başlangıçta geçersiz değer taşınıyor.
+
 ## Gönderim ve ayrıştırma
 
 Üç saniye dolduğunda ISO-TP meşgulse bekliyoruz. Bağlantı boşalınca önce genel durumu göndermeyi deniyoruz. Başlatma hatası olursa loga yazıp sonraki denemeyi üç saniye sonra yapıyoruz. Yani bu süre gönderim hedefi; her paketin teslim edildiğini söylemiyor.
 
-Alıcı, ISO-TP başlığını ayırdıktan sonra uygulama tür alanını okumalı ve `0x03` için 7 bayt beklemelidir. Farklı mesaj türlerinin aynı uzunlukta olması mümkündür; uzunluk tür seçmek için kullanılmaz.
+Alıcı, ISO-TP başlığını ayırdıktan sonra uygulama tür alanını okumalı ve `0x03` için 11 bayt beklemelidir. Farklı mesaj türlerinin aynı uzunlukta olması mümkündür; uzunluk tür seçmek için kullanılmaz.
 
-```text
-CAN veri alanı = [07: ISO-TP Single Frame başlığı] [7 bayt uygulama verisi]
-Toplam         = 8 bayt
-```
+Genel durum artık tek CAN çerçevesine sığmıyor. ISO-TP ilk çerçevede 6, devam çerçevesinde 5 bayt taşıyor. Alıcının bir Flow Control çerçevesiyle toplam üç CAN çerçevesi oluşuyor. Devam çerçevesinde iki dolgu baytı var.
 
-Mevcut ISO-TP kütüphanesinin tek çerçeve sınırı 7 bayt uygulama verisidir. Dolgu ayarı etkin olsa da bu pakette ek dolgu baytı yoktur.
+Genel durum yine testin çalışıp çalışmadığına bakmadan 3 saniyede bir deneniyor. Ayrı sıcaklık mesajı kaldırıldı; test sırasında da ayrıca gönderilmiyor. Böylece test durmuşken sıcaklıkları genel durumdan görebiliyoruz.
 
 ## Örnek paket
 
 Alanların nasıl yerleştiğini görmek için bir örnek. Bu veri cihazdan alınmadı; gerilim okumasının çalıştığını göstermiyor.
 
 ```text
-Uygulama verisi: 03 74 0E 01 02 18 FC
-CAN veri alanı:  07 03 74 0E 01 02 18 FC
+Uygulama verisi: 03 74 0E 01 02 18 FC FD 00 83 FF
+İlk çerçeve:    10 0B 03 74 0E 01 02 18
+Flow Control:   30 00 00 00 00 00 00 00  (alıcıdan örnek)
+Devam çerçeve:  21 FC FD 00 83 FF 00 00
 ```
 
-Tür `0x03`, gerilim 3700 mV, oynatıcı running (`1`), charger deşarj (`2`), akım −1000 mA (`0xFC18`).
+Tür `0x03`, gerilim 3700 mV, oynatıcı running (`1`), charger deşarj (`2`), akım −1000 mA (`0xFC18`), pil 25,3 °C (`0x00FD`), ortam −12,5 °C (`0xFF83`).
 
 ## Kontroller ve kaynak kod
 
-Debug derlemesi geçti. Donanım çağrılarını taklit ederek gerçek dispatcher ve ISO-TP kodunu bilgisayarda çalıştırdık. CAN’deki 8 baytı, üç modu, reverse önceliğini, akımın işaretini ve sınırlarını kontrol ettik. Aralık dışı akımda, meşgul bağlantıda ve gönderim hatasında ne olduğunu da denedik. Kart üzerinde test henüz yapılmadı.
+Debug derlemesi geçti. Gerçek dispatcher ve ISO-TP kodunu bilgisayarda çalıştırıp 11 baytlık alan yerleşimini, iki veri çerçevesini, dolguyu, pozitif/negatif sıcaklıkları ve −32768 işaretini kontrol ettik. Test durmuşken genel durumun gönderildiğini de denedik. Telemetri kontrolleri ve ayrı sıcaklık gönderiminin kaldırıldığını doğrulayan kontrol de geçti. Kart testi yapılmadı.
 
 Kaynaklar `tronloop-vertex-firmware/` deposuna göredir:
 

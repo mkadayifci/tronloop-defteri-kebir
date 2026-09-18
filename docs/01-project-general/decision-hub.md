@@ -51,11 +51,15 @@ Testi Vertex kendi başına çalıştıracak; [ADR-0004](../07-decisions/ADR-000
 
 Kayıtlarda milisaniye cinsinden zaman ve artan bir sıra numarası istiyoruz. Sayacı her testte sıfırlamaya gerek yok. STM32 saati de Linux zamanıyla, belli aralıklarla gönderilen mesajlarla eşitlenecek. [ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md).
 
-Mesaj türünü uzunluktan değil tür alanından okuyoruz. Genel durum **7 bayt**: oynatıcı ve charger modu ayrı birer bayt, akım `int16_t` mA. Charger modu idle/şarj/deşarj olarak gidiyor. Firmware hazır, derleme ve bilgisayardaki paket kontrolleri geçti; alıcı güncellemesi ve kart testi kaldı. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
+Mesaj türünü uzunluktan değil tür alanından okuyoruz. Genel durum **11 bayt**: oynatıcı ve charger modu ayrı birer bayt, akım `int16_t` mA, pil ve ortam sıcaklığı ayrı `int16_t` °C × 10. Charger modu idle/şarj/deşarj olarak gidiyor. Firmware hazır, derleme ve bilgisayardaki paket kontrolleri geçti; alıcı güncellemesi ve kart testi kaldı. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
 
-Kapasite hesabının temeli: **yaklaşık 16 Vertex, 100 ms ölçüm aralığı**. [Mesajlaşma belgesindeki hesap](../03-software/communication-notes.md); güncel 17 baytlık telemetriyle heartbeat ve durum dahil hesaplanan hat yükü yaklaşık %15–18,3’tür (500 kbit/s ve belgelenen varsayımlarla).
+16 Vertex’in hepsi 100 ms’de bir telemetri gönderirken, genel durum ve heartbeat dahil hat yükü yaklaşık **%11,7–14,3** (500 kbit/s). [Hesabın ayrıntıları](../03-software/communication-notes.md).
 
-Güncel telemetri firmware biçimi **17 bayt**: iki ayrı 2 bayt sıcaklık (°C × 10) ve 8 bayt Unix ms zamanı içerir. [ADR-0011](../07-decisions/ADR-0011-telemetry-time-temperature.md). Sıra numarası ve dairesel tampon henüz kodda uygulanmadı.
+Telemetri artık **13 bayt**: tür, gerilim, akım ve Unix ms zamanı. Sıcaklıklar yalnız 11 baytlık genel durum mesajında. Ayrı sıcaklık mesajını kaldırdık; [ADR-0015](../07-decisions/ADR-0015-remove-temperature-message.md). Sıra numarası ve ring buffer henüz yok.
+
+## İki BeagleBone ile yedeklilik
+
+ClusterPilot’u iki BeagleBone ile yedeklemek istiyoruz. Aktif/yedek roller, CAN gönderme yetkisi, devralma ve SQLite kuyruğunun durumu için [bir taslak hazırladık](../03-software/clusterpilot-failover.md). Uygulama yöntemi henüz seçilmedi.
 
 ## Açık konular
 

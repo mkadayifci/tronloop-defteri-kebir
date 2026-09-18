@@ -26,6 +26,9 @@ Kararları ayrı dosyalarda tutuyoruz. Dosya adı `ADR-NNNN-kisa-baslik.md`; num
 | [ADR-0010](ADR-0010-message-type-and-operation-mode.md) | 2026-09-18 | Tür alanıyla ayrıştırma ve idle/şarj/deşarj çalışma modu | Kabul edildi |
 | [ADR-0011](ADR-0011-telemetry-time-temperature.md) | 2026-09-18 | Telemetride ayrı 2 bayt sıcaklıklar ve ölçüm zamanı | Kabul edildi |
 | [ADR-0012](ADR-0012-payload-time.md) | 2026-09-18 | Telemetri zamanını payload oluştururken doğrudan RTC’den alma | Kabul edildi |
+| [ADR-0013](ADR-0013-separate-temperature-message.md) | 2026-09-18 | Sıcaklıkları 10 saniyede bir ayrı mesajla gönderme | Ayrı mesaj için ADR-0015 geçerli |
+| [ADR-0014](ADR-0014-status-temperatures.md) | 2026-09-18 | Genel duruma pil ve ortam sıcaklığını ekleme, 11 bayt | Kabul edildi |
+| [ADR-0015](ADR-0015-remove-temperature-message.md) | 2026-09-18 | Ayrı sıcaklık mesajını kaldırma | Kabul edildi |
 
 ## Yeni karar şablonu
 

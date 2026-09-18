@@ -8,6 +8,8 @@ guncelleyen: "Codex"
 
 # ADR-0012 — Telemetri zamanını payload oluştururken okuma
 
+**Sonraki değişiklik:** [ADR-0013](ADR-0013-separate-temperature-message.md) ile sıcaklıklar ayrı mesaja taşındı; telemetri 13 bayta indi. Aşağıdaki 17 bayt bilgisi önceki düzeni anlatıyor. Zamanı RTC’den alma ve sıcaklığı °C × 10 kodlama yöntemi aynı.
+
 Zamanı payload oluştururken doğrudan RTC’den alıyoruz:
 
 ```c

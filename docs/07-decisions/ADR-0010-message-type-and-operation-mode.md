@@ -8,6 +8,8 @@ guncelleyen: "Codex"
 
 # ADR-0010 — Tür alanıyla ayrıştırma ve birleşik çalışma modu
 
+**Sonraki değişiklik:** [ADR-0014](ADR-0014-status-temperatures.md) ile genel duruma iki sıcaklık eklendi; paket 11 bayt oldu. Aşağıdaki 7 bayt/tek çerçeve anlatımı önceki düzen.
+
 Mesaj tipini uzunluğundan tahmin etmiyoruz; **tür alanından okuyoruz**. İki farklı mesaj aynı uzunlukta olabilir. `dataLength` bize yalnızca o tür için beklediğimiz kadar veri gelip gelmediğini söylüyor. Bu karar [ADR-0008](ADR-0008-unique-message-length.md) yerine geçti.
 
 Alıcı önce türü okuyacak kadar veri var mı diye bakacak. Ardından tür kodunu ve o türün uzunluğunu kontrol edip alanları okuyacak. Tür bilinmiyorsa veya boyut yanlışsa başka bir mesajmış gibi yorumlamayacak. Alan boyutlarını, kodları ve sürümleri açıkça yazacağız; C enum/struct boyutlarına güvenerek ilerlemeyeceğiz. Alıcı kodu henüz bu düzene geçirilmedi.

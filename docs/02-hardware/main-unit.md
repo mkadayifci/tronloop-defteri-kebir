@@ -50,6 +50,8 @@ Vertex’lerle haberleşme **CAN bus** üzerinden yapılır. AM3358 dahili **2x 
 
 İlk yedeklilik planındaki hedef, sistemi yıllarca çalıştırabilmekti. Tek bir parçanın arızası bütün sistemi durdurmasın diye aşağıdaki düzeni düşünmüştük.
 
+Yeni failover değerlendirmesi [burada](../03-software/clusterpilot-failover.md). Aşağıdaki eski “heartbeat kesilince devral” fikri tek başına yeterli değil; eski aktifi susturmayı ve veri kuyruğunu da ele alıyoruz.
+
 ### BeagleBone — 2x Aktif/Standby
 
 | Rol | Durum | Görev |

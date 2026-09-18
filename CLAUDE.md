@@ -107,7 +107,7 @@ guncelleyen: "İsim"
 
 ### Mesaj Tasarım Kuralı
 
-Mesaj türü tür alanından belirlenir; farklı türler aynı veri uzunluğunda olabilir. `dataLength`, seçilen türün uzunluğunu doğrulamak içindir. Eski benzersiz uzunluk şartı kaldırıldı. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek. Oynatıcı durumu ve charger çalışma modu ayrı birer uint8_t (1 bayt) olarak taşınacak. Akım mA cinsinden int16_t (2 bayt); hedef genel durum 7 bayttır ve ISO-TP ile tek CAN çerçevesine sığar. [ADR-0010](docs/07-decisions/ADR-0010-message-type-and-operation-mode.md).
+Mesaj türü tür alanından belirlenir; farklı türler aynı veri uzunluğunda olabilir. `dataLength`, seçilen türün uzunluğunu doğrulamak içindir. Eski benzersiz uzunluk şartı kaldırıldı. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek. Oynatıcı durumu ve charger çalışma modu ayrı birer uint8_t (1 bayt) olarak taşınacak. Akım mA cinsinden int16_t (2 bayt); genel durum iki ayrı int16_t °C×10 sıcaklık alanıyla 11 bayttır; ISO-TP ile 2 veri çerçevesi + 1 Flow Control kullanır. [ADR-0010](docs/07-decisions/ADR-0010-message-type-and-operation-mode.md).
 
 ### İçerik Tutarlılığı
 

@@ -41,7 +41,7 @@ flowchart LR
     STORE["Bulutta kalıcı veri saklama · bağlantı ayrıntısı açık"]
 ```
 
-Diyagramda verinin gittiği yolu görüyoruz. Panelin MQTT’ye nasıl bağlanacağı, bulutta veriyi hangi servisin saklayacağı ve bir Cluster’da kaç ClusterPilot olacağı hâlâ açık. Komut yanıtlarını da SQLite’ta tutacak mıyız, onu ayrıca belirleyeceğiz.
+Diyagramda verinin gittiği yolu görüyoruz. Panelin MQTT’ye nasıl bağlanacağı, bulutta veriyi hangi servisin saklayacağı ve iki BeagleBone’un devralma düzeni hâlâ açık. Komut yanıtlarını da SQLite’ta tutacak mıyız, onu ayrıca belirleyeceğiz.
 
 ## Bağımsız test yürütme
 
@@ -55,9 +55,13 @@ Zaman ve artan sıra numarası kullanmayı seçtik; [ADR-0007](../07-decisions/A
 
 ClusterPilot saati Linux zamanıyla belli aralıklarla eşitleyecek. Bu aralığı henüz seçmedik. Sıra numarası da henüz kodda yok; test değişince sıfırlanması gerekmiyor ama genişliğini, taşmasını ve yeniden başlama davranışını belirleyeceğiz.
 
-## Önceki mimari belgesinin durumu
+## İki BeagleBone ile yedeklilik
 
-[Eski mimari sayfasını](architecture.md) geçmiş tasarımı görmek için tutuyoruz. Oradaki veritabanı, donanım ve eşitleme seçeneklerinin hepsi bugünkü kararlar değil.
+ClusterPilot’u iki BeagleBone ile yedeklemek istiyoruz. Aktif/yedek roller, CAN gönderme yetkisi, devralma ve SQLite kuyruğunun durumu için [bir taslak hazırladık](clusterpilot-failover.md). Uygulama yöntemi henüz seçilmedi.
+
+## Ana mimari sayfası
+
+[Mimari sayfası](architecture.md) güncel yapıyı bir arada anlatıyor. Eski veritabanı ve eşitleme planı [arşivde](architecture-archive.md); burası kaynak kapsamı ve çalışma notları için.
 
 ## Kaynak kapsamı
 

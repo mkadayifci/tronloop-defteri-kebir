@@ -163,7 +163,7 @@ Mesajları aşağıdaki gibi gruplamayı düşünüyoruz. Bunlar henüz seçilmi
 | Başlık | Mevcut kod gözlemi | Hedef / durum |
 |---|---|---|
 | Gönderilen mesajlar | `VertexTelemetryPayload` (`0x01`), `HeartbeatPayload` (`0x02`), `VertexStatusPayload` (`0x03`) | Tipler yeniden tasarıma açık |
-| Hedef gönderim aralıkları | Telemetri 100 ms, heartbeat 500 ms, durum 3000 ms | Hesapta bunları kullanıyoruz; gerçek zamanlamayı kartta kontrol edeceğiz |
+| Hedef gönderim aralıkları | Telemetri 100 ms (RUNNING), heartbeat 500 ms, durum 3000 ms | Hesapta bunları kullanıyoruz; gerçek zamanlamayı kartta kontrol edeceğiz |
 | Gelen komut başlığı | command, version, sequence, flags; her biri bir bayt, toplam dört bayt | Yeni başlık ve ölçüm sıra alanıyla ilişkisi açık |
 | Komut uygulama/yanıt | İncelenen ayrıştırıcı komutları logluyor; cihaz işlemleri yorum satırında; ağ yanıtı üretmiyor | Komut yürütme ve yanıt biçimi tasarlanacak |
 | Ölçüm zamanı | Telemetride uint64_t Unix ms, payload oluşturma zamanı; RTC doğrudan okunur | Uygulandı; mevcut adım yaklaşık 3,9 ms, Linux eşitleme ayrıntıları açık |
@@ -172,15 +172,13 @@ Mesajları aşağıdaki gibi gruplamayı düşünüyoruz. Bunlar henüz seçilmi
 
 Kodun ayrıntıları [mesaj envanterinde](vertex-message-inventory.md). Genel durumun derlemesi ve bilgisayardaki paket kontrolleri geçti; kart testi daha yapılmadı.
 
-`VertexTelemetryPayload` artık **17 bayt**: tür (1), gerilim (2), akım (2), pil sıcaklığı (2), ortam sıcaklığı (2), Unix milisaniye zamanı (8). Sıcaklıklar int16_t ve °C × 10; −32768 geçersiz işaretidir. Payload oluşturulurken RTC’den okunan zaman taşınır, sıra numarası henüz yoktur. [Güncel şema ve doğrulama](vertex-telemetry-message.md).
+`VertexTelemetryPayload` artık **13 bayt**: tür (1), gerilim (2), akım (2), Unix ms (8). Sıcaklıklar yalnız [genel durumda](general-status-message.md). Ayrı sıcaklık türü kaldırıldı. [Güncel telemetri](vertex-telemetry-message.md).
 
 ## 8.1. VertexStatusPayload — genel durum mesajı
 
-Mevcut genel durum mesajı **7 bayt**, tür alanı **0x03**, hedef gönderim aralığı **3000 ms**: tür, pil gerilimi (mV), senaryo oynatıcı durumu, charger çalışma modu (0 idle, 1 şarj, 2 deşarj) ve işaretli 2 bayt pil akımı (mA) taşır. [Bayt yerleşimi, durum kodları, veri kaynakları ve örnek paket](general-status-message.md). Ölçüm zamanı ve sıra numarası bu mevcut pakette henüz yoktur.
+Genel durum artık **11 bayt**, tür **0x03**, aralık **3000 ms**. Tür, gerilim, oynatıcı durumu, charger modu ve akımın sonuna pil/ortam sıcaklıklarını ekledik. İkisi de int16_t, °C × 10; −32768 ölçüm yok demek. Test durmuşken de gönderiliyor.
 
-Oynatıcı ve charger modu ayrı birer bayt. Modu belirlerken önce reverse’e bakıyoruz. Akım `int16_t` aralığı dışındaysa o tur genel durumu göndermiyoruz, hata logluyoruz. Firmware bu biçime geçti; ClusterPilot alıcısını daha güncellemedik. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md).
-
-Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçevesinde taşır. Bu nedenle 7 baytlık hedef genel durum ISO-TP ile tek çerçevede gönderilebilir. Telde `0x07` ISO-TP başlığı (1 bayt) + 7 bayt veri bulunur; ek dolgu yoktur. Alıcı uygulama verisi 7 bayttır. 8 bayt uygulama verisi çok çerçeveli gönderim gerektirir. [Kaynak incelemesi](general-status-message.md).
+ISO-TP ilk çerçevede 6, devam çerçevesinde 5 bayt taşıyor. Bir Flow Control ile toplam üç CAN çerçevesi var. Eski 7 bayt alıcının güncellenmesi gerekiyor. [Alanlar ve örnek](general-status-message.md) · [ADR-0014](../07-decisions/ADR-0014-status-temperatures.md).
 
 ## 9. Tamamlanacak protokol ayrıntıları
 
@@ -199,7 +197,7 @@ Bu ayrıntılar netleştikçe burayı ve ilgili karar kaydını birlikte güncel
 
 ## Önceki değerlendirme: Tek çerçeve hedefi
 
-İlk değerlendirmede zaman ve sıra bilgisini korumak için telemetrinin birden fazla ISO-TP çerçevesiyle taşınması önerildi. O sırada 7 baytlık biçim kullanılıyordu. Sonrasında 17 baytlık biçime geçildi; aşağıdaki 19 baytlık yerleşim ise uygulanmamış bir alternatif olarak kaldı. Güncel karar [ADR-0011](../07-decisions/ADR-0011-telemetry-time-temperature.md), zamanın okunduğu an ise [ADR-0012](../07-decisions/ADR-0012-payload-time.md) içinde.
+İlk değerlendirmede zaman ve sıra bilgisini korumak için telemetrinin birden fazla ISO-TP çerçevesiyle taşınması önerildi. O sırada 7 baytlık biçim kullanılıyordu. Sonrasında 17 baytlık biçime geçildi; aşağıdaki 19 baytlık yerleşim ise uygulanmamış bir alternatif olarak kaldı. O aşamadaki karar [ADR-0011](../07-decisions/ADR-0011-telemetry-time-temperature.md), zamanın okunduğu an ise [ADR-0012](../07-decisions/ADR-0012-payload-time.md) içinde.
 
 Gerekçe: Vertex dairesel tamponundan gecikmeli gelen kaydın ClusterPilot'a ulaşma zamanı ölçüm zamanı değildir. Sıra numarası tek başına mutlak zamanı sağlamaz. Ayrı zaman referansı ve fark kodlama mümkün olsa da yeniden bağlanma, saat düzeltme ve kayıp referans takibi ek tasarım gerektirir.
 
@@ -209,39 +207,23 @@ Bedeli daha fazla CAN çerçevesi ve akış kontrol trafiğidir. Kapasite karar�
 
 Kaynak: [Linux ISO-TP taşıma ve akış kontrolü](https://kernel.org/doc/html/latest/networking/iso15765-2.html).
 
-## Kapasite hesabı: Güncel 17 bayt, 16 Vertex, 100 ms
+## Kapasite hesabı: 13 bayt telemetri ve 11 bayt genel durum
 
-**Çalışma ölçeği:** Yaklaşık 16 Vertex, Vertex başına 100 ms ölçüm aralığı. **Hesap:** Tek 500 kbit/s klasik CAN hattı, 11 bit kimlikler, normal ISO-TP adresleme, 17 baytlık mevcut telemetri, hata/tekrar yok. Alıcı her aktarımda tek Flow Control gönderiyor (blocksize 0 veya en az 2). Tüm CAN veri çerçeveleri ve Flow Control için 8 veri baytlık muhafazakâr hesap kullanıldı; firmware'de dolgu etkin.
+16 Vertex’in hepsinin RUNNING olduğunu ve 100 ms’de bir telemetri gönderdiğini varsayıyoruz. Her cihaz ayrıca 500 ms’de bir heartbeat ve 3 saniyede bir durum gönderiyor. Hat 500 kbit/s klasik CAN, kimlikler 11 bit, ISO-TP normal adresleme. Hata ve tekrarlar hariç.
 
-19 baytlık önceki öneri yerine firmware’de uygulanmış **17 bayt** esas alındı. Debug ARM derleyicisiyle boyutlar doğrulandı: telemetri 17, durum 7, heartbeat 2 bayt.
+Telemetri paketi 13 bayt: First Frame’de 6, tek Consecutive Frame’de 7 bayt. Bir Flow Control ile **mesaj başına toplam 3 CAN çerçevesi** var. Hesapta bütün veri ve Flow Control çerçevelerini 8 bayta tamamlanmış kabul ediyoruz. Önceki hesapla aynı şekilde çerçeve başına boşluk dahil 111 bit, bit stuffing üst hesabında 135 bit kullanıyoruz.
 
-### Telemetri parçalama ve hız
+| Trafik | Mesaj/s | CAN çerçevesi/s | Hat yükü, kbit/s | 500 kbit/s kullanımı |
+|---|---:|---:|---:|---:|
+| Telemetri, 100 ms | 160 | 480 | 53,280–64,800 | %10,656–12,960 |
+| Heartbeat, 500 ms | 32 | 32 | 3,552–4,320 | %0,710–0,864 |
+| Genel durum, 3 s | 5,333 | 16 | 1,776–2,160 | %0,355–0,432 |
+| **Toplam** | | **528** | **58,608–71,280** | **%11,722–14,256** |
 
-- Vertex başına 10 ölçüm/s, toplam **160 ölçüm/s**.
-- 17 bayt = First Frame içinde 6 + iki Consecutive Frame içinde 7 ve 4 bayt.
-- Ölçüm başına **3 veri çerçevesi + 1 Flow Control = 4 CAN çerçevesi**.
-- Telemetri toplamı **640 CAN çerçevesi/s**.
-- Yalnız uygulama verisi: 160 × 17 = **2720 bayt/s = 21,76 kbit/s**. Bu değer CAN/ISO-TP başlıklarını ve kontrol trafiğini içermez.
+Yani yeni düzenle yaklaşık **%11,7–14,3** hat yükü bekliyoruz. Önceki 17 baytlık telemetride bu hesap %15–18,3’tü. Yalnız telemetri uygulama verisi 160 × 13 = 2080 bayt/s. Bunlar tek başına hat yükünü göstermiyor; tabloda CAN ve ISO-TP yükü de var.
 
-### Hat üzerindeki toplam yük
+Bu bir kapasite hesabı, kartta ölçülmüş hız değil. Aynı anda zamanı gelen mesajlar nedeniyle firmware bazı hızlı telemetri/heartbeat turlarını atlayabilir. Komutlar, saat eşitleme, hatalar ve ring buffer boşaltma bu hesaba dahil değil. Ek Flow Control bekletmeleri, farklı kimlik veya dolgu ayarı sonucu değiştirir. 16 Vertex için ayrı CAN/ISO-TP adresleri ve doğru RX filtreleme de gerekiyor; sabit 0x100 bütün cihazlarda kullanılamaz.
 
-Standart 8 veri baytlı CAN çerçevesi için 3 bit çerçeveler arası boşluk dahil **111 bit**, bit stuffing için muhafazakâr üst hesap **135 bit** kullanıldı. Aralık, stuffing olmayan alt hesap ile üst sınır hesabını gösterir; ölçülmüş ortalama değildir.
+Kaynaklar: [Linux ISO-TP](https://kernel.org/doc/html/latest/networking/iso15765-2.html), [CAN çerçeve yapısı](https://kvaser.com/can-protocol-tutorial/), yerel `tl_dispatcher.h` ve `isotp.c`.
 
-| Trafik | CAN çerçevesi/s | Hat tüketimi, kbit/s | 500 kbit/s hat yükü |
-|---|---:|---:|---:|
-| Telemetri, 100 ms | 640 | 71,040–86,400 | %14,208–17,280 |
-| Heartbeat, 500 ms | 32 | 3,552–4,320 | %0,710–0,864 |
-| VertexStatusPayload, 3000 ms | 5,333 | 0,592–0,720 | %0,118–0,144 |
-| **Toplam** | **677,333** | **75,184–91,440** | **%15,037–18,288** |
-
-Bu hesapla hattın yaklaşık **%15–18,3’ünü** kullanıyoruz; nominal kapasitenin **%82–85’i** kalıyor. 17 ve 19 bayt aynı sayıda ISO-TP çerçevesine bölündüğü ve dolgu kullanıldığı için önceki hesapla sonuç aynı.
-
-Komutlar, saat eşitleme, hata/yeniden denemeler ve kesinti sonrası tampon boşaltma dahil değildir. Flow Control blocksize=1, ek bekletme çerçeveleri, genişletilmiş CAN kimlikleri veya farklı dolgu ayarları sonucu değiştirir. 100 ms toplu gönderim anındaki gecikme ve yazılımın ölçüm/gönderim zamanlaması bu ortalama bant hesabıyla garanti edilmez. Tampon boşaltma canlı trafiğe yer bırakacak şekilde sınırlandırılmalı.
-
-16 Vertex için ayrı CAN/ISO-TP adresleri ve RX filtrelemesi gerekir; mevcut sabit 0x100 kimliğinin tüm cihazlarda kullanılması uygun değildir. Kaynaklardaki bloklayan işlemler ve meşgulken telemetri atlama davranışı ayrıca değerlendirilmelidir. Hesap cihaz üzerinde ölçülmüş performans değildir.
-
-Kaynaklar: [Linux ISO-TP akış kontrolü](https://kernel.org/doc/html/latest/networking/iso15765-2.html), [Kvaser CAN çerçeve yapısı](https://kvaser.com/can-protocol-tutorial/); parçalama/dolgu ve paket boyutları yerel firmware kaynaklarından doğrulandı.
-
-## Son durum
-
-Telemetri 17 bayt ve yukarıdaki hesap buna göre. Zamanı RTC’den milisaniye olarak okuyabiliyoruz; sıra numarası ve ring buffer henüz yok. Alanların son hali [telemetri sayfasında](vertex-telemetry-message.md).
+[Telemetri](vertex-telemetry-message.md) · [Güncel karar](../07-decisions/ADR-0015-remove-temperature-message.md)

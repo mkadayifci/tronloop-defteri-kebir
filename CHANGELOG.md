@@ -23,6 +23,18 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 
 ### Güncellendi
 
+- Ana mimari sayfasını güncel Cluster–Vertex–ClusterPilot–TSphere yapısıyla yeniden yazdık. Mesajlar, kesinti davranışı, saat, iki BeagleBone hedefi ve kalan işler aynı sayfada. Eski veritabanı/RAID/Compose planını arşive taşıdık.
+
+- Ayrı sıcaklık mesajını ve testteki 10 saniyelik gönderimini kaldırdık. Sıcaklıklar yalnız 11 baytlık genel durumda kaldı; telemetri 13 bayt. Derleme ve paket kontrolleri geçti. 16 Vertex hat hesabı %11,7–14,3.
+
+- Genel duruma pil ve ortam sıcaklığını ekledik. Paket 11 bayt oldu; 3 saniyelik aralık ve testten bağımsız gönderim aynı. Ayrı sıcaklık mesajı korunuyor. Derleme ve ISO-TP paket kontrolleri geçti; 16 Vertex için hat hesabı %11,8–14,4.
+
+- Sıcaklık gönderimini de testin RUNNING durumuna bağladık. Duraklatılmış veya durmuş testte sıcaklık paketi gönderilmiyor; 10 saniyelik aralık aynı.
+
+- Sıcaklıkları hızlı telemetriden çıkardık. Telemetri 13 bayt; yeni VertexTemperaturePayload (0x04) pil/ortam sıcaklığını ve RTC zamanını 10 saniyede bir gönderiyor. Aynı boyuttaki mesajları tür alanı ayırıyor. Derleme ve bilgisayardaki paket/zamanlama kontrolleri geçti. 16 Vertex için bant hesabı %11,6–14,1 olarak güncellendi; alıcı ve sensör okumaları henüz hazır değil.
+
+- İki BeagleBone ile ClusterPilot yedekliliği için taslak eklendi: aktif/yedek roller, fencing, ISO-TP Flow Control, yerel veri kuyruğu ve devralma testleri. Yöntem henüz seçilmedi; kod değişmedi.
+
 - Bütün defteri dil açısından yeniden okuduk. Kararları daha kısa ve doğal anlattık; rapor gibi duran başlıkları azalttık. Eski planları güncel koddan ayırdık.
 - Defteri Kebir’in dili sadeleştirildi; görüşme notları konu bazında toparlandı. Doğrudan, doğal Türkçeyle yazma ilkesi ana çalışma kurallarına eklendi. Eski kararların tarihçesi ve uygulama sınırları korundu.
 - ADR-0012: Telemetri zamanı payload oluşturulurken doğrudan RTC’den okunuyor; context zaman alanı kaldırıldı. 17 baytlık tel biçimi değişmedi.

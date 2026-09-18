@@ -8,6 +8,8 @@ guncelleyen: "Codex"
 
 # 2026-09-18 — Mimari ve haberleşme notları
 
+**Sonraki düzenleme:** Sıcaklıkları 10 saniyelik ayrı mesaja aldık. Telemetri artık 13 bayt; aşağıdaki 17 bayt ve %15–18,3 hesapları önceki tasarımın notları. [Yeni karar](../../07-decisions/ADR-0013-separate-temperature-message.md).
+
 Defteri Kebir’i ana üs olarak kullanıyoruz. Kod ve tasarım diğer klasörlerde; burada neden böyle yaptığımızı ve sırada ne olduğunu tutuyoruz. `__` ile biten klasörler eski, onları kullanmıyoruz. [Dokümantasyon düzeni](../../07-decisions/ADR-0001-documentation.md) ve [kaynak kapsamı](../../07-decisions/ADR-0002-documentation-scope.md) bu ayrımı tanımlıyor.
 
 ## Sistemin genel yapısı

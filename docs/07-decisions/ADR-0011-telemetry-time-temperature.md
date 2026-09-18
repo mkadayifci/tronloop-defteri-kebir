@@ -8,6 +8,8 @@ guncelleyen: "Codex"
 
 # ADR-0011 — Telemetride onda bir sıcaklık ve ölçüm zamanı
 
+**Sonraki değişiklik:** [ADR-0013](ADR-0013-separate-temperature-message.md) ile sıcaklıklar ayrı mesaja taşındı; telemetri 13 bayta indi. Aşağıdaki 17 bayt bilgisi önceki düzeni anlatıyor. Zamanı RTC’den alma ve sıcaklığı °C × 10 kodlama yöntemi aynı.
+
 Telemetride pil sıcaklığını ve ortam sıcaklığını ayrı tutuyoruz. İkisi de **`int16_t`, °C × 10**: örneğin 253, 25,3 °C demek. Önceki tek bayt/tam derece yaklaşımını bıraktık. Ölçüm yoksa `INT16_MIN` (−32768) gönderiyoruz.
 
 Zaman için **`uint64_t` Unix milisaniye** kullanıyoruz. Böylece paket toplam **17 bayt** oluyor. Tek CAN çerçevesine sığdırmaya çalışmıyoruz; ISO-TP veriyi 3 çerçeveye bölüyor. Flow Control bunun dışında.

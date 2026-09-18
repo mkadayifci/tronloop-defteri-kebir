@@ -1,154 +1,116 @@
 ---
 baslik: "Yazılım Mimarisi"
 kategori: "03-software"
-durum: "taslak"
+durum: "geliştiriliyor"
 son_guncelleme: "2026-09-18"
 guncelleyen: "Codex"
 ---
 
 # Yazılım Mimarisi
 
-**Son Güncelleme:** 2026-09-18
+Tronloop’ta pilleri belirlediğimiz senaryolara göre şarj ve deşarj ediyor, test verilerini bulutta tutuyoruz. Pili test eden birim **Vertex**. Vertex’leri **Cluster** içinde topluyoruz. **ClusterPilot**, bu birimlerle bulut sunucumuz **TSphere** arasındaki iletişimi yönetiyor.
 
-Bu sayfada ilk tasarım notları duruyor. İsimleri güncelledik ama aşağıdaki bütün seçimleri yeniden doğrulamadık. Güncel yapı için [mimari notlara](architecture-notes.md) bakıyoruz; burası geçmişte düşündüğümüz seçenekleri kaybetmemek için duruyor.
+Burada sistemin bugünkü tasarımını anlatıyoruz. Mesajların firmware tarafı hazır; ring buffer, alıcı uyarlaması ve failover gibi kalan işleri aşağıda ayrıca belirttik.
 
-İlk planda yazılımı Vertex firmware’i, ClusterPilot ve analiz araçları olarak üçe ayırmıştık. Vertex–ClusterPilot arasında CAN, buluta aktarım için de dakikada bir eşitleme düşünülüyordu. Aşağıdaki diyagram ve veritabanı tabloları o plana ait.
-
----
-
-## Katmanlar
+## Genel yapı
 
 ```mermaid
-flowchart TD
-    subgraph NODE["Vertex (STM32L476)"]
-        FW["Firmware<br/>Şarj/Deşarj + Ölçüm + İklim"]
+flowchart LR
+    PANEL["Kullanıcı paneli"] -->|Komut akışı| MQTT["TSphere · MQTT"]
+    subgraph CLUSTER["Cluster"]
+        V["Vertex birimleri<br/>Test ve ölçüm"]
+        CP["ClusterPilot<br/>Linux / BeagleBone"]
+        SQL[("Yerel SQLite kuyruğu")]
+        V -->|"CAN/ISO-TP · veri ve yanıt"| CP
+        CP -->|"CAN/ISO-TP · komut ve saat"| V
+        CP -->|Gönderilemeyen veri| SQL
+        SQL -.->|Bağlantı sonrası aktarım| CP
     end
-
-    subgraph ANA["ClusterPilot (BeagleBone)"]
-        CAN["CAN Bus Alıcı"]
-        LOCAL["Yerel Depolama<br/>mdadm RAID1"]
-        SYNC["Cloud Sync Daemon<br/>her 1 dakika"]
-    end
-
-    subgraph CLOUD["Cloud"]
-        INFLUX["InfluxDB<br/>Ölçüm Verisi<br/>(Zaman Serisi)"]
-        PG["PostgreSQL<br/>Konfigürasyon<br/>Metadata · Deneyler"]
-    end
-
-    FW -->|CAN bus| CAN
-    CAN --> LOCAL
-    LOCAL --> SYNC
-    SYNC -->|"her 1 dk"| INFLUX
-    SYNC -->|"değişiklikte"| PG
+    CP -->|Veri ve yanıt| MQTT
+    MQTT -->|Komut| CP
+    MQTT -.->|"Servis ve veritabanı seçilecek"| STORE[("Bulutta kalıcı kayıt")]
 ```
 
----
+Diyagram verinin izleyeceği yolu gösteriyor. Panelin MQTT’ye doğrudan mı bir servis üzerinden mi bağlanacağını, buluttaki kayıt servisini ve yanıtın panele dönüş yolunu henüz tamamlamadık. Kesikli bağlantılar bu bekleyen işleri gösteriyor.
 
-## Veritabanı Mimarisi
+| Bileşen | Ne yapıyor? |
+|---|---|
+| **Vertex** | Senaryoyu çalıştırıyor, pilin şarj/deşarjını ve ölçümlerini yönetiyor. Testi sürdürmek için ClusterPilot’tan adım adım komut beklemiyor. |
+| **Cluster** | Vertex’leri ve ortak fiziksel altyapıyı bir araya getiriyor. Ayrı bir yazılım servisi değil. |
+| **ClusterPilot** | CAN verisini alıyor, TSphere’e iletiyor; panel komutlarını doğru Vertex’e yönlendiriyor. |
+| **SQLite** | ClusterPilot’un buluta gönderemediği kayıtları yerelde tutuyor. |
+| **TSphere** | Bulut tarafı. MQTT haberleşmesi burada; kalıcı depolamayı yapacak servis ve veritabanı henüz seçilmedi. |
+| **Panel** | Testi izlemek ve komut vermek için kullandığımız arayüz. |
 
-### InfluxDB — Ölçüm Verisi (Zaman Serisi)
+## Testi Vertex yürütüyor
 
-Ölçümleri zaman serisi olarak saklamak için InfluxDB düşünülmüştü. Sık gelen kayıtları yazmak ve zaman içindeki değişimi sorgulamak bu seçimin nedeniydi. Aşağıdaki servis ve paket bilgileri eski notlar; güncel koşulları ayrıca kontrol etmek gerekiyor.
+Senaryoyu Vertex’e verdikten sonra adımları firmware kendi yönetecek. ClusterPilot bağlantısı kesildi diye test durmayacak. Cihaz korumaları ve senaryonun durdurma koşulları yine geçerli; bağımsız çalışma bunları kaldırmıyor.
 
-| Parametre | Değer |
-|-----------|-------|
-| Tür | Zaman serisi veritabanı (TSDB) |
-| Dev ortamı | Docker — `docker run influxdb:2` |
-| Prod ortamı | InfluxDB Cloud (AWS üzerinde, ücretsiz tier) |
-| Retention | Ücretsiz tier: 30 gün · Ücretli: sınırsız |
-| Client | Python `influxdb-client` |
-| Sync sıklığı | Her 1 dakika |
+Bu ayrım sayesinde sunucuyu yeniden başlatırken veya ileride yedek BeagleBone’a geçerken testi baştan başlatmamız gerekmeyecek. Senaryo aktarımı, başlatma/durdurma komutları ve yeniden başlama sonrası devam davranışını henüz bütünüyle tamamlamadık. [Bağımsız test kararı](../07-decisions/ADR-0004-autonomous-vertex.md).
 
-**Ölçüm yapısı (measurement: `battery_data`):**
+## Ölçüm ve komut akışı
 
-| Field | Tip | Açıklama |
-|-------|-----|----------|
-| `voltage` | float | Anlık voltaj (V) |
-| `current` | float | Anlık akım (A) |
-| `capacity` | float | Kalan kapasite (mAh) |
-| `soh` | float | State of Health (%) |
-| `temp_surface` | float | Pil yüzey sıcaklığı °C (NTC) |
-| `temp_ambient` | float | Ortam sıcaklığı °C (TMP117) |
-| `cycle_count` | int | Döngü sayısı |
+Vertex, kayıtları **CAN/ISO-TP** üzerinden ClusterPilot’a gönderiyor. ClusterPilot veriyi **MQTT** üzerinden TSphere’e taşıyor. Buluta gönderemediği kayıtları SQLite’ta bekletip bağlantı gelince aktarmasını istiyoruz.
 
-**Tag'lar:**
+Komut ters yönde ilerliyor: **panel → TSphere/MQTT → ClusterPilot → Vertex**. Cihazın yanıtı da ClusterPilot üzerinden geri dönecek. Komut kimliği, yanıt kodları, zaman aşımı ve tekrar gelen komutun davranışı henüz tamamlanmadı. Firmware’deki mevcut komut ayrıştırıcısının birçok işlemi şimdilik yalnızca log yazıyor.
 
-| Tag | Açıklama |
-|-----|----------|
-| `node_id` | CAN ID (1–50) |
-| `experiment_id` | Hangi deneye ait |
-| `cell_type` | Batarya kimyası (LFP, NMC vb.) |
+MQTT’ye teslim etmekle bulut veritabanına kaydetmek aynı şey değil. Kaydın ne zaman tamamlanmış sayılacağını ve SQLite’tan ne zaman silineceğini de netleştireceğiz. [Mesajlaşmanın ayrıntıları](communication-notes.md).
 
----
+## Vertex’in gönderdiği mesajlar
 
-### PostgreSQL — Konfigürasyon ve Metadata
+| Mesaj | Tür | Boyut | Ne zaman? | İçerik |
+|---|---|---|---|---|
+| `VertexTelemetryPayload` | `0x01` | **13 bayt** | Yalnız RUNNING sırasında, hedef 100 ms | Gerilim, akım, Unix ms zamanı |
+| `HeartbeatPayload` | `0x02` | Mevcut ARM derlemesinde 2 bayt | Hedef 500 ms | Context içindeki oynatıcı durumu |
+| `VertexStatusPayload` | `0x03` | **11 bayt** | Test durumundan bağımsız, hedef 3 saniye | Gerilim, akım, oynatıcı durumu, charger modu, pil ve ortam sıcaklığı |
 
-Deney tanımlarını, Vertex ayarlarını ve pil bilgilerini PostgreSQL’de tutmayı düşünmüştük.
+**Ayrı sıcaklık mesajı yok.** Sıcaklıklar yalnız genel durumda, ayrı `int16_t` alanlarında **°C × 10** olarak gidiyor. −32768 ölçüm yok demek. Hızlı telemetride sıcaklık taşımıyoruz.
 
-| Parametre | Değer |
-|-----------|-------|
-| Tür | İlişkisel veritabanı |
-| Dev ortamı | Docker — `docker run postgres:15` |
-| Prod ortamı | Amazon RDS PostgreSQL (fully managed) |
-| Client | Python `psycopg2` / `SQLAlchemy` |
-| Sync | Konfigürasyon değişikliklerinde |
+Türü mesajın tür alanından okuyoruz; uzunluk yalnızca o türün şemasını kontrol ediyor. Telemetri ve genel durum, birer Flow Control ile birlikte **2 veri + 1 kontrol çerçevesi** kullanıyor. Heartbeat tek çerçeveye sığıyor. Heartbeat’in boyutu C enum boyutuna bağlı; onu taşınabilir sabit boyutlu bir şema gibi varsaymıyoruz.
 
-**Temel tablolar:**
+Bu süreler gönderim hedefi. ISO-TP meşgulse hızlı telemetri ve heartbeat o tur atlanabiliyor. Genel durum boşalmasını bekliyor ve öncelikli deneniyor. Sıcaklık okumaları henüz bağlı değil; gerilim güncellemesi de yorum satırında. Genel durum oynatıcıyı doğrudan okurken heartbeat context’ten alıyor; bu iki kaynağın eşitlenmesi açık bir iş.
 
-| Tablo | İçerik |
-|-------|--------|
-| `experiments` | Deney adı, başlangıç/bitiş, hedef parametreler |
-| `nodes` | Vertex ID, seri no, kurulum tarihi |
-| `cells` | Batarya bilgileri (kapasite, kimya, yaş) |
-| `test_profiles` | Şarj/deşarj protokol tanımları |
-| `system_config` | ClusterPilot ve Vertex konfigürasyonları |
+[Telemetri alanları](vertex-telemetry-message.md) · [Genel durum alanları](general-status-message.md) · [Kodda bulunan mesajlar](vertex-message-inventory.md)
 
----
+## Bağlantı kesilince ne olacak?
 
-## Yerel Depolama
+İki ayrı kesintiyi ayrı ele alıyoruz:
 
-Yerel depolama için iki USB SSD üzerinde **mdadm RAID1** planlanmıştı. Bağlantı yokken kayıtlar burada bekleyecek, bağlantı gelince buluta gidecekti. Güncel kararda SQLite kuyruğu var; RAID düzeni henüz yeniden kesinleştirilmedi.
+| Kesinti | Planlanan davranış | Bugünkü durum |
+|---|---|---|
+| Vertex → ClusterPilot | Test devam edecek. Kısa kesintide kayıtlar Vertex ring buffer’ında bekleyecek. | Ring buffer henüz firmware’de yok. |
+| ClusterPilot → TSphere | Gönderilemeyen veriler yerel SQLite’a yazılacak, bağlantı gelince aktarılacak. | SQLite’a kaydetme yolu var; yeni paketlerin alıcı uyarlaması ve kuyruğun uçtan uca yeniden aktarımı tamamlanmalı. |
 
-| Bileşen | Açıklama |
-|---------|----------|
-| Depolama | 2× USB SSD, mdadm RAID1 |
-| Format | Ham ölçüm: CSV · Offline buffer: SQLite |
-| Offline buffer | Bağlantı yokken SQLite'a yaz, bağlantı gelince InfluxDB'ye flush |
-| Yedek | Haftalık rsync → harici sürücü veya NAS |
+Vertex tamponunu kayıpsız arşiv olarak düşünmüyoruz. Dolunca en eski kaydın üzerine yazılacak. Bağlantı gelince tamponda kalan veriler gönderilecek. Kapasiteyi, kullanılacak belleği ve güç kesilince ne olacağını daha belirleyeceğiz. [Ring buffer kararı](../07-decisions/ADR-0006-vertex-ring-buffer.md).
 
----
+## Saat ve kayıt sırası
 
-## Docker Compose (Dev Ortamı)
+STM32’de RTC var. ClusterPilot, Linux zamanını belli aralıklarla göndererek Vertex’in saatini eşitleyecek. Mevcut saat ayarlama komutu saniye cinsinden; periyodik eşitleme aralığı henüz belli değil.
 
-İlk planı yerelde denemek için hazırlanan Compose örneği:
+Telemetrideki `measurement_time_ms`, payload oluşturulurken **`TL_RTC_GetMs()`** ile alınıyor. `uint64_t` Unix milisaniye olduğu için Linux tarafında tarihe çevrilebiliyor. Bu değer sensörün tam okunduğu anı değil, paketin oluşturulduğu anı gösteriyor. RTC’nin mevcut adımı yaklaşık 3,9 ms. Açılışta sabit tarih atanması hâlâ düzeltilmesi gereken bir nokta.
 
-```yaml
-services:
-  influxdb:
-    image: influxdb:2
-    ports:
-      - "8086:8086"
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
+Kayıtları ayırt etmek için artan bir sıra numarası da istiyoruz; henüz pakette yok. Test değişince sıfırlanması gerekmiyor. Sayaç genişliği, taşma ve yeniden başlama davranışını ayrıca belirleyeceğiz. [Zaman ve sıra kararı](../07-decisions/ADR-0007-measurement-time-sequence.md).
 
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: tronloop
-      POSTGRES_USER: tronloop
-      POSTGRES_PASSWORD: tronloop_dev
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+## İki BeagleBone ile yedeklilik
 
-volumes:
-  influxdb_data:
-  postgres_data:
-```
+ClusterPilot’u iki BeagleBone ile yedeklemek istiyoruz. Şu anki öneri, birinin aktif, diğerinin hazır yedek olması. Uygulama yöntemi henüz seçilmedi; otomatik devralma kodu da hazır değil.
 
-Örneği `docker compose up -d` ile çalıştırabiliriz. Üretim ayarları bu geliştirme örneğinden ayrı ele alınacak.
+Devralırken iki kartın aynı anda CAN’e komut veya Flow Control göndermemesi gerekiyor. Yalnız heartbeat kaybına bakmak yeterli değil; eski aktifi gerçekten devre dışı bırakan bir yöntem lazım. Corosync/Pacemaker ve bağımsız güç kesme seçeneklerini değerlendiriyoruz. SQLite kuyruğunun diğer karta geçmesi de ayrı bir iş; iki kart koymak veriyi kendiliğinden yedeklemiyor.
 
----
+[Yedeklilik taslağı](clusterpilot-failover.md).
 
-**İlgili Dosyalar:** [Veri Toplama](data-collection.md) · [Analiz](analysis.md) · [ClusterPilot](../02-hardware/main-unit.md)
+## Şu an nerede duruyoruz?
+
+Vertex firmware’inde 13 bayt telemetri ve 11 bayt genel durum hazır. Derleme ve bilgisayardaki paket kontrolleri geçti; kartta uçtan uca test yapılmadı.
+
+ClusterPilot tarafında C#/.NET, Linux ISO-TP socket’leri, MQTT ve SQLite kodu var. Ancak alıcı hâlâ eski `FastTelemetryPayload` ve uzunlukla ayrıştırma yolunu kullanıyor; yeni firmware paketlerini doğru işlemek için güncellenmesi gerekiyor. Sistemin tamamı hazır demiyoruz.
+
+16 Vertex’in hepsi 100 ms’de bir telemetri gönderirken, heartbeat ve genel durum dahil 500 kbit/s CAN yükünü yaklaşık **%11,7–14,3** hesaplıyoruz. Bu ölçülmüş performans değil; komutlar, hatalar ve tampon boşaltma trafiği hariç. Cihaz başına CAN adresleri ve RX filtrelemesi de tamamlanmalı. [Hesap](communication-notes.md).
+
+## Eski plandan kalanlar
+
+InfluxDB, PostgreSQL, dakikada bir bulut eşitleme, RAID1 ve örnek Docker Compose düzeni ilk plandaki seçeneklerdi. Bunları bugünkü mimarinin kesin parçaları gibi göstermiyoruz. Geçmişi kaybetmemek için [ilk tasarım sayfasına](architecture-archive.md) taşıdık.
+
+**Kaynaklar:** 2026-09-18 proje kararları; `tronloop-vertex-firmware/Core/Inc/tl_dispatcher.h`, `Core/Src/tl_dispatcher.c`, `Core/Src/tl_rtc.c`; `tronloop-clusterpilot-engine/CanIsoTpListener.cs`, `TelemetryPublisher.cs`, `SqliteTelemetryStore.cs`. Diğer bileşenleri uçtan uca henüz doğrulamadık.
+
+[Karar defteri](../01-project-general/decision-hub.md) · [Çalışma notları](architecture-notes.md) · [Karar kayıtları](../07-decisions/README.md)

@@ -12,25 +12,16 @@ guncelleyen: "Codex"
 
 ## Pakette ne var?
 
-Sık gelen ölçümleri bu paketle gönderiyoruz. Pil ve ortam sıcaklığı ayrı; ikisi de **int16_t, °C × 10**. Zaman için **uint64_t Unix milisaniye** kullanıyoruz. Toplam **17 bayt**, tür kodu **0x01**. Hedef aralık **100 ms**; çok baytlı alanlar little-endian gidiyor.
+Gerilim ve akımı bu paketle gönderiyoruz. Sıcaklıkları yalnız [genel durumda](general-status-message.md) gönderiyoruz; ayrı sıcaklık mesajını kaldırdık. Telemetri artık **13 bayt**, tür kodu **0x01**. Test oynatıcısı RUNNING durumundayken hedef aralık **100 ms**. Çok baytlı alanlar little-endian gidiyor.
 
 | Bayt | Alan | Tür / boyut | Anlam |
 |---|---|---|---|
 | 0 | `payload_type` | `uint8_t` / 1 | `0x01` |
 | 1–2 | `battery_voltage_mv` | `uint16_t` / 2 | Pil gerilimi, mV |
 | 3–4 | `battery_current_ma` | `int16_t` / 2 | Pil akımı, mA; pozitif şarj, negatif deşarj |
-| 5–6 | `battery_temperature_dc` | `int16_t` / 2 | Pil sıcaklığı × 10 |
-| 7–8 | `ambient_temperature_dc` | `int16_t` / 2 | Ortam sıcaklığı × 10 |
-| 9–16 | `measurement_time_ms` | `uint64_t` / 8 | Payload oluşturulurken RTC’den okunan Unix milisaniye zamanı |
+| 5–12 | `measurement_time_ms` | `uint64_t` / 8 | Payload oluşturulurken RTC’den okunan Unix milisaniye zamanı |
 
 Boyutu ve alanların yerini `_Static_assert` ile derlemede kontrol ediyoruz. `state` alanını çıkardık. Sıra numarası ekleme kararımız var ama henüz pakete girmedi.
-
-## Sıcaklık kodlaması
-
-- `253` → **25,3 °C**, `-125` → **−12,5 °C**. Gönderici kesir atmaz; context'teki onda bir derece değerini doğrudan taşır.
-- `INT16_MIN` (**−32768**, telde `00 80`) ölçüm yok/geçersiz işaretidir. Önceki `int8_t` biçimindeki −128 işareti artık geçerli değildir; −128 yeni biçimde gerçek **−12,8 °C** değeridir.
-- Geçerli kodlama aralığı −32767…32767, yani −3276,7…3276,7 °C'dir. Bu yalnızca sayısal aralıktır, sensör çalışma aralığı değildir.
-- Pil kaynağı `dut.temperature_dC`, ortam kaynağı `ambient_temperature_dC`. Sensör okumaları henüz uygulanmadı; başlangıçta iki alan da `TL_TEMPERATURE_UNAVAILABLE_DC` olur.
 
 ## Ölçüm zamanı
 
@@ -51,16 +42,15 @@ Açılışta RTC’ye hâlâ sabit `1710255720` yazılıyor. Doğru tarihi görm
 
 ## ISO-TP gönderimi
 
-17 bayt veri üç veri çerçevesine ayrılır: **6 + 7 + 4 bayt**. Alıcı bir Flow Control ile devam izni verdiğinde (blocksize 0 veya en az 2), toplam trafik **3 veri + 1 Flow Control** çerçevesidir. Son çerçeve mevcut ayarla doldurulur. Veri uzunluğu türü seçmez; alıcı `0x01` için yeni 17 baytlık şemayı doğrulamalıdır.
+13 bayt veri iki çerçeveye ayrılıyor: **6 + 7 bayt**. Bir Flow Control ile toplam **2 veri + 1 Flow Control** çerçevesi var. Alıcı önce türü, sonra boyutu kontrol etmeli: `0x01` artık 13 bayt. Mesajları uzunlukla değil tür alanıyla ayırıyoruz.
+
+Önceki 17 baytlık biçim [ADR-0013](../07-decisions/ADR-0013-separate-temperature-message.md) ile değişti. Tür kodu aynı kaldı; alıcı da yeni alan yerleşimine geçirilmeden bu sürüme geçilmemeli.
 
 ISO-TP meşgulse o tur telemetri atlanıyor. Gönderim başlatılamazsa hata loglanıyor. Ring buffer henüz yok; şu an kaçırılan ölçümleri saklayıp sonra gönderemiyoruz. Başlamış aktarımın içindeki zaman ise değişmiyor.
 
 ## Neyi kontrol ettik?
 
-- Debug firmware derlemesi başarılı; senaryo kaynağındaki mevcut printf bildirim/biçim uyarıları sürüyor.
-- Önceki uygulamada gerçek dispatcher ve ISO-TP koduyla bilgisayarda 17 bayt yerleşim, sıcaklıklar, 64 bit zaman ve üç veri çerçevesi doğrulandı. Bu testler context zamanını kullanan sürüme aittir; RTC’nin payload oluştururken okunması değişikliğinde Debug derlemesi kullanıldı.
-- Gerçek RTC yardımcı kodu, taklit HAL ile saniye altı hesap, saniye/gün geçişi, okuma sırası, hata dönüşleri ve 64 bit sonuç için doğrulandı.
-- Kart/sensör testi yapılmadı. ClusterPilot alıcı kodu değiştirilmedi.
+Debug derlemesi geçti. Gerçek dispatcher ve ISO-TP koduyla bilgisayarda 13 baytlık yerleşimi, RTC zamanının paket boyunca korunmasını ve iki veri çerçevesini kontrol ettik. RUNNING dışındaki telemetri kısıtını da denedik. Ayrı sıcaklık gönderiminin kaldırıldığı da kontrol edildi. Kart testi ve ClusterPilot alıcı güncellemesi yapılmadı.
 
 ## Kaynaklar
 

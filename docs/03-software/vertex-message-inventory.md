@@ -12,7 +12,7 @@ guncelleyen: "Codex"
 
 ## Kodda hangi mesajlar var?
 
-CAN/ISO-TP’yi koruyoruz, mesajları ise ihtiyaçlarımıza göre düzenliyoruz. Bu sayfa 2026-09-18’de firmware’de gördüğümüz durumu anlatıyor. Telemetri 17, genel durum 7 bayt. Kart üzerinde uçtan uca test henüz yapılmadı.
+CAN/ISO-TP’yi koruyoruz, mesajları ise ihtiyaçlarımıza göre düzenliyoruz. Bu sayfa 2026-09-18’de firmware’de gördüğümüz durumu anlatıyor. Telemetri 13, genel durum 11 bayt. Kart üzerinde uçtan uca test henüz yapılmadı.
 
 Kaynak yolları çalışma alanı köküne göredir:
 
@@ -30,15 +30,15 @@ CAN/ISO-TP bağlantısı, sabit `0x100` cihaz kimliği ve ayrı ayrı 1024 bayt 
 
 | Güncel C yapı adı | Tür sabiti | Kod | Hedef aralık | İçerik |
 |---|---|---|---|---|
-| `VertexTelemetryPayload` | `PAYLOAD_TYPE_FAST_TELEMETRY` | `0x01` | 100 ms | Pil gerilimi `uint16_t` mV, akımı `int16_t` mA, pil/ortam sıcaklıkları ayrı `int16_t` 0,1 °C, `uint64_t` Unix ms ölçüm zamanı |
+| `VertexTelemetryPayload` | `PAYLOAD_TYPE_FAST_TELEMETRY` | `0x01` | 100 ms | Pil gerilimi `uint16_t` mV, akımı `int16_t` mA, `uint64_t` Unix ms paket zamanı (yalnız RUNNING) |
 | `HeartbeatPayload` | `PAYLOAD_TYPE_HEARTBEAT` | `0x02` | 500 ms | Context içindeki senaryo oynatıcı durumu |
-| `VertexStatusPayload` | `PAYLOAD_TYPE_GENERAL_STATUS` | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger modu (0 idle, 1 şarj, 2 deşarj), ölçülen pil akımı `int16_t` mA |
+| `VertexStatusPayload` | `PAYLOAD_TYPE_GENERAL_STATUS` | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger modu (0 idle, 1 şarj, 2 deşarj), ölçülen pil akımı `int16_t` mA, ayrı int16_t pil/ortam sıcaklığı °C × 10 |
 
 Yapı adlarını yeniledik ama tür sabitlerini aynı bıraktık. Kodda `FAST_TELEMETRY` ve `GENERAL_STATUS` görmemizin nedeni bu. `HeartbeatPayload` için henüz başka bir ad seçmedik. ClusterPilot tarafında ise eski `FastTelemetryPayload` hâlâ duruyor; alıcı güncellemesi bekliyor.
 
-Bunlar hedef gönderim aralıkları. ISO-TP meşgulse telemetri ve heartbeat o tur atlanıyor. Genel durum ise bağlantının boşalmasını bekliyor ve diğer periyodik mesajlardan önce deneniyor.
+Bunlar hedef gönderim aralıkları. ISO-TP meşgulse telemetri ve heartbeat o tur atlanıyor. Genel durum bağlantının boşalmasını bekliyor. Önce genel durum, ardından hızlı telemetri ve heartbeat deneniyor.
 
-Telemetri 17, genel durum 7 bayt. Genel durumun [alanları ve kodları](general-status-message.md) ayrı sayfada. Telemetride türü açıkça `uint8_t` tuttuk. Heartbeat ise hâlâ C enum kullanıyor; `packed` yazması tek başına alanın bir bayt olduğunu söylemiyor. Boyuta yorumdan değil derleyicinin ürettiği düzenden bakıyoruz.
+Telemetri 13, genel durum 11 bayt. Genel durumun [alanları ve kodları](general-status-message.md) ayrı sayfada. Telemetride türü açıkça `uint8_t` tuttuk. Heartbeat ise hâlâ C enum kullanıyor; `packed` yazması tek başına alanın bir bayt olduğunu söylemiyor. Boyuta yorumdan değil derleyicinin ürettiği düzenden bakıyoruz.
 
 Telemetriden sabit `state` alanını çıkardık. Heartbeat durumu context’ten, genel durum ise doğrudan senaryo oynatıcısından alıyor; bu iki kaynağın aynı kaldığını henüz doğrulamadık. Charger modu da context bayraklarından geliyor, donanım geri okuması değil. Gerilim alanı pakette var ama okuması henüz bağlı değil.
 
@@ -76,19 +76,17 @@ Sonraki tasarımda komutun alınması ile uygulanması, mesajların kimlikleri, 
 
 ## Yeni tasarımda tür alanı ve uzunluk doğrulaması
 
-[ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008'in yerine geçmiştir. Tür, mesajın tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk, seçilen türe göre doğrulanır. Genel durumdaki iki şarj bayrağı tek idle/şarj/deşarj çalışma moduyla değiştirildi. Mod ve oynatıcı durumu ayrı birer bayttır; akım `int16_t` mA olarak 2 bayt, toplam 7 bayttır. Bu değişiklik firmware’de uygulandı; alıcı uyarlaması henüz yapılmadı.
+[ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008'in yerine geçmiştir. Tür, mesajın tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk, seçilen türe göre doğrulanır. Genel durumdaki iki şarj bayrağı tek idle/şarj/deşarj çalışma moduyla değiştirildi. Mod ve oynatıcı durumu ayrı birer bayttır; akım `int16_t` mA olarak 2 bayt, iki sıcaklık alanıyla toplam 11 bayttır. Bu değişiklik firmware’de uygulandı; alıcı uyarlaması henüz yapılmadı.
 
-## VertexTelemetryPayload — güncel 17 baytlık yerleşim
+## Güncel 13 baytlık telemetri
 
 | Bayt | Alan | Tür / birim |
 |---|---|---|
 | 0 | `payload_type` | uint8_t, 0x01 |
 | 1–2 | `battery_voltage_mv` | uint16_t, mV |
 | 3–4 | `battery_current_ma` | int16_t, mA |
-| 5–6 | `battery_temperature_dc` | int16_t, °C × 10 |
-| 7–8 | `ambient_temperature_dc` | int16_t, °C × 10 |
-| 9–16 | `measurement_time_ms` | uint64_t, Unix ms |
+| 5–12 | `measurement_time_ms` | uint64_t, Unix ms |
 
-Sıcaklıkta −32768, ölçüm yok demek. Zamanı payload oluştururken `TL_RTC_GetMs()` ile okuyoruz; RTC yaklaşık 3,9 ms adımlı. Sıcaklık okumaları, sıra numarası ve ring buffer henüz yok. Paket 3 ISO-TP veri çerçevesiyle gidiyor; Flow Control de ayrıca var.
+Sıcaklıklar yalnız [genel durum mesajında](general-status-message.md) taşınıyor. Ayrı sıcaklık mesajı kaldırıldı. Telemetri 13 bayt; zaman payload oluştururken RTC’den alınıyor. Sıra numarası ve ring buffer henüz yok.
 
-[Alanların anlamı, zaman kaynağı, uygulama sınırları ve doğrulama](vertex-telemetry-message.md). Önceki 7 bayt ve tek bayt sıcaklık biçimi artık geçerli değildir.
+[Telemetri ayrıntıları](vertex-telemetry-message.md) · [Yeni karar](../07-decisions/ADR-0013-separate-temperature-message.md)
