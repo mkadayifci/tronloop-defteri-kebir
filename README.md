@@ -4,7 +4,7 @@
 
 > Ana ünite ve node'lardan oluşan, bataryaları sürekli şarj/deşarj döngüsüne alarak iklim koşullarıyla birlikte kapasite kayıplarını uzun vadeli izleyen araştırma platformu.
 
-**Durum:** 🟡 Faz 1 — Kurulum Aşaması &nbsp;|&nbsp; **Başlangıç:** 2026 &nbsp;|&nbsp; **Son Güncelleme:** 2026-02-26
+**Durum:** 🟡 Faz 1 — Kurulum Aşaması &nbsp;|&nbsp; **Başlangıç:** 2026 &nbsp;|&nbsp; **Son Güncelleme:** 2026-09-18
 
 | | Faz 1 | Faz 2 |
 |--|-------|-------|
@@ -15,6 +15,8 @@
 ---
 
 ## Hızlı Erişim
+
+- [Karar ve Mimari Defteri](docs/01-project-general/decision-hub.md) — kararlar, haberleşme notları ve açık konular
 
 - [Proje Tanımı & Hedefler](docs/01-project-general/project-definition.md)
 - [Ekip & Roller](docs/01-project-general/team.md)
