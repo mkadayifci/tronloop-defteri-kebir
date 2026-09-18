@@ -31,6 +31,8 @@ ClusterPilot ile dağıtık Vertex’ler arasında bataryaları **sürekli şarj
 
 **Adlandırma:** [Cluster, ClusterPilot ve Vertex](docs/01-project-general/terminology.md). Ortak fiziksel altyapı Cluster’a, sunucu rolü ClusterPilot’a aittir.
 
+Bulut sunucusunun adı **TSphere**’dir; MQTT, TSphere üzerindeki haberleşme hizmetidir.
+
 **Temel bileşenler:**
 - Cluster (Vertex birimleri ve ortak test altyapısı)
 - ClusterPilot (koordinasyon, veri toplama, iletişim)
@@ -100,6 +102,10 @@ son_guncelleme: "YYYY-MM-DD"
 guncelleyen: "İsim"
 ---
 ```
+
+### Mesaj Tasarım Kuralı
+
+Mesaj türü tür alanından belirlenir; farklı türler aynı veri uzunluğunda olabilir. `dataLength`, seçilen türün uzunluğunu doğrulamak içindir. Eski benzersiz uzunluk şartı kaldırıldı. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek. Oynatıcı durumu ve charger çalışma modu ayrı birer uint8_t (1 bayt) olarak taşınacak. Akım mA cinsinden int16_t (2 bayt); hedef genel durum 7 bayttır ve ISO-TP ile tek CAN çerçevesine sığar. [ADR-0010](docs/07-decisions/ADR-0010-message-type-and-operation-mode.md).
 
 ### İçerik Tutarlılığı
 - Bileşen isimleri her dosyada aynı şekilde yazılmalı

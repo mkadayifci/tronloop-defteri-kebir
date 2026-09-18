@@ -33,7 +33,7 @@ Kullanıcı Defteri Kebir'i ana üs olarak kesinleştirdi; diğer klasörlerin k
 
 ## Genel mimari ve protokol görüşmesinin başlangıcı
 
-Kullanıcı Cluster, Vertex ve Linux üzerinde çalışan ClusterPilot yapısını; buluttaki MQTT üzerinden veri, komut ve yanıt akışını; gönderilemeyen verilerin SQLite'ta tutulmasını açıkladı. Bu anlatım [ADR-0003](../../07-decisions/ADR-0003-system-overview.md) ile kaydedildi. Haberleşme ayrıntıları için konu listesi çıkarıldı; ilk açık soru Vertex–ClusterPilot yerel protokolüdür.
+Kullanıcı Cluster, Vertex ve Linux üzerinde çalışan ClusterPilot yapısını; TSphere üzerindeki MQTT üzerinden veri, komut ve yanıt akışını; gönderilemeyen verilerin SQLite'ta tutulmasını açıkladı. Bu anlatım [ADR-0003](../../07-decisions/ADR-0003-system-overview.md) ile kaydedildi. Haberleşme ayrıntıları için konu listesi çıkarıldı; ilk açık soru Vertex–ClusterPilot yerel protokolüdür.
 
 ## CAN/ISO-TP ve mesaj tasarımının kapsamı
 
@@ -70,3 +70,27 @@ Kullanıcının talebiyle eski belgeler Cluster, ClusterPilot ve Vertex adlandı
 ## Mesajlaşma taslağının derlenmesi
 
 Kullanıcının talebiyle konuşulan ayrıntılar [Mesajlaşma Protokolü — Çalışma Taslağı](../../03-software/communication-notes.md) içinde toplandı. Veri akışı, ölçüm kaydı, dairesel tampon, saat eşitleme ve komut/yanıt akışları diyagramlarla belgelendi. Kesinleşen davranışlar, mevcut kod gözlemleri ve henüz seçilmemiş paket/MQTT ayrıntıları ayrı gösterildi.
+
+## Mesaj türünün uzunlukla belirlenmesi
+
+Kullanıcı alıcı yazılımın CAN mesaj türünü `dataLength` üzerinden belirlediğini açıkladı. Farklı türlerin aynı uzunlukta olamayacağı [ADR-0008](../../07-decisions/ADR-0008-unique-message-length.md) ile kaydedildi; protokol taslağı ve kalıcı çalışma kuralları güncellendi.
+
+## Genel durum mesajı ve TSphere adı
+
+Kullanıcının talebiyle genel durum mesajı firmware'den tekrar doğrulandı; alanları, bayt konumları, durum kodları ve mevcut uygulama sınırları [ayrı belgede](../../03-software/general-status-message.md) gösterildi. Bulut sunucusunun adı [ADR-0009](../../07-decisions/ADR-0009-tsphere-name.md) ile TSphere olarak kaydedildi; MQTT hizmet adı olarak korundu.
+
+## Tür alanına geçiş ve çalışma modu
+
+Kullanıcı mesaj türünün uzunluk yerine tür alanından belirlenmesini ve genel durumda şarj etkinliği/ters mod alanlarının idle/şarj/deşarj çalışma modu olarak birleştirilmesini istedi. ADR-0010, ADR-0008'in yerine geçti; aktif kurallar güncellendi. Kod değişmedi. Alanlar ayrı baytlar olursa 9 bayt, oynatıcı durumu ve çalışma modu birlikte bit alanlarına kodlanırsa 8 bayt olacağı belgelendi; ikinci seçenek henüz öneridir.
+
+## Birleşik durum baytı kesinleşti
+
+Kullanıcı oynatıcı durumu ve çalışma modunun aynı baytta bit alanları olarak taşınacağını kesinleştirdi. ADR-0010 ve genel durum belgesi güncellendi; hedef paket 8 bayt oldu. Kesin bit konumları ve ham CAN'a geçiş ayrıntısı henüz seçilmedi; firmware kodu değiştirilmedi.
+
+## Genel durum akımı 2 bayt
+
+Kullanıcı akım alanının mA cinsinden işaretli 2 bayt (`int16_t`) olmasını istedi. ADR-0010, hedef alan tablosu ve aktif kurallar güncellendi; genel durum paketi hedefi 6 bayta indi. Mevcut firmware gözlemleri tarihsel doğruluk için 10 bayt/`int32_t` olarak korundu; kod değiştirilmedi.
+
+## Oynatıcı ve charger durumlarının ayrılması
+
+Kullanıcı oynatıcı durumu ile charger çalışma modunun ayrı birer bayt olmasını istedi. Önceki ortak bit alanı kararı ADR-0010 içinde tarihçesi korunarak güncellendi. Akım 2 bayt kaldı; hedef paket 7 bayt ve ISO-TP başlığıyla tek CAN çerçevesi oldu. Firmware değiştirilmedi.

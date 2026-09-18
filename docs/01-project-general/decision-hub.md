@@ -18,7 +18,7 @@ Kullanıcının kararıyla tüm karar ve dokümantasyon yönetiminin ana merkezi
 
 ## Adlandırma
 
-Belgelerde **Cluster**, **ClusterPilot** ve **Vertex** adları kullanılır. [Adlandırma rehberi](terminology.md), eski terimlerin bağlama göre karşılıklarını ve korunacak teknik adları tanımlar.
+Belgelerde **Cluster**, **ClusterPilot**, **Vertex** ve bulut sunucusu için **TSphere** adları kullanılır. [Adlandırma rehberi](terminology.md), eski terimlerin bağlama göre karşılıklarını ve korunacak teknik adları tanımlar.
 
 ## Kayıt alanları
 
@@ -41,11 +41,13 @@ Her anlamlı görüşmeden sonra ilgili konu belgesi ve gerekiyorsa karar kaydı
 
 ## Güncel sistem özeti
 
-Tronloop pil test sisteminde Cluster’lar, Vertex’leri içerir. Linux sunucusu ClusterPilot, Vertex verilerini buluttaki MQTT’ye taşır; gönderilemeyen verileri SQLite’ta biriktirir. Panel kaynaklı MQTT komutlarını cihazlara yönlendirir ve yanıtlarını MQTT’ye gönderir. [ADR-0003](../07-decisions/ADR-0003-system-overview.md).
+Tronloop pil test sisteminde Cluster’lar, Vertex’leri içerir. Linux sunucusu ClusterPilot, Vertex verilerini TSphere üzerindeki MQTT’ye taşır; gönderilemeyen verileri SQLite’ta biriktirir. Panel kaynaklı MQTT komutlarını cihazlara yönlendirir ve yanıtlarını MQTT’ye gönderir. [ADR-0003](../07-decisions/ADR-0003-system-overview.md).
 
 Testi Vertex firmware’i ClusterPilot’a sürekli ihtiyaç duymadan yürütür; [ADR-0004](../07-decisions/ADR-0004-autonomous-vertex.md). Vertex kısa kesintiler için sınırlı dairesel tampon kullanır; dolduğunda en eski kayıtların üzerine yazar. Bağlantı düzelince elde kalan bekleyen kayıtlar aktarılır; kayıpsız teslim garantisi yoktur. [ADR-0006](../07-decisions/ADR-0006-vertex-ring-buffer.md), ADR-0005’in yerine geçmiştir. Kapasite, bellek ortamı ve yeniden başlama politikası açık konudur.
 
 Milisaniye çözünürlüğünde ölçüm zamanı ve artan ayırt edici sıra numarası kayıtlarda yer alacak; sayaç için test başında sıfırlama şartı yoktur. STM32 saati Linux/Unix zamanı ile periyodik mesajlar üzerinden eşitlenecek. [ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md).
+
+Mesaj türü tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk seçilen türe göre doğrulanır. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek; bu mod ve oynatıcı durumu ayrı birer bayt olarak taşınacak. Akım mA cinsinden işaretli `int16_t` (2 bayt) olacak; hedef genel durum paketi 7 bayt. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
 
 ## Açık konular
 

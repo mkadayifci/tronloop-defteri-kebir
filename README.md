@@ -35,6 +35,7 @@ guncelleyen: "Codex"
 - [Malzeme Listesi (BOM)](docs/02-hardware/bill-of-materials.md)
 - [Yazılım Mimarisi](docs/03-software/architecture.md)
 - [Mesajlaşma Protokolü — Çalışma Taslağı](docs/03-software/communication-notes.md)
+- [Genel Durum Mesajı — Alanlar ve Bayt Yerleşimi](docs/03-software/general-status-message.md)
 - [Test Protokolü](docs/04-tests/test-protocol.md)
 - [Literatür Taraması](docs/05-research/literature.md)
 - [Yayın Planı](docs/05-research/publications.md)
@@ -54,7 +55,7 @@ flowchart LR
         CP <-->|CAN/ISO-TP| V1
         CP <-->|CAN/ISO-TP| VN
     end
-    CP <-->|Veri · Komut · Yanıt| MQTT["Buluttaki MQTT"]
+    CP <-->|Veri · Komut · Yanıt| MQTT["TSphere<br/>MQTT"]
 ```
 
 | Ad | Anlamı |
@@ -62,6 +63,7 @@ flowchart LR
 | **Cluster** | Vertex birimlerini ve bunların ortak altyapısını içeren test grubu |
 | **ClusterPilot** | Vertex’lerle bulut arasındaki iletişimi yöneten Linux sunucusu |
 | **Vertex** | Pili test eden, senaryoyu kendi firmware’i üzerinde bağımsız yürüten birim |
+| **TSphere** | MQTT haberleşme hizmetini barındıran bulut sunucusu |
 
 Ayrıntılar: [Bileşen adlandırması](docs/01-project-general/terminology.md) · [Güncel mimari notları](docs/03-software/architecture-notes.md).
 

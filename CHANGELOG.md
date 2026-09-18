@@ -22,6 +22,15 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.09.3] - 2026-09-18
 
 ### Güncellendi
+- Genel durum hedefinde oynatıcı durumu ve charger çalışma modu ayrı birer bayta ayrıldı. Akım 2 bayt kaldı; toplam 7 bayt uygulama verisi ISO-TP başlığıyla tek CAN çerçevesine sığıyor.
+- ISO-TP kütüphanesinde tek çerçeve uygulama verisi sınırı 7 bayt ve dolgu ayarı doğrulandı; hedef 6 baytlık genel durumun ISO-TP ile tek CAN çerçevesinde taşınabileceği belgelendi.
+- Genel durum hedefindeki akım alanı mA cinsinden `int16_t` (2 bayt) olarak seçildi; birleşik durum baytıyla toplam hedef boyut 6 bayta güncellendi. Mevcut firmware kodu değişmedi.
+- ADR-0010 netleştirildi: Oynatıcı durumu ve idle/şarj/deşarj çalışma modu aynı baytta ayrı bit alanları olarak taşınacak; genel durumun hedef boyutu 8 bayt oldu.
+- ADR-0010, ADR-0008’in yerine geçti: tür alanıyla ayrıştırma, türe göre uzunluk doğrulama ve aynı uzunlukta farklı türlere izin verilmesi kararlaştırıldı. Genel durum için tek idle/şarj/deşarj çalışma modu seçildi; firmware değişmedi.
+- Genel durum mesajının tek klasik CAN çerçevesine sığma değerlendirmesi eklendi; 8 bayta bit alanlarıyla indirgeme seçeneği yalnızca öneri olarak kaydedildi.
+- Genel durum mesajının 10 baytlık alan yerleşimi, oynatıcı durum kodları, gönderim davranışı ve örnek çözümlemesi belgelendi.
+- ADR-0009 ile bulut sunucusu TSphere olarak adlandırıldı; MQTT hizmetiyle sunucu adı ayrıldı.
+- ADR-0008: CAN mesaj türlerinin `dataLength` ile ayrıştırılması nedeniyle farklı türlerin aynı veri uzunluğunda olamayacağı protokol ve çalışma kuralı olarak eklendi.
 - Mesajlaşma diyagramlarında Mermaid tarafından komut ayırıcı olarak yorumlanan iki noktalı virgül kaldırıldı; ölçüm ve saat eşitleme diyagramlarının sözdizimi düzeltildi.
 - Mesajlaşma notları kapsamlı protokol taslağına dönüştürüldü: ölçüm alanlarının anlamı, kesinti/tampon davranışı, saat eşitleme, komut/yanıt diyagramları ve açık paket/MQTT ayrıntıları bir araya getirildi.
 - Eski dokümantasyon, başlıklar ve diyagramlar Cluster/ClusterPilot/Vertex adlandırmasına uyarlandı; adlandırma rehberi eklendi. Ortak fiziksel altyapı ile Linux sunucusu ayrıldı; teknik yollar ve şema adları korundu.

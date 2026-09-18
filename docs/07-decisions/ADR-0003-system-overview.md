@@ -16,7 +16,7 @@ guncelleyen: "Codex"
 
 ## Bağlam ve karar
 
-Tronloop, pilleri senaryolara göre şarj/deşarj eder ve verileri bulutta saklar. Sisteme bağlanan Cluster'ların içinde Vertex’ler bulunur. Linux sunucusu ClusterPilot, Vertex verilerini buluttaki MQTT'ye gönderir. Gönderemediği verileri yerel SQLite'ta biriktirir ve sonradan gönderir.
+Tronloop, pilleri senaryolara göre şarj/deşarj eder ve verileri bulutta saklar. Sisteme bağlanan Cluster'ların içinde Vertex’ler bulunur. Linux sunucusu ClusterPilot, Vertex verilerini TSphere üzerindeki MQTT'ye gönderir. Gönderemediği verileri yerel SQLite'ta biriktirir ve sonradan gönderir.
 
 Kullanıcı panellerinden başlatılan komutlar MQTT'ye ulaşır. ClusterPilot bunları okuyup doğru cihazlara iletir ve cihaz yanıtlarını yine MQTT'ye gönderir.
 

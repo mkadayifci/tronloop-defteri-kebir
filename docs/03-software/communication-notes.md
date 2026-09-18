@@ -18,25 +18,33 @@ Adlandırma: **Cluster**, Vertex birimlerini içeren test grubudur; **ClusterPil
 
 Dayanaklar: [Genel yapı](../07-decisions/ADR-0003-system-overview.md), [bağımsız test yürütme](../07-decisions/ADR-0004-autonomous-vertex.md), [dairesel tampon](../07-decisions/ADR-0006-vertex-ring-buffer.md), [zaman ve sıra numarası](../07-decisions/ADR-0007-measurement-time-sequence.md). Eski ADR-0005'in yerini ADR-0006 almıştır.
 
+**TSphere**, bulut sunucusunun adıdır; MQTT bu sunucudaki haberleşme hizmetidir. [Adlandırma kararı](../07-decisions/ADR-0009-tsphere-name.md).
+
 ## 1. Haberleşme hatları
 
 | Hat | Yön | Taşıma | Görev | Durum |
 |---|---|---|---|---|
 | COM-001 | Vertex → ClusterPilot | CAN/ISO-TP | Ölçüm verisi ve cihaz yanıtları | Kesinleşti; paket biçimleri açık |
-| COM-002 | ClusterPilot → Buluttaki MQTT | MQTT | Ölçümleri ve cihaz yanıtlarını buluta iletme | Kesinleşti; konu ve içerik şeması açık |
-| COM-003 | Kullanıcı paneli → Buluttaki MQTT | MQTT üzerinden mantıksal akış | Komut başlatma | Kesinleşti; doğrudan erişim/ara servis ayrıntısı açık |
-| COM-004 | Buluttaki MQTT → ClusterPilot | MQTT | Hedef cihaza yönlendirilecek komutu alma | Kesinleşti; abonelik ve adresleme açık |
+| COM-002 | ClusterPilot → TSphere üzerindeki MQTT | MQTT | Ölçümleri ve cihaz yanıtlarını buluta iletme | Kesinleşti; konu ve içerik şeması açık |
+| COM-003 | Kullanıcı paneli → TSphere üzerindeki MQTT | MQTT üzerinden mantıksal akış | Komut başlatma | Kesinleşti; doğrudan erişim/ara servis ayrıntısı açık |
+| COM-004 | TSphere üzerindeki MQTT → ClusterPilot | MQTT | Hedef cihaza yönlendirilecek komutu alma | Kesinleşti; abonelik ve adresleme açık |
 | COM-005 | ClusterPilot → Vertex | CAN/ISO-TP | Komut yönlendirme ve periyodik saat güncelleme | Kesinleşti; mesaj biçimi ve zamanlama açık |
 | COM-006 | ClusterPilot ↔ SQLite | Yerel veritabanı | Buluta gönderilemeyen veriyi biriktirme ve yeniden gönderme | Kesinleşti; kayıt silme/onay koşulları açık |
 
 Buluttaki verileri kalıcı depolamaya yazan servis ve panelin yanıtları alma yolu henüz tanımlanmadı. MQTT'ye gönderim, bu belgede bulut veritabanına yazıldığına ilişkin onay olarak kabul edilmez; bu onayın gerekip gerekmediği ve biçimi açık konudur.
+
+## 1.1. Tür alanıyla ayrıştırma
+
+**Kesinleşti — [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md):** Mesaj türü, mesajdaki tür alanından belirlenir. **Farklı türler aynı veri uzunluğunu kullanabilir.** `dataLength`, türü seçmek için değil seçilen türün paket uzunluğunu doğrulamak içindir. ADR-0008'in benzersiz uzunluk şartı yürürlükten kalktı.
+
+Alıcı önce tür alanını okuyacak kadar veri bulunduğunu, ardından tür kodunu ve o türe ait uzunluğu doğrulayarak diğer alanları okur. Bilinmeyen tür veya geçersiz uzunluk, başka türe benzetilerek işlenmez. Gerçek alan boyutları, tür kodları ve sürüm eşlemesi açıkça belgelenecek; C enum boyutları varsayılmayacak.
 
 ## 2. Ölçüm akışı
 
 1. Vertex, test senaryosunu kendi üzerinde yürütür ve ölçümü üretir.
 2. Ölçüm kaydı, ölçüm anının zamanını ve artan sıra numarasını taşır.
 3. Vertex kaydı CAN/ISO-TP üzerinden ClusterPilot'a aktarır. Kısa gönderim kesintileri dairesel tamponla karşılanır.
-4. ClusterPilot aldığı veriyi buluttaki MQTT'ye gönderir.
+4. ClusterPilot aldığı veriyi TSphere üzerindeki MQTT'ye gönderir.
 5. Buluta gönderemediği veriyi SQLite'ta biriktirir ve daha sonra gönderir.
 
 ```mermaid
@@ -44,7 +52,7 @@ sequenceDiagram
     participant V as Vertex
     participant C as ClusterPilot
     participant S as SQLite
-    participant M as Buluttaki MQTT
+    participant M as TSphere (MQTT)
     Note over V: Test bağımsız yürür. Ölçüm zamanı ve sıra numarası kayda aittir
     V->>C: CAN/ISO-TP ile ölçüm kaydı
     alt Buluta gönderim mümkün
@@ -118,7 +126,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant P as Kullanıcı paneli
-    participant M as Buluttaki MQTT
+    participant M as TSphere (MQTT)
     participant C as ClusterPilot
     participant V as Hedef Vertex
     P->>M: Hedef cihaza yönelik komut
@@ -141,9 +149,9 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 
 | Aile | Yön | Amaç |
 |---|---|---|
-| Ölçüm | Vertex → ClusterPilot → Bulut | Deney ölçümleri, ölçüm zamanı ve sıra bilgisi |
-| Durum | Vertex → ClusterPilot → Bulut | Cihazın ve testin güncel durumu |
-| Olay | Vertex → ClusterPilot → Bulut | Adım geçişi, test bitişi veya hata |
+| Ölçüm | Vertex → ClusterPilot → TSphere | Deney ölçümleri, ölçüm zamanı ve sıra bilgisi |
+| Durum | Vertex → ClusterPilot → TSphere | Cihazın ve testin güncel durumu |
+| Olay | Vertex → ClusterPilot → TSphere | Adım geçişi, test bitişi veya hata |
 | Komut | Panel → MQTT → ClusterPilot → Vertex | İstenen işlemi cihaza iletme |
 | Komut sonucu | Vertex → ClusterPilot → MQTT | İşlemin sonucunu bildirme |
 | Saat eşitleme | ClusterPilot → Vertex | Linux zamanını Vertex'e iletme |
@@ -164,12 +172,20 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 
 Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Bu belge kapsamında kod değiştirilmedi; kaynak incelemesi donanım doğrulaması değildir.
 
+## 8.1. Genel durum mesajının ayrıntıları
+
+Mevcut genel durum mesajı **10 bayt**, tür alanı **0x03**, hedef gönderim aralığı **3000 ms**: tür, pil gerilimi (mV), senaryo oynatıcı durumu, şarj etkinlik bayrağı, ters mod bayrağı ve pil akımı (mA) taşır. [Bayt yerleşimi, durum kodları, veri kaynakları ve örnek paket](general-status-message.md). Ölçüm zamanı ve sıra numarası bu mevcut pakette henüz yoktur.
+
+**Yeni karar:** Genel durum tasarımında iki şarj bayrağı yerine tek **idle / şarj / deşarj çalışma modu** kullanılacak. Oynatıcı durumu ayrı anlamını korur. Bu değişiklik firmware'e henüz uygulanmadı. Oynatıcı durumu ve charger çalışma modu ayrı birer `uint8_t` (1 bayt) olarak taşınacak. Akım mA cinsinden işaretli `int16_t` olarak 2 bayt taşınacak; hedef paket **7 bayt**. Charger modunun sayısal kodları henüz seçilmedi. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md).
+
+Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçevesinde taşır. Bu nedenle 7 baytlık hedef genel durum ISO-TP ile tek çerçevede gönderilebilir. Telde `0x07` ISO-TP başlığı (1 bayt) + 7 bayt veri bulunur; ek dolgu yoktur. Alıcı uygulama verisi 7 bayttır. 8 bayt uygulama verisi çok çerçeveli gönderim gerektirir. [Kaynak incelemesi](general-status-message.md).
+
 ## 9. Tamamlanacak protokol ayrıntıları
 
 | Konu | Henüz seçilmemiş ayrıntılar |
 |---|---|
 | Adresleme | Cluster/Vertex kimlik kapsamı, CAN ID eşlemesi ve ClusterPilot sayısı |
-| İkili paket | Mesaj kodları, sürüm başlığı, alan boyutları, bayt sırası, tekil/toplu ölçüm |
+| İkili paket | Tür kodu–şema tablosu, türe göre `dataLength` doğrulaması, mesaj kodları, sürüm başlığı, alan boyutları, bayt sırası, tekil/toplu ölçüm |
 | Ölçüm | Alan listesi, birimler, geçerlilik bilgisi ve kayıt sıklığı |
 | Sayaç ve zaman | Sayaç boyutu/taşması/yeniden başlama; zaman kodlaması ve eşitleme aralığı |
 | MQTT | Konular, içerik biçimi, QoS, retained kullanımı, oturum ve abonelik düzeni |

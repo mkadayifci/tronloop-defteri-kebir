@@ -17,6 +17,7 @@ Kaynak: Kullanıcının Cluster, ClusterPilot ve Vertex tanımları ve eski dok�
 | **Cluster** | Vertex birimlerini barındıran test grubu ve ortak altyapısı | Grup, ortak güç/iklim altyapısı ve fiziksel bütün |
 | **ClusterPilot** | Linux üzerinde çalışan, Vertex verilerini toplayıp buluta ileten ve komutları yönlendiren sunucu | Sunucu, veri toplama ve iletişim sorumlulukları |
 | **Vertex** | Test senaryosunu bağımsız yürüten pil test birimi | Test donanımı, firmware ve ölçüm kaynağı |
+| **TSphere** | Bulut sunucusu | MQTT hizmetini barındıran sunucu; bulut tarafındaki mesajlaşma hedefi |
 
 ## Eski ifadelerin karşılıkları
 
@@ -29,3 +30,5 @@ Kaynak: Kullanıcının Cluster, ClusterPilot ve Vertex tanımları ve eski dok�
 Mevcut dosya yolları, kod sembolleri ve şema alanları bu adlandırma çalışmasıyla yeniden adlandırılmaz. Örneğin `node-design.md`, `node_id` ve `nodes` eski teknik adlar olarak kalabilir; bunların açıklamalarında Vertex kullanılır. Bu adların yeni protokole aktarılacağı anlamı çıkmaz.
 
 Eski belgelerde adların güncellenmesi, bu belgelerdeki donanım, veritabanı, yedeklilik veya mesaj biçimi tercihlerinin yeniden onaylandığı anlamına gelmez. Güncel kararlar için [Karar ve Mimari Defteri](decision-hub.md) esas alınır.
+
+Sunucu adı için [ADR-0009](../07-decisions/ADR-0009-tsphere-name.md) geçerlidir; MQTT hizmetin/protokolün adıdır.

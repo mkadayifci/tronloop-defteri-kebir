@@ -36,7 +36,7 @@ CAN/ISO-TP bağlantısı, sabit `0x100` cihaz kimliği ve ayrı ayrı 1024 bayt 
 
 Aralıklar hedef deneme zamanlarıdır; teslim garantisi değildir. Hızlı telemetri ve heartbeat ISO-TP meşgulse o tur gönderilmez. Genel durum meşgul bağlantının boşalmasını bekler ve diğer periyodik mesajlardan önce denenir.
 
-Genel durum paketi sabit 10 bayttır. Diğer iki pakette tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
+Genel durum paketi sabit 10 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. Diğer iki pakette tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
 
 Hızlı telemetride `state` sabit `1` gönderilir. Heartbeat context durumunu, genel durum ise doğrudan senaryo oynatıcısının durumunu kullanır. Genel durumdaki charger bayrakları donanım geri okuması değildir; başlık açıklaması gerilim ölçümünün henüz güncellenmediğini belirtir. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
 
@@ -71,3 +71,7 @@ Başlık dört adet `uint8` alanından oluşur: `command`, `version`, `sequence`
 | Komut sonucu | Komutun kabul/ret bilgisi ve uygulanma sonucu |
 
 Sonraki tasarımda komutun alınması ile uygulanması, mesajların kimlikleri, ölçüm ve durum ayrımı, olayların saklanması, bağlantı kesintisi ve yinelenen komut davranışı netleştirilecek. Sayısal mesaj kodları ve alan yerleşimleri henüz seçilmedi.
+
+## Yeni tasarımda tür alanı ve uzunluk doğrulaması
+
+[ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008'in yerine geçmiştir. Tür, mesajın tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk, seçilen türe göre doğrulanır. Genel durumdaki iki şarj bayrağı tek idle/şarj/deşarj çalışma moduyla değiştirilecek ve bu mod ve oynatıcı durumu ayrı birer baytta taşınacak (akım `int16_t` mA olarak 2 bayt; hedef 7 bayt); yukarıdaki envanter mevcut kodu anlatır ve bu değişiklik henüz kodda uygulanmadı.

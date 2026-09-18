@@ -28,7 +28,7 @@ Bu davranış, ClusterPilot'un buluta gönderemediği verileri SQLite'ta birikti
 | Kesinti | Veriyi biriktiren | Bağlantı düzelince hedef |
 |---|---|---|
 | Vertex → ClusterPilot | Vertex; depolama ortamı henüz seçilmedi | ClusterPilot |
-| ClusterPilot → Bulut | ClusterPilot; SQLite | Buluttaki MQTT üzerinden veri aktarımı |
+| ClusterPilot → TSphere | ClusterPilot; SQLite | TSphere üzerindeki MQTT üzerinden veri aktarımı |
 
 ## Gerekçe ve alternatif
 

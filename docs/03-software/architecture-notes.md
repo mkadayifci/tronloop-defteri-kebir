@@ -19,15 +19,15 @@ Tronloop, pilleri belirli test senaryolarına göre şarj/deşarj eden ve test v
 | Bileşen | Kullanıcının belirttiği sorumluluk |
 |---|---|
 | Vertex | Cluster içindeki pil test birimi; senaryoyu ClusterPilot’a sürekli ihtiyaç duymadan yürütür |
-| ClusterPilot | Vertex verilerini alma, buluttaki MQTT'ye gönderme, komutları doğru cihaza iletme ve yanıtları MQTT'ye gönderme |
+| ClusterPilot | Vertex verilerini alma, TSphere üzerindeki MQTT'ye gönderme, komutları doğru cihaza iletme ve yanıtları MQTT'ye gönderme |
 | Yerel SQLite | Buluta gönderilemeyen verileri daha sonra gönderilmek üzere biriktirme |
-| Buluttaki MQTT | Verilerin, panel kaynaklı komutların ve cihaz yanıtlarının mesajlaşma noktası |
+| TSphere (MQTT hizmeti) | Verilerin, panel kaynaklı komutların ve cihaz yanıtlarının mesajlaşma noktası |
 | Kullanıcı panelleri | MQTT üzerinden cihazlara yönlendirilen komutları başlatma |
 | Bulut veri saklama | Test verilerini kalıcı saklama; tüketici servis ve veritabanı seçimi bu görüşmede belirtilmedi |
 
 ```mermaid
 flowchart LR
-    PANEL["Kullanıcı panelleri"] -->|Komut| MQTT["Buluttaki MQTT"]
+    PANEL["Kullanıcı panelleri"] -->|Komut| MQTT["TSphere<br/>MQTT"]
     MQTT -->|Komut| CP["ClusterPilot · Linux"]
     subgraph CLUSTER["Cluster"]
         CP -->|Cihaza yönlendirilen komut| V["Vertex’ler"]
