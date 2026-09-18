@@ -1,6 +1,18 @@
+---
+baslik: "Yazılım Mimarisi"
+kategori: "03-software"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # Yazılım Mimarisi
 
-Node firmware'i + ana ünite koordinasyon yazılımı + analiz araçlarından oluşan üç katmanlı yapı. Node'lar ile ana ünite CAN bus üzerinden haberleşir. Ana ünite topladığı veriyi her 1 dakikada bir cloud'a senkronize eder.
+**Son Güncelleme:** 2026-09-18
+
+> **Belge kapsamı:** Adlandırma 2026-09-18 tarihinde güncellendi. Aşağıdaki eski teknik tasarım ayrıntılarının güncel uygulamayla uyumu henüz doğrulanmadı; güncel sistem yapısı için [Mimari çalışma notları](architecture-notes.md) esas alınır.
+
+Vertex firmware'i + ClusterPilot koordinasyon yazılımı + analiz araçlarından oluşan üç katmanlı yapı. Vertex’ler ile ClusterPilot CAN bus üzerinden haberleşir. ClusterPilot topladığı veriyi her 1 dakikada bir cloud'a senkronize eder.
 
 ---
 
@@ -8,11 +20,11 @@ Node firmware'i + ana ünite koordinasyon yazılımı + analiz araçlarından ol
 
 ```mermaid
 flowchart TD
-    subgraph NODE["Node (STM32L476)"]
+    subgraph NODE["Vertex (STM32L476)"]
         FW["Firmware<br/>Şarj/Deşarj + Ölçüm + İklim"]
     end
 
-    subgraph ANA["Ana Ünite (BeagleBone)"]
+    subgraph ANA["ClusterPilot (BeagleBone)"]
         CAN["CAN Bus Alıcı"]
         LOCAL["Yerel Depolama<br/>mdadm RAID1"]
         SYNC["Cloud Sync Daemon<br/>her 1 dakika"]
@@ -36,7 +48,7 @@ flowchart TD
 
 ### InfluxDB — Ölçüm Verisi (Zaman Serisi)
 
-Node'lardan gelen tüm elektriksel ve iklimsel ölçümler burada saklanır. Zaman serisi veritabanı olduğundan yüksek frekanslı yazma ve trend sorguları için optimize edilmiştir.
+Vertex’lerden gelen tüm elektriksel ve iklimsel ölçümler burada saklanır. Zaman serisi veritabanı olduğundan yüksek frekanslı yazma ve trend sorguları için optimize edilmiştir.
 
 | Parametre | Değer |
 |-----------|-------|
@@ -71,7 +83,7 @@ Node'lardan gelen tüm elektriksel ve iklimsel ölçümler burada saklanır. Zam
 
 ### PostgreSQL — Konfigürasyon ve Metadata
 
-Deney tanımları, node konfigürasyonları, batarya bilgileri ve sistem ayarları burada saklanır.
+Deney tanımları, Vertex konfigürasyonları, batarya bilgileri ve sistem ayarları burada saklanır.
 
 | Parametre | Değer |
 |-----------|-------|
@@ -86,16 +98,16 @@ Deney tanımları, node konfigürasyonları, batarya bilgileri ve sistem ayarlar
 | Tablo | İçerik |
 |-------|--------|
 | `experiments` | Deney adı, başlangıç/bitiş, hedef parametreler |
-| `nodes` | Node ID, seri no, kurulum tarihi |
+| `nodes` | Vertex ID, seri no, kurulum tarihi |
 | `cells` | Batarya bilgileri (kapasite, kimya, yaş) |
 | `test_profiles` | Şarj/deşarj protokol tanımları |
-| `system_config` | Ana ünite ve node konfigürasyonları |
+| `system_config` | ClusterPilot ve Vertex konfigürasyonları |
 
 ---
 
 ## Yerel Depolama
 
-Ana ünite (BeagleBone) internet bağlantısı kesildiğinde veriyi yerel olarak tamponlar; bağlantı geri gelince cloud'a toplu gönderir. Yerel depolama iki USB SSD üzerinde **mdadm RAID1** ile yedeklenir.
+ClusterPilot (BeagleBone) internet bağlantısı kesildiğinde veriyi yerel olarak tamponlar; bağlantı geri gelince cloud'a toplu gönderir. Yerel depolama iki USB SSD üzerinde **mdadm RAID1** ile yedeklenir.
 
 | Bileşen | Açıklama |
 |---------|----------|
@@ -139,4 +151,4 @@ volumes:
 
 ---
 
-**İlgili Dosyalar:** [Veri Toplama](data-collection.md) · [Analiz](analysis.md) · [Ana Ünite](../02-hardware/main-unit.md)
+**İlgili Dosyalar:** [Veri Toplama](data-collection.md) · [Analiz](analysis.md) · [ClusterPilot](../02-hardware/main-unit.md)

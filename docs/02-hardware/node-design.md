@@ -1,8 +1,18 @@
-# Node Tasarımı
+---
+baslik: "Vertex Tasarımı"
+kategori: "02-hardware"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
 
-Her node bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne alır; elektriksel parametreler ve iklim koşullarını ölçer.
+# Vertex Tasarımı
 
-> **Faz 1** kapsamında node, iklimlendirme olmadan oda sıcaklığında çalışır. TMP117 ve NTC termistör Faz 1'de de mevcuttur; sıcaklık verisi kaydedilir ancak iklim kontrolü yapılmaz. Hava kanalı bağlantıları ve valf mekanizması **Faz 2** ile devreye girer.
+**Son Güncelleme:** 2026-09-18
+
+Her Vertex bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne alır; elektriksel parametreler ve iklim koşullarını ölçer.
+
+> **Faz 1** kapsamında Vertex, iklimlendirme olmadan oda sıcaklığında çalışır. TMP117 ve NTC termistör Faz 1'de de mevcuttur; sıcaklık verisi kaydedilir ancak iklim kontrolü yapılmaz. Hava kanalı bağlantıları ve valf mekanizması **Faz 2** ile devreye girer.
 
 ## Enerji Döngüsü (Loop) Mimarisi
 
@@ -11,7 +21,7 @@ Sistem regeneratif bir döngü üzerine kuruludur:
 ```mermaid
 flowchart LR
     KP["Kaynak Pil Paketi"]
-    TP["Test Pili<br/>(node içindeki)"]
+    TP["Test Pili<br/>(Vertex içindeki)"]
     KP -->|"şarj — kaynak paketten enerji alır"| TP
     TP -->|"deşarj — kaynak paketi şarj eder"| KP
 ```
@@ -132,8 +142,8 @@ Dev board: Nucleo-L476RG. Üretimde daha küçük paket olan STM32L476CB (LQFP48
 
 ## İletişim
 
-Ana üniteyle **CAN bus** üzerinden haberleşir. Her node'a benzersiz CAN ID atanır.
+ClusterPilot ile **CAN bus** üzerinden haberleşir. Her Vertex’e benzersiz CAN ID atanır.
 
 ---
 
-**İlgili Dosyalar:** [Ana Ünite](main-unit.md) · [İklim İzleme](climate-monitoring.md) · [Test Protokolü](../04-tests/test-protocol.md)
+**İlgili Dosyalar:** [ClusterPilot](main-unit.md) · [İklim İzleme](climate-monitoring.md) · [Test Protokolü](../04-tests/test-protocol.md)

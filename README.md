@@ -1,8 +1,16 @@
+---
+baslik: "Batarya Kapasite Kayıp İzleme Sistemi"
+kategori: "01-project-general"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 ![TRONLOOP](docs/01-project-general/assets/logo-small.png)
 
 # Batarya Kapasite Kayıp İzleme Sistemi
 
-> Ana ünite ve node'lardan oluşan, bataryaları sürekli şarj/deşarj döngüsüne alarak iklim koşullarıyla birlikte kapasite kayıplarını uzun vadeli izleyen araştırma platformu.
+> Cluster’lar içindeki Vertex birimleriyle pilleri senaryolara göre test eden; ClusterPilot üzerinden test verilerini buluta taşıyan araştırma platformu.
 
 **Durum:** 🟡 Faz 1 — Kurulum Aşaması &nbsp;|&nbsp; **Başlangıç:** 2026 &nbsp;|&nbsp; **Son Güncelleme:** 2026-09-18
 
@@ -21,11 +29,12 @@
 - [Proje Tanımı & Hedefler](docs/01-project-general/project-definition.md)
 - [Ekip & Roller](docs/01-project-general/team.md)
 - [Yol Haritası & Milestone'lar](docs/01-project-general/roadmap.md)
-- [Ana Ünite Tasarımı](docs/02-hardware/main-unit.md)
-- [Node Tasarımı](docs/02-hardware/node-design.md)
+- [ClusterPilot Tasarımı](docs/02-hardware/main-unit.md)
+- [Vertex Tasarımı](docs/02-hardware/node-design.md)
 - [İklim İzleme](docs/02-hardware/climate-monitoring.md)
 - [Malzeme Listesi (BOM)](docs/02-hardware/bill-of-materials.md)
 - [Yazılım Mimarisi](docs/03-software/architecture.md)
+- [Mesajlaşma Protokolü — Çalışma Taslağı](docs/03-software/communication-notes.md)
 - [Test Protokolü](docs/04-tests/test-protocol.md)
 - [Literatür Taraması](docs/05-research/literature.md)
 - [Yayın Planı](docs/05-research/publications.md)
@@ -37,19 +46,31 @@
 ## Sistem Mimarisi (Özet)
 
 ```mermaid
-flowchart TD
-    ANA["Ana Ünite<br/>Koordinasyon · Veri Toplama · İletişim · Depolama"]
-    ANA --> N1["Node 1<br/>Şarj/Deşarj + İklim"]
-    ANA --> N2["Node 2<br/>Şarj/Deşarj + İklim"]
-    ANA --> NN["Node N<br/>Şarj/Deşarj + İklim"]
-    N1 & N2 & NN --> ANL["Kapasite Analizi &<br/>Akademik Yayınlar"]
+flowchart LR
+    subgraph CLUSTER["Cluster"]
+        CP["ClusterPilot<br/>Linux · Veri Toplama · Komut Yönlendirme"]
+        V1["Vertex 1<br/>Bağımsız Test Yürütme"]
+        VN["Vertex N<br/>Bağımsız Test Yürütme"]
+        CP <-->|CAN/ISO-TP| V1
+        CP <-->|CAN/ISO-TP| VN
+    end
+    CP <-->|Veri · Komut · Yanıt| MQTT["Buluttaki MQTT"]
 ```
+
+| Ad | Anlamı |
+|---|---|
+| **Cluster** | Vertex birimlerini ve bunların ortak altyapısını içeren test grubu |
+| **ClusterPilot** | Vertex’lerle bulut arasındaki iletişimi yöneten Linux sunucusu |
+| **Vertex** | Pili test eden, senaryoyu kendi firmware’i üzerinde bağımsız yürüten birim |
+
+Ayrıntılar: [Bileşen adlandırması](docs/01-project-general/terminology.md) · [Güncel mimari notları](docs/03-software/architecture-notes.md).
+
 
 ---
 
 ## Proje Hakkında
 
-Bu proje, bataryaların uzun vadeli kapasite kayıp davranışlarını sistematik olarak ölçmek ve belgelemek amacıyla tasarlanmıştır. Her node bağımsız şarj/deşarj döngüleri yürütürken iklim parametrelerini (sıcaklık, nem, vb.) eş zamanlı kaydeder. Toplanan veriler analiz edilerek akademik yayınlara dönüştürülür.
+Bu proje, bataryaların uzun vadeli kapasite kayıp davranışlarını sistematik olarak ölçmek ve belgelemek amacıyla tasarlanmıştır. Her Vertex bağımsız şarj/deşarj döngüleri yürütürken iklim parametrelerini (sıcaklık, nem, vb.) eş zamanlı kaydeder. Toplanan veriler analiz edilerek akademik yayınlara dönüştürülür.
 
 ---
 

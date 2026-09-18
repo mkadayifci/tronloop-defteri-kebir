@@ -1,4 +1,14 @@
+---
+baslik: "Yol Haritası"
+kategori: "01-project-general"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # Yol Haritası
+
+**Son Güncelleme:** 2026-09-18
 
 Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test altyapısını kurar ve doğrular; ikinci faz iklim kontrol sistemini entegre ederek çok değişkenli test senaryolarını etkinleştirir.
 
@@ -10,13 +20,13 @@ Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test al
 
 | Milestone | Durum | Açıklama |
 |-----------|-------|----------|
-| Node donanım tasarımı | ⚪ Başlamadı | BQ25756 + BQ34Z100 + STM32L476, KiCad şematik |
-| Node PCB üretimi | ⚪ Başlamadı | İlk prototip, 1–3 node |
+| Vertex donanım tasarımı | ⚪ Başlamadı | BQ25756 + BQ34Z100 + STM32L476, KiCad şematik |
+| Vertex PCB üretimi | ⚪ Başlamadı | İlk prototip, 1–3 Vertex |
 | Şarj/deşarj firmware | ⚪ Başlamadı | STM32 üzerinde temel döngü kontrolü |
-| CAN haberleşme | ⚪ Başlamadı | Node ↔ BeagleBone protokolü |
+| CAN haberleşme | ⚪ Başlamadı | Vertex ↔ BeagleBone protokolü |
 | BeagleBone veri toplama | ⚪ Başlamadı | mdadm RAID1, veri loglama |
 | İlk test protokolü | ⚪ Başlamadı | 1C şarj/deşarj, kapasite ölçümü |
-| Faz 1 doğrulama | ⚪ Başlamadı | 3 node ile kararlı uzun süreli çalışma |
+| Faz 1 doğrulama | ⚪ Başlamadı | 3 Vertex ile kararlı uzun süreli çalışma |
 
 ---
 
@@ -31,7 +41,7 @@ Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test al
 | Manifold + boru sistemi | ⚪ Başlamadı | ASA/PETG 3D baskı, Armaflex yalıtım |
 | Nem ve sıcaklık kontrolü | ⚪ Başlamadı | TMP117 + PID + valf kontrolü (-20°C – +40°C) |
 | İklim firmware | ⚪ Başlamadı | Kapalı döngü PID, basınç tahliyesi |
-| 50 node ölçekleme | ⚪ Başlamadı | Alt manifold sistemi, tam kapasite test |
+| 50 Vertex ölçekleme | ⚪ Başlamadı | Alt manifold sistemi, tam kapasite test |
 | Faz 2 doğrulama | ⚪ Başlamadı | Çok sıcaklıklı eş zamanlı senaryo testi |
 
 ---

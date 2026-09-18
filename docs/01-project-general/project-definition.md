@@ -1,4 +1,14 @@
+---
+baslik: "Proje Tanımı"
+kategori: "01-project-general"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # Proje Tanımı
+
+**Son Güncelleme:** 2026-09-18
 
 **Kurum:** Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
 
@@ -7,6 +17,10 @@ Farklı iklim koşullarında sürekli şarj/deşarj döngülerine maruz kalan ba
 Bu proje kapsamında, değişik kimyalara sahip pillerin farklı çalışma koşullarında degradasyon seviyelerini ölçebilecek kontrollü bir deney ortamı sağlayan bir test cihazı geliştirilecek; bu cihazlar kullanılarak belirlenen senaryolar uygulanacak ve elde edilen sonuçlar bilimsel olarak yayımlanacaktır.
 
 ---
+
+## Bileşenler
+
+Sistem, Vertex pil test birimlerini içeren Cluster’lardan oluşur. ClusterPilot, Vertex’lerle bulut arasındaki veri ve komut iletişimini yöneten Linux sunucusudur. [Adlandırma rehberi](terminology.md).
 
 ## Geliştirme Yaklaşımı
 
@@ -17,14 +31,14 @@ Proje, karmaşıklığını yönetmek için **iki aşamalı** olarak geliştiril
 İklimlendirme olmadan, oda sıcaklığında çalışan temel şarj/deşarj ve kapasite ölçüm sistemi. Bu fazın amacı donanım, firmware ve veri toplama altyapısını iklim değişkenini devreye almadan doğrulamaktır.
 
 **Kapsam:**
-- Node donanımı (BQ25756 + BQ34Z100 + STM32L476)
+- Vertex donanımı (BQ25756 + BQ34Z100 + STM32L476)
 - Şarj/deşarj döngüsü ve kapasite ölçümü
 - CAN haberleşme ve BeagleBone veri toplama
 - Temel test protokolü
 
 ### Faz 2 — İklim Kontrol Entegrasyonu
 
-Faz 1 üzerine eklenen kapalı döngü iklimlendirme sistemi. Peltier soğutma, PTC ısıtma, nem kontrolü ve 50 node'a ölçekleme bu fazda gerçekleştirilir.
+Faz 1 üzerine eklenen kapalı döngü iklimlendirme sistemi. Peltier soğutma, PTC ısıtma, nem kontrolü ve 50 Vertex’e ölçekleme bu fazda gerçekleştirilir.
 
 **Kapsam:**
 - Peltier soğutma + kondenzasyon tuzağı + hot side ısı eşanjörü

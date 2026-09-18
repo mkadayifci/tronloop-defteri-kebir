@@ -17,7 +17,7 @@ guncelleyen: "Codex"
 
 ## Karar
 
-Test ölçüm kayıtları ölçüm zamanını ve sıra numarasını içerecek. Zaman ölçümün alındığı anı ifade eder; tampon boşaltılırken gönderim zamanı ile değiştirilmez. Bu alanlar gecikmeli kayıtların zamanını ve aradaki kayıt boşluklarını ayırt etmek için kullanılır.
+Test ölçüm kayıtları **milisaniye çözünürlüğünde ölçüm zamanını** ve sıra numarasını içerecek. Zaman ölçümün alındığı anı ifade eder; tampon boşaltılırken gönderim zamanı ile değiştirilmez. Bu alanlar gecikmeli kayıtların zamanını ve aradaki kayıt boşluklarını ayırt etmek için kullanılır.
 
 STM32 üzerinde RTC çalışır. ClusterPilot Linux sistem zamanı, periyodik saat güncelleme mesajlarıyla Vertex'e iletilir ve Vertex saati güncellenir. Unix zaman temeli kullanılır. Bağlantı kesilince Vertex kendi saatiyle çalışmayı sürdürür.
 
@@ -36,10 +36,18 @@ Bu yollar `tronloop-vertex-firmware/` deposuna göredir. Kod değiştirilmedi, d
 
 Dairesel tampondan gecikmeli gelen ölçümlerin zamanı korunur. Sıra numarası kayıt sırasını ve boşlukları değerlendirmeyi sağlar; kayıpsız teslim garantisi oluşturmaz.
 
+## Kararın netleştirilmesi — 2026-09-18
+
+Kullanıcı ölçüm zamanını milisaniye çözünürlüğünde tutmayı kabul etti. Bu, mevcut RTC kodunun milisaniye ürettiği veya saat eşitlemenin 1 ms doğruluk sağladığı anlamına gelmez. Mevcut saniye tabanlı uygulamanın uyarlanması gerekiyor. Kod değişikliği yapılmadı; alanın kodlanma biçimi ve saat güncelleme paketinin çözünürlüğü ayrıca seçilecek.
+
+## Sıra numarasının netleştirilmesi — 2026-09-18
+
+Kullanıcı sıra numarasının artmaya devam etmesini ve yalnızca kayıtları ayırt etmek için kullanılmasını belirtti. Her testte sıfırdan başlatma önerisi benimsenmedi; test değişimi sayacı sıfırlamayı gerektirmez. Bu alan tek başına tüm cihazlar ve yeniden başlamalar boyunca benzersiz bir kimlik garantisi olarak yorumlanmaz.
+
 ## Açık konular
 
-- Ölçüm zamanının saniye veya daha yüksek çözünürlükte olması; alan boyutu ve tel biçimi.
-- Sıra numarasının genişliği, test/cihaz/oturum kapsamı, başlangıç ve taşma davranışı.
+- Milisaniye çözünürlüklü ölçüm zamanının alan boyutu ve tel biçimi; STM32 üzerinde saniye altı zamanın nasıl üretileceği.
+- Artan ayırt edici sayacın alan genişliği, cihaz yeniden başladığında başlangıç değeri ve taşma davranışı. Test başında sıfırlama şartı yoktur.
 - Saat eşitleme aralığı ve ilk eşitlemenin zamanı.
 - İlk eşitleme öncesi zaman geçerliliği ve saat ileri/geri düzeltildiğinde kayıtların yorumlanması.
 - Saat güncelleme mesajının yeni protokoldeki biçimi ve yanıtı.

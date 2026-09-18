@@ -1,3 +1,11 @@
+---
+baslik: "CLAUDE.md — AI Asistan Konfigürasyonu"
+kategori: "01-project-general"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # CLAUDE.md — AI Asistan Konfigürasyonu
 
 > Bu dosya, Claude'un bu projeyi nasıl anlayacağını ve dokümantasyonu nasıl sürdüreceğini tanımlar.
@@ -19,11 +27,14 @@
 
 ## Projenin Özeti
 
-Ana ünite ile dağıtık nodelar arasında bataryaları **sürekli şarj/deşarj** döngülerine tabi tutarak kapasite kayıplarını izleyen, **iklim koşullarını** (sıcaklık, nem vb.) paralel olarak ölçen ve uzun vadede **akademik yayınlar** üretmeyi hedefleyen bir donanım araştırma sistemi.
+ClusterPilot ile dağıtık Vertex’ler arasında bataryaları **sürekli şarj/deşarj** döngülerine tabi tutarak kapasite kayıplarını izleyen, **iklim koşullarını** (sıcaklık, nem vb.) paralel olarak ölçen ve uzun vadede **akademik yayınlar** üretmeyi hedefleyen bir donanım araştırma sistemi.
+
+**Adlandırma:** [Cluster, ClusterPilot ve Vertex](docs/01-project-general/terminology.md). Ortak fiziksel altyapı Cluster’a, sunucu rolü ClusterPilot’a aittir.
 
 **Temel bileşenler:**
-- Ana kontrol ünitesi (koordinasyon, veri toplama, iletişim)
-- Node'lar (şarj/deşarj devresi + iklim sensörleri)
+- Cluster (Vertex birimleri ve ortak test altyapısı)
+- ClusterPilot (koordinasyon, veri toplama, iletişim)
+- Vertex’ler (şarj/deşarj devresi + iklim sensörleri)
 - Veri analiz yazılımı (kapasite hesabı, trend analizi)
 - Yayın çıktıları (akademik makaleler, raporlar)
 
@@ -42,8 +53,8 @@ Ana ünite ile dağıtık nodelar arasında bataryaları **sürekli şarj/deşar
     │   ├── team.md                  # Ekip üyeleri ve roller
     │   └── roadmap.md               # Milestone'lar, zaman çizelgesi
     ├── 02-hardware/
-    │   ├── main-unit.md             # Ana ünite tasarımı ve şeması
-    │   ├── node-design.md           # Node devre tasarımı
+    │   ├── main-unit.md             # ClusterPilot tasarımı ve şeması
+    │   ├── node-design.md           # Vertex devre tasarımı
     │   ├── climate-monitoring.md    # İklim kontrol/izleme sistemi
     │   └── bill-of-materials.md     # BOM (Bill of Materials)
     ├── 03-software/
@@ -103,7 +114,7 @@ _(Ekip üyeleri bu tabloyu dolduracak)_
 
 | İsim | Rol | Sorumluluk Alanı | İletişim |
 |------|-----|------------------|----------|
-| — | Donanım Tasarımcısı | Ana ünite + node devreleri | — |
+| — | Donanım Tasarımcısı | ClusterPilot + Vertex devreleri | — |
 | — | Yazılım Geliştirici | Veri toplama + analiz | — |
 | — | Araştırma / Yayın | Literatür + makale yazımı | — |
 | — | Proje Koordinatörü | Genel yönetim + test protokolleri | — |
@@ -114,7 +125,7 @@ _(Ekip üyeleri bu tabloyu dolduracak)_
 
 > _Bu bölümü her hafta güncelleyin._
 
-**Son Güncelleme:** 2026-02-26
+**Son Güncelleme:** 2026-09-18
 
 **Aktif Faz: Faz 1 — Temel Test Sistemi (İklimlendirmesiz)**
 
@@ -122,10 +133,10 @@ _(Ekip üyeleri bu tabloyu dolduracak)_
 
 | Bileşen | Durum | Not |
 |---------|-------|-----|
-| Node Donanım Tasarımı | ⚪ Başlamadı | BQ25756 + BQ34Z100 + STM32L476, KiCad |
-| Node PCB Üretimi | ⚪ Başlamadı | İlk prototip 1–3 node |
+| Vertex Donanım Tasarımı | ⚪ Başlamadı | BQ25756 + BQ34Z100 + STM32L476, KiCad |
+| Vertex PCB Üretimi | ⚪ Başlamadı | İlk prototip 1–3 Vertex |
 | Şarj/Deşarj Firmware | ⚪ Başlamadı | STM32 temel döngü |
-| CAN Haberleşme | ⚪ Başlamadı | Node ↔ BeagleBone |
+| CAN Haberleşme | ⚪ Başlamadı | Vertex ↔ BeagleBone |
 | BeagleBone Veri Toplama | ⚪ Başlamadı | mdadm RAID1 + loglama |
 | İlk Test Protokolü | ⚪ Başlamadı | 1C şarj/deşarj |
 | Literatür Taraması | ⚪ Başlamadı | — |
@@ -138,7 +149,7 @@ _(Ekip üyeleri bu tabloyu dolduracak)_
 | PTC Trim Isıtıcı | ⚪ Başlamadı | 50W, 24V |
 | Manifold + Boru Sistemi | ⚪ Başlamadı | ASA/PETG 3D baskı, Armaflex |
 | İklim Firmware | ⚪ Başlamadı | PID valf kontrolü |
-| 50 Node Ölçekleme | ⚪ Başlamadı | Alt manifold sistemi |
+| 50 Vertex Ölçekleme | ⚪ Başlamadı | Alt manifold sistemi |
 
 **Durum Simgeleri:** ⚪ Başlamadı → 🟡 Devam Ediyor → 🔵 İncelemede → ✅ Tamamlandı → ❌ Engellendi
 

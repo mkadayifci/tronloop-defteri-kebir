@@ -1,6 +1,18 @@
-# Ana Ünite Tasarımı
+---
+baslik: "ClusterPilot ve Cluster Altyapısı"
+kategori: "02-hardware"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
 
-Tüm node'ları koordine eden, verileri toplayan ve depolayan merkezi sistem.
+# ClusterPilot ve Cluster Altyapısı
+
+**Son Güncelleme:** 2026-09-18
+
+> **Belge kapsamı:** Adlandırma 2026-09-18 tarihinde güncellendi. Aşağıdaki eski teknik tasarım ayrıntılarının güncel uygulamayla uyumu henüz doğrulanmadı; güncel sistem yapısı için [Mimari çalışma notları](../03-software/architecture-notes.md) esas alınır.
+
+ClusterPilot, Cluster içindeki Vertex birimlerinden verileri toplayan ve bulutla iletişimi yöneten Linux sunucusudur. Bu belge ayrıca Cluster’ın ortak güç altyapısına ilişkin eski tasarım notlarını içerir.
 
 ## İşlemci / Platform
 
@@ -19,22 +31,22 @@ Tüm node'ları koordine eden, verileri toplayan ve depolayan merkezi sistem.
 
 ## İletişim
 
-Node'larla haberleşme **CAN bus** üzerinden yapılır. AM3358 dahili **2x DCAN kontrolcüsü** içerir — harici CAN IC gerekmez.
+Vertex’lerle haberleşme **CAN bus** üzerinden yapılır. AM3358 dahili **2x DCAN kontrolcüsü** içerir — harici CAN IC gerekmez.
 
 | Parametre | Değer |
 |-----------|-------|
 | Protokol | CAN bus (CAN 2.0A / 2.0B — belirlenecek) |
 | Baud rate | — kbps |
-| Topoloji | Multi-drop bus, her node paralel |
+| Topoloji | Multi-drop bus, her Vertex paralel |
 | Sonlandırma | Her iki uçta 120 Ω |
-| Node adresleme | Her node'a benzersiz CAN ID |
+| Vertex adresleme | Her Vertex’e benzersiz CAN ID |
 | Linux CAN stack | SocketCAN + can-utils |
 
 ---
 
-**İlgili Dosyalar:** [Node Tasarımı](node-design.md) · [Malzeme Listesi](bill-of-materials.md) · [Yazılım Mimarisi](../03-software/architecture.md)
+**İlgili Dosyalar:** [Vertex Tasarımı](node-design.md) · [Malzeme Listesi](bill-of-materials.md) · [Yazılım Mimarisi](../03-software/architecture.md)
 
-## Yedeklilik (Redundancy) Mimarisi
+## Cluster Altyapısı ve Yedeklilik (Eski Tasarım)
 
 Sistem senelerce kesintisiz çalışacak şekilde tasarlanmıştır. Hiçbir tek nokta arızası (single point of failure) sistemi durdurmamalıdır.
 
@@ -47,10 +59,10 @@ Sistem senelerce kesintisiz çalışacak şekilde tasarlanmıştır. Hiçbir tek
 
 Her iki BBB da donanımsal watchdog timer ile korunur.
 
-**Tek CAN Bus:** Tüm node'lar tek bir CAN hattı üzerinden her iki BBB'a da bağlıdır. Primary çökerse secondary aynı hat üzerinden devralır — node'lar geçişi fark etmez. AM3358'in ikinci DCAN kontrolcüsü ileride genişleme veya debug için boşta bekler.
+**Tek CAN Bus:** Tüm Vertex’ler tek bir CAN hattı üzerinden her iki BBB'a da bağlıdır. Primary çökerse secondary aynı hat üzerinden devralır — Vertex’ler geçişi fark etmez. AM3358'in ikinci DCAN kontrolcüsü ileride genişleme veya debug için boşta bekler.
 
 ```
-NODE'lar ──── CAN Bus (DCAN0) ──┬── Primary BBB (aktif)
+Vertex’ler ──── CAN Bus (DCAN0) ──┬── Primary BBB (aktif)
                                 └── Secondary BBB (standby)
 ```
 
@@ -58,9 +70,9 @@ NODE'lar ──── CAN Bus (DCAN0) ──┬── Primary BBB (aktif)
 
 2 paket aktif, 1 paket bakımda veya yedekte. Bir paket devre dışı kalırsa sistem kalan 2 paketle çalışmaya devam eder. Her paketin bağımsız BMS'i ve 48V bus'a bağlı bidirectional DC-DC regülatörü vardır.
 
-### Node Arızası
+### Vertex Arızası
 
-Node arızası kabul edilebilir — arızalı node CAN heartbeat kaybıyla tespit edilir, kaydedilir, ilgili test senaryosu ileride tekrarlanır. Diğer node'lar etkilenmez.
+Vertex arızası kabul edilebilir — arızalı Vertex CAN heartbeat kaybıyla tespit edilir, kaydedilir, ilgili test senaryosu ileride tekrarlanır. Diğer Vertex’ler etkilenmez.
 
 ### Güç
 

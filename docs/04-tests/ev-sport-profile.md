@@ -1,4 +1,14 @@
+---
+baslik: "Sportif EV Sürüş Profili — Şarj/Deşarj Test Senaryosu"
+kategori: "04-tests"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # Sportif EV Sürüş Profili — Şarj/Deşarj Test Senaryosu
+
+**Son Güncelleme:** 2026-09-18
 
 > **Hücre:** 3Ah LFP · **IC:** BQ25756 bidirectional buck-boost · **Döngü:** ~8 dk sürüş + dinlenme (~498 s)
 
@@ -131,4 +141,4 @@ Her 50 döngüde bir yapılan referans ölçümü ile gerçek kapasite kaybı iz
 - Ortam sıcaklığı TMP117 ile, pil yüzey sıcaklığı NTC termistör ile paralel kaydedilir.
 - Faz 1'de oda sıcaklığında (~25°C), Faz 2'de kontrollü iklim koşullarında (-20°C / +40°C) tekrarlanır.
 
-**İlgili Dosyalar:** [Test Protokolü](test-protocol.md) · [Node Tasarımı](../02-hardware/node-design.md) · [Veri Toplama](../03-software/data-collection.md)
+**İlgili Dosyalar:** [Test Protokolü](test-protocol.md) · [Vertex Tasarımı](../02-hardware/node-design.md) · [Veri Toplama](../03-software/data-collection.md)

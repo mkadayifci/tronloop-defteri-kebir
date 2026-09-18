@@ -36,7 +36,7 @@ Asistanın önceki “ClusterPilot kalıcı kaydettikten sonra onaylasın, Verte
 
 - Tampon kapasitesi, kayıt sıklığı ve karşılanması hedeflenen kısa kesinti süresi.
 - Bellek/depolama ortamı; RAM veya başka ortam henüz seçilmedi. Güç kesintisinde korunma garantisi verilmedi.
-- Ölçüm zamanı ve sıra numarası kullanımı [ADR-0007](ADR-0007-measurement-time-sequence.md) ile kesinleşti; alan boyutları, çözünürlük ve sıra kapsamı açık.
+- Ölçüm zamanı ve sıra numarası kullanımı [ADR-0007](ADR-0007-measurement-time-sequence.md) ile kesinleşti; milisaniye çözünürlüğü seçildi; sıra numarası test başında sıfırlama şartı olmayan artan bir ayırt edicidir. Alan boyutları, yeniden başlama ve taşma davranışları açık.
 - Gönderme/okuma konumu, aktarımın tamamlandığının nasıl belirleneceği ve tekrarların davranışı.
 - Üzerine yazılan kayıtların veya veri boşluklarının ClusterPilot'a bildirilme biçimi.
 - Birikmiş veri aktarılırken canlı kayıtların aktarım sırası ve önceliği.

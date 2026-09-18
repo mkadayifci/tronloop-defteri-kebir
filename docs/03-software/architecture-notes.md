@@ -14,11 +14,11 @@ guncelleyen: "Codex"
 
 **Kaynak:** 2026-09-18 tarihli görüşme. Aşağıdaki bilgiler kullanıcı anlatımıdır; genel mimarinin tamamı koddan doğrulanmadı. Vertex CAN/ISO-TP mesajları ayrıca incelendi; [mevcut mesaj envanteri](vertex-message-inventory.md). [ADR-0003](../07-decisions/ADR-0003-system-overview.md).
 
-Tronloop, pilleri belirli test senaryolarına göre şarj/deşarj eden ve test verilerini bulutta saklayan bir pil test sistemidir. Sisteme cluster'lar bağlanır; her cluster içinde **Vertex** adlı test node'ları bulunur. **ClusterPilot**, Vertex'lerle bulut arasındaki veri ve komut akışını yöneten Linux sunucusudur.
+Tronloop, pilleri belirli test senaryolarına göre şarj/deşarj eden ve test verilerini bulutta saklayan bir pil test sistemidir. Sisteme Cluster'lar bağlanır; her Cluster içinde **Vertex** adlı test birimleri bulunur. **ClusterPilot**, Vertex'lerle bulut arasındaki veri ve komut akışını yöneten Linux sunucusudur.
 
 | Bileşen | Kullanıcının belirttiği sorumluluk |
 |---|---|
-| Vertex | Cluster içindeki pil test node'u; senaryoyu ClusterPilot’a sürekli ihtiyaç duymadan yürütür |
+| Vertex | Cluster içindeki pil test birimi; senaryoyu ClusterPilot’a sürekli ihtiyaç duymadan yürütür |
 | ClusterPilot | Vertex verilerini alma, buluttaki MQTT'ye gönderme, komutları doğru cihaza iletme ve yanıtları MQTT'ye gönderme |
 | Yerel SQLite | Buluta gönderilemeyen verileri daha sonra gönderilmek üzere biriktirme |
 | Buluttaki MQTT | Verilerin, panel kaynaklı komutların ve cihaz yanıtlarının mesajlaşma noktası |
@@ -30,7 +30,7 @@ flowchart LR
     PANEL["Kullanıcı panelleri"] -->|Komut| MQTT["Buluttaki MQTT"]
     MQTT -->|Komut| CP["ClusterPilot · Linux"]
     subgraph CLUSTER["Cluster"]
-        CP -->|Cihaza yönlendirilen komut| V["Vertex test node'ları"]
+        CP -->|Cihaza yönlendirilen komut| V["Vertex’ler"]
         V -->|Veri ve yanıt| CP
         V -->|Aktarılamayan test verisi| VB[(Vertex dairesel tamponu)]
         VB -->|Bağlantı sonrası tamponda kalan veri| CP
@@ -41,7 +41,7 @@ flowchart LR
     STORE["Bulutta kalıcı veri saklama · bağlantı ayrıntısı açık"]
 ```
 
-Diyagram mantıksal akışı gösterir. Panelin MQTT'ye hangi ara servis üzerinden eriştiği, bulut depolama hattı ve bir cluster'daki ClusterPilot sayısı henüz belirlenmedi. SQLite'ta komut yanıtlarının da saklanıp saklanmadığı ayrıca netleştirilecek.
+Diyagram mantıksal akışı gösterir. Panelin MQTT'ye hangi ara servis üzerinden eriştiği, bulut depolama hattı ve bir Cluster'daki ClusterPilot sayısı henüz belirlenmedi. SQLite'ta komut yanıtlarının da saklanıp saklanmadığı ayrıca netleştirilecek.
 
 ## Bağımsız test yürütme
 
@@ -49,7 +49,7 @@ Diyagram mantıksal akışı gösterir. Panelin MQTT'ye hangi ara servis üzerin
 
 ## Zaman kaynağı ve ölçüm sırası
 
-[ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md): Vertex ölçümleri ölçüm zamanı ve sıra numarasıyla kaydeder. STM32 RTC aktif çalışır; Linux üzerinde çalışan ClusterPilot periyodik mesajlarla saati eşitler. Mevcut RTC kodu Unix saniyelerini kullanır. Ölçüm zamanı çözünürlüğü, eşitleme aralığı ve sıra numarası kapsamı henüz seçilmedi.
+[ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md): Vertex ölçümleri milisaniye çözünürlüğünde ölçüm zamanı ve sıra numarasıyla kaydedecek. STM32 RTC aktif çalışır; Linux üzerinde çalışan ClusterPilot periyodik mesajlarla saati eşitler. Mevcut RTC kodu Unix saniyelerini kullanır. Hedef milisaniye çözünürlüğü için mevcut kodun uyarlanması gerekiyor; eşitleme aralığı henüz seçilmedi. Sıra numarası artan bir kayıt ayırt edicisidir; test değişiminde sıfırlama şartı yoktur. Sayacın genişliği, yeniden başlama ve taşma davranışları henüz seçilmedi.
 
 ## Önceki mimari belgesinin durumu
 

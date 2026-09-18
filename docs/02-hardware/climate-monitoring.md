@@ -1,8 +1,18 @@
+---
+baslik: "İklim İzleme Sistemi"
+kategori: "02-hardware"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # İklim İzleme Sistemi
 
-> ⚠️ **Bu belge Faz 2 kapsamındadır.** Faz 1'de iklimlendirme sistemi devrede değildir; node'lar oda sıcaklığında çalışır. İklim kontrol entegrasyonu Faz 1 doğrulandıktan sonra başlar.
+**Son Güncelleme:** 2026-09-18
 
-Her node, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek için ortam koşullarını elektriksel ölçümlerle eş zamanlı olarak kaydeder.
+> ⚠️ **Bu belge Faz 2 kapsamındadır.** Faz 1'de iklimlendirme sistemi devrede değildir; Vertex’ler oda sıcaklığında çalışır. İklim kontrol entegrasyonu Faz 1 doğrulandıktan sonra başlar.
+
+Her Vertex, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek için ortam koşullarını elektriksel ölçümlerle eş zamanlı olarak kaydeder.
 
 ---
 
@@ -22,14 +32,14 @@ T_soğuk = T_sıcak − ΔT_aktif
 
 | Kanal | Kaynak | Sıcaklık aralığı |
 |-------|--------|------------------|
-| Soğuk | Peltier soğuk tarafı | ~5°C (nem alma) → düşük node sıcaklıkları |
+| Soğuk | Peltier soğuk tarafı | ~5°C (nem alma) → düşük Vertex sıcaklıkları |
 | Sıcak | PTC ısıtıcı | 24°C → 40°C+ (bağımsız kontrol) |
 
-Merkezi Peltier modülü (ana ünitede) soğuk kanalı besler ve kapalı döngüde nem alma görevini üstlenir. PTC ısıtıcı sıcak kanalı bağımsız olarak ısıtır. Her node, bu iki kanaldan aldığı hava akışını bağımsız valfler aracılığıyla karıştırarak hedef ortam sıcaklığını dinamik olarak oluşturur.
+Merkezi Peltier modülü (Cluster altyapısında) soğuk kanalı besler ve kapalı döngüde nem alma görevini üstlenir. PTC ısıtıcı sıcak kanalı bağımsız olarak ısıtır. Her Vertex, bu iki kanaldan aldığı hava akışını bağımsız valfler aracılığıyla karıştırarak hedef ortam sıcaklığını dinamik olarak oluşturur.
 
 ```mermaid
 flowchart TD
-    subgraph ANA["Ana Ünite"]
+    subgraph ANA["Cluster iklim altyapısı"]
         P["Peltier Modülü"]
         EX["Egzoz Çıkışı (Dışarı)"]
     end
@@ -37,7 +47,7 @@ flowchart TD
     P -->|Soğuk Kanal| SV["Soğuk Valf"]
     P -->|Sıcak Kanal| HV["Sıcak Valf"]
 
-    subgraph NODE["Node"]
+    subgraph NODE["Vertex"]
         SV
         HV
         SV & HV --> MIX["Karışım Odası"]
@@ -51,14 +61,14 @@ flowchart TD
 
 ### Valf Kontrolü
 
-Her node iki bağımsız oransal valf içerir — biri soğuk kanala, biri sıcak kanala. İki valf birlikte kontrol edilerek hem toplam hava akışı hem de karışım oranı ayarlanabilir.
+Her Vertex iki bağımsız oransal valf içerir — biri soğuk kanala, biri sıcak kanala. İki valf birlikte kontrol edilerek hem toplam hava akışı hem de karışım oranı ayarlanabilir.
 
 | Parametre | Açıklama |
 |-----------|----------|
 | Kontrol türü | PWM kontrollü oransal servo valf (her kanal için ayrı) |
 | Geri bildirim | TMP117 ortam sıcaklığı ölçümü |
 | Algoritma | PID — MCU (STM32L476) üzerinde çalışır |
-| Bağımsızlık | Her node kendi sıcaklık hedefini bağımsız tutar |
+| Bağımsızlık | Her Vertex kendi sıcaklık hedefini bağımsız tutar |
 
 **İki valfli yaklaşımın avantajı:** Yalnızca karışım oranı değil, toplam debi de kontrol edilebilir. Hızlı sıcaklık geçişlerinde her iki valf açılarak debi artırılır; kararlı durumda valfler kısılarak enerji tasarrufu sağlanır.
 
@@ -75,14 +85,14 @@ flowchart LR
 
 ### Egzoz ve Kapalı Döngü Sistemi
 
-Sistem **kapalı döngü** olarak çalışır — dışarıdan sürekli taze hava çekmek yerine aynı hava dolaştırılır. Her node bölmesinin çıkışındaki **çek valf** egzozu merkezi toplama kanalına yönlendirir; buradan tüm hava ana ünitedeki **Peltier soğuk yüzeyine** gönderilir.
+Sistem **kapalı döngü** olarak çalışır — dışarıdan sürekli taze hava çekmek yerine aynı hava dolaştırılır. Her Vertex bölmesinin çıkışındaki **çek valf** egzozu merkezi toplama kanalına yönlendirir; buradan tüm hava Cluster altyapısındaki **Peltier soğuk yüzeyine** gönderilir.
 
 ```mermaid
 flowchart LR
-    N["Node Egzozları<br/>~20°C karışık"] -->|"Çek valf"| PC["Peltier Soğuk Yüzeyi<br/>~5°C · nem alınır"]
-    PC --> SC["Soğuk Kanal<br/>→ düşük sıcaklık nodeları"]
+    N["Vertex Egzozları<br/>~20°C karışık"] -->|"Çek valf"| PC["Peltier Soğuk Yüzeyi<br/>~5°C · nem alınır"]
+    PC --> SC["Soğuk Kanal<br/>→ düşük sıcaklık Vertex’leri"]
     PC --> PTC["PTC Isıtıcı<br/>5°C → 40°C+"]
-    PTC --> HC["Sıcak Kanal<br/>→ yüksek sıcaklık nodeları"]
+    PTC --> HC["Sıcak Kanal<br/>→ yüksek sıcaklık Vertex’leri"]
 ```
 
 Peltier soğuk yüzeyi hem **soğuk hava kaynağı** hem de **nem alma** noktasıdır. Yoğuşan su drene edilir; kuru hava iki yola ayrılır.
@@ -92,17 +102,17 @@ Kuru soğuk hava (~5°C) önce **Peltier hot side ısı eşanjöründen** geçer
 
 ```mermaid
 flowchart LR
-    N["Node Egzozları<br/>~20°C karışık"] -->|"Çek valf"| PC["Peltier Soğuk Yüzeyi<br/>~5°C · nem alınır"]
-    PC --> SC["Soğuk Kanal<br/>→ düşük sıcaklık nodeları"]
+    N["Vertex Egzozları<br/>~20°C karışık"] -->|"Çek valf"| PC["Peltier Soğuk Yüzeyi<br/>~5°C · nem alınır"]
+    PC --> SC["Soğuk Kanal<br/>→ düşük sıcaklık Vertex’leri"]
     PC --> HS["Peltier Hot Side<br/>Isı Eşanjörü<br/>~5°C → ~40°C"]
     HS --> PTC["Trim PTC (50W)<br/>hassas ayar"]
-    PTC --> HC["Sıcak Kanal<br/>→ yüksek sıcaklık nodeları"]
+    PTC --> HC["Sıcak Kanal<br/>→ yüksek sıcaklık Vertex’leri"]
 ```
 
 | Bileşen | Görev |
 |---------|-------|
-| Çek valf (node çıkışı) | Geri akışı engeller, node bölmesini izole eder |
-| Merkezi egzoz kanalı | Tüm node egzozlarını Peltier soğuk yüzeyine taşır |
+| Çek valf (Vertex çıkışı) | Geri akışı engeller, Vertex bölmesini izole eder |
+| Merkezi egzoz kanalı | Tüm Vertex egzozlarını Peltier soğuk yüzeyine taşır |
 | Peltier soğuk yüzeyi | Soğuk hava üretimi + nem alma (kondenzasyon tuzağı) |
 | Kondenzat drenajı | Yoğuşan suyu en alt noktadan tahliye eder |
 | Peltier hot side ısı eşanjörü | Atık ısıyı geri kazanır, soğuk havayı ~40°C'ye çeker |
@@ -121,26 +131,26 @@ Hava karışım odasından doğrudan pil yüzeyinin üzerinden geçerek egzoza u
 
 - Soğuk ve sıcak kanallar ısı kaybını önlemek için yalıtılmalıdır
 - Yoğuşmayı önlemek için soğuk kanal iç yüzeyi nem geçirmez malzemeyle kaplanmalıdır
-- Peltier boyutlandırması en kötü senaryoya göre yapılmalıdır: tüm node'ların eş zamanlı maksimum soğutma talebi
-- Node bölmesi hava sızdırmaz tasarlanmalı; tek giriş (karışım odası) ve tek çıkış (egzoz çek valf) noktası olmalıdır
+- Peltier boyutlandırması en kötü senaryoya göre yapılmalıdır: tüm Vertex’lerin eş zamanlı maksimum soğutma talebi
+- Vertex bölmesi hava sızdırmaz tasarlanmalı; tek giriş (karışım odası) ve tek çıkış (egzoz çek valf) noktası olmalıdır
 
 ---
 
-## Boru ve Manifold Sistemi (50 Node)
+## Boru ve Manifold Sistemi (50 Vertex)
 
 ### Yapı
 
-50 node, 5 adet 10'lu gruba bölünür. Her grup bir alt manifolda bağlanır; alt manifoldlar ana hattan beslenir.
+50 Vertex, 5 adet 10'lu gruba bölünür. Her grup bir alt manifolda bağlanır; alt manifoldlar ana hattan beslenir.
 
 ```mermaid
 flowchart TD
-    P["Peltier<br/>(Ana Ünite)"] -->|"125mm izolasyonlu HVAC flex"| AM["Ana Hat"]
-    AM --> M1["Alt Manifold A<br/>10 node"]
-    AM --> M2["Alt Manifold B<br/>10 node"]
-    AM --> M3["Alt Manifold C<br/>10 node"]
-    AM --> M4["Alt Manifold D<br/>10 node"]
-    AM --> M5["Alt Manifold E<br/>10 node"]
-    M1 & M2 & M3 & M4 & M5 -->|"25mm flex hortum"| N["Node (×50)"]
+    P["Peltier<br/>(Cluster iklim altyapısı)"] -->|"125mm izolasyonlu HVAC flex"| AM["Ana Hat"]
+    AM --> M1["Alt Manifold A<br/>10 Vertex"]
+    AM --> M2["Alt Manifold B<br/>10 Vertex"]
+    AM --> M3["Alt Manifold C<br/>10 Vertex"]
+    AM --> M4["Alt Manifold D<br/>10 Vertex"]
+    AM --> M5["Alt Manifold E<br/>10 Vertex"]
+    M1 & M2 & M3 & M4 & M5 -->|"25mm flex hortum"| N["Vertex (×50)"]
     N -->|"Egzoz kanalı"| EM["Egzoz Toplama<br/>(aynı yapı, ters yön)"]
     EM --> OUT["Dışarı"]
 ```
@@ -152,17 +162,17 @@ flowchart TD
 | Bileşen | Çap | Malzeme | Not |
 |---------|-----|---------|-----|
 | Ana hat | 125mm | İzolasyonlu HVAC flex | Soğuk + sıcak için ayrı |
-| Alt manifold giriş | 63mm | 3D baskı PETG | 10 node başına 1 adet |
+| Alt manifold giriş | 63mm | 3D baskı PETG | 10 Vertex başına 1 adet |
 | Alt manifold çıkış | 10 × 25mm | 3D baskı PETG | 150mm aralıklı |
-| Alt manifold boyu | 1500mm | 3D baskı PETG | 10 × 150mm node aralığı |
-| Node bağlantısı | 25mm | İzolasyonlu HVAC flex | Maks 1.5m |
+| Alt manifold boyu | 1500mm | 3D baskı PETG | 10 × 150mm Vertex aralığı |
+| Vertex bağlantısı | 25mm | İzolasyonlu HVAC flex | Maks 1.5m |
 | Duvar kalınlığı | 3mm | PETG | Manifold gövdesi |
 
 ### Debi ve Basınç
 
 | Parametre | Değer |
 |-----------|-------|
-| Node başına debi | 10 L/min |
+| Vertex başına debi | 10 L/min |
 | Alt manifold toplam debi | 100 L/min |
 | Ana hat toplam debi | 500 L/min |
 | Sistem basınç kaybı | ~80 Pa |
@@ -170,12 +180,12 @@ flowchart TD
 
 ### Basınç Tahliye Valfi
 
-Kapalı döngüde tüm node valflerinin eş zamanlı kapanması durumunda kanal içinde basınç birikir ve fan zarar görür. Bunu önlemek için ana hatta **yay yüklü pasif basınç tahliye valfi** bulunur.
+Kapalı döngüde tüm Vertex valflerinin eş zamanlı kapanması durumunda kanal içinde basınç birikir ve fan zarar görür. Bunu önlemek için ana hatta **yay yüklü pasif basınç tahliye valfi** bulunur.
 
 ```mermaid
 flowchart LR
     FAN["Fan"] -->|"Basınçlı hava"| ANA["Ana Hat"]
-    ANA --> N["Node Valfler<br/>(kapalı)"]
+    ANA --> N["Vertex Valfler<br/>(kapalı)"]
     ANA -->|"Eşik aşılınca açılır"| BTV["Basınç Tahliye Valfi"]
     BTV -->|"Kapalı döngüye geri"| PG["Peltier Girişi<br/>(egzoz tarafı)"]
 ```
@@ -189,7 +199,7 @@ Fazla hava dışarı atılmaz — kapalı döngüde Peltier girişine (egzoz tar
 | Bağlantı | Ana hat → Peltier egzoz girişi |
 | Kontrol | Mekanik, yazılımdan bağımsız |
 
-**İkincil güvence:** MCU tüm node valflerinin kapandığını tespit ederse fan hızını da düşürür. Donanım + yazılım çift katmanlı koruma sağlar.
+**İkincil güvence:** MCU tüm Vertex valflerinin kapandığını tespit ederse fan hızını da düşürür. Donanım + yazılım çift katmanlı koruma sağlar.
 
 ### Manifold Tasarım İpuçları (Onshape / 3D Baskı)
 
@@ -200,4 +210,4 @@ Fazla hava dışarı atılmaz — kapalı döngüde Peltier girişine (egzoz tar
 
 ---
 
-**İlgili Dosyalar:** [Node Tasarımı](node-design.md) · [Ana Ünite](main-unit.md) · [Veri Toplama](../03-software/data-collection.md)
+**İlgili Dosyalar:** [Vertex Tasarımı](node-design.md) · [ClusterPilot ve Cluster Altyapısı](main-unit.md) · [Veri Toplama](../03-software/data-collection.md)

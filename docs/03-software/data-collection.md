@@ -1,14 +1,28 @@
+---
+baslik: "Veri Toplama"
+kategori: "03-software"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # Veri Toplama
 
-Ana ünite (BeagleBone), CAN bus üzerinden node'lardan gelen ölçümleri toplar, yerel RAID1 depolamaya yazar ve her 1 dakikada bir cloud'a senkronize eder.
+**Son Güncelleme:** 2026-09-18
+
+> **Belge kapsamı:** Adlandırma 2026-09-18 tarihinde güncellendi. Aşağıdaki eski teknik tasarım ayrıntılarının güncel uygulamayla uyumu henüz doğrulanmadı; güncel sistem yapısı için [Mimari çalışma notları](architecture-notes.md) esas alınır.
+
+ClusterPilot (BeagleBone), CAN bus üzerinden Vertex’lerden gelen ölçümleri toplar, yerel RAID1 depolamaya yazar ve her 1 dakikada bir cloud'a senkronize eder.
 
 ---
+
+Güncel mesajlaşma davranışları: [Mesajlaşma Protokolü — Çalışma Taslağı](communication-notes.md). Aşağıdaki eski CAN alan tablosu yeni mesaj sözleşmesi değildir.
 
 ## Veri Akışı
 
 ```mermaid
 flowchart LR
-    N["Node<br/>CAN Frame"] -->|"CAN bus"| BB["BeagleBone<br/>CAN Alıcı"]
+    N["Vertex<br/>CAN Frame"] -->|"CAN bus"| BB["BeagleBone<br/>CAN Alıcı"]
     BB --> CSV["Yerel CSV<br/>(RAID1)"]
     BB --> BUF["SQLite Buffer<br/>(offline)"]
     BUF -->|"her 1 dk<br/>internet varsa"| INFLUX["InfluxDB Cloud<br/>Ölçüm Verisi"]
@@ -19,7 +33,7 @@ flowchart LR
 
 ## CAN Frame Yapısı
 
-Her node, ölçüm verilerini standart bir CAN frame formatında gönderir.
+Her Vertex, ölçüm verilerini standart bir CAN frame formatında gönderir.
 
 | Byte | İçerik | Tip |
 |------|--------|-----|
@@ -58,7 +72,7 @@ Sıcaklık ve döngü sayısı ikinci bir frame ile gönderilir (CAN ID + 1).
 | Pil yüzey sıcaklığı | NTC → BQ34Z100 → CAN | InfluxDB |
 | Ortam sıcaklığı | TMP117 → CAN | InfluxDB |
 | Döngü sayısı | Firmware → CAN | InfluxDB |
-| Node konfigürasyonu | BeagleBone | PostgreSQL |
+| Vertex konfigürasyonu | BeagleBone | PostgreSQL |
 | Deney tanımları | Kullanıcı girişi | PostgreSQL |
 
 ---

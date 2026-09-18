@@ -33,7 +33,7 @@ Kullanıcı Defteri Kebir'i ana üs olarak kesinleştirdi; diğer klasörlerin k
 
 ## Genel mimari ve protokol görüşmesinin başlangıcı
 
-Kullanıcı cluster, Vertex ve Linux üzerinde çalışan ClusterPilot yapısını; buluttaki MQTT üzerinden veri, komut ve yanıt akışını; gönderilemeyen verilerin SQLite'ta tutulmasını açıkladı. Bu anlatım [ADR-0003](../../07-decisions/ADR-0003-system-overview.md) ile kaydedildi. Haberleşme ayrıntıları için konu listesi çıkarıldı; ilk açık soru Vertex–ClusterPilot yerel protokolüdür.
+Kullanıcı Cluster, Vertex ve Linux üzerinde çalışan ClusterPilot yapısını; buluttaki MQTT üzerinden veri, komut ve yanıt akışını; gönderilemeyen verilerin SQLite'ta tutulmasını açıkladı. Bu anlatım [ADR-0003](../../07-decisions/ADR-0003-system-overview.md) ile kaydedildi. Haberleşme ayrıntıları için konu listesi çıkarıldı; ilk açık soru Vertex–ClusterPilot yerel protokolüdür.
 
 ## CAN/ISO-TP ve mesaj tasarımının kapsamı
 
@@ -54,3 +54,19 @@ Kullanıcı kesintisiz bağlantının normal varsayım olduğunu ve Vertex'in ka
 ## Ölçüm zamanı ve saat eşitleme
 
 Kullanıcı ölçüm zamanı ve sıra numarası kullanımını kabul etti; STM32 saatinin Linux zamanı ile periyodik mesajlar üzerinden güncelleneceğini belirtti. [ADR-0007](../../07-decisions/ADR-0007-measurement-time-sequence.md) oluşturuldu. Vertex RTC ve CAN kodunda Unix saniyeleriyle saat ayarlama doğrulandı; Linux gönderim periyodu ve yeni ölçüm zamanının çözünürlüğü açık bırakıldı.
+
+## Ölçüm zamanının çözünürlüğü
+
+Kullanıcı ölçüm zamanı için milisaniye çözünürlüğünü kabul etti. ADR-0007 ve ilgili belgeler güncellendi. Mevcut saniye tabanlı RTC uygulamasının uyarlanması gerekecek; zaman alanının kodlanması ve saniye altı zamanın üretim yöntemi henüz belirlenmedi.
+
+## Sıra numarasının amacı
+
+Kullanıcı sıra numarasının artmasını, yalnızca ayırt edici olacağını belirtti. Test başında sıfırlama önerisi benimsenmedi; ADR-0007 ve ilgili notlar güncellendi. Sayaç genişliği, yeniden başlama ve taşma davranışları henüz seçilmedi.
+
+## Eski dokümantasyonun adlandırılması
+
+Kullanıcının talebiyle eski belgeler Cluster, ClusterPilot ve Vertex adlandırmasına uyarlandı. Sunucu ve ortak fiziksel altyapı bağlama göre ayrıldı. Dosya yolları, şema alanları ve donanım model adları korundu. [Adlandırma rehberi](../../01-project-general/terminology.md) kalıcı referans olarak eklendi.
+
+## Mesajlaşma taslağının derlenmesi
+
+Kullanıcının talebiyle konuşulan ayrıntılar [Mesajlaşma Protokolü — Çalışma Taslağı](../../03-software/communication-notes.md) içinde toplandı. Veri akışı, ölçüm kaydı, dairesel tampon, saat eşitleme ve komut/yanıt akışları diyagramlarla belgelendi. Kesinleşen davranışlar, mevcut kod gözlemleri ve henüz seçilmemiş paket/MQTT ayrıntıları ayrı gösterildi.
