@@ -45,7 +45,7 @@ sequenceDiagram
     participant C as ClusterPilot
     participant S as SQLite
     participant M as Buluttaki MQTT
-    Note over V: Test bağımsız yürür; ölçüm zamanı ve sıra numarası kayda aittir
+    Note over V: Test bağımsız yürür. Ölçüm zamanı ve sıra numarası kayda aittir
     V->>C: CAN/ISO-TP ile ölçüm kaydı
     alt Buluta gönderim mümkün
         C->>M: Ölçüm verisi
@@ -102,7 +102,7 @@ Tamponda bekleyen ölçüm aktarılırken ölçüm zamanı gönderim zamanı ile
 sequenceDiagram
     participant C as ClusterPilot / Linux
     participant V as Vertex / STM32
-    loop Periyodik; aralık henüz seçilmedi
+    loop Periyodik saat eşitleme (aralık henüz seçilmedi)
         C->>V: Linux/Unix zamanı ile saat güncelleme mesajı
         Note over V: Yerel saat güncellenir
     end

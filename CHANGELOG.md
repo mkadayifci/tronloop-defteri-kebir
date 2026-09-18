@@ -22,6 +22,7 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.09.3] - 2026-09-18
 
 ### Güncellendi
+- Mesajlaşma diyagramlarında Mermaid tarafından komut ayırıcı olarak yorumlanan iki noktalı virgül kaldırıldı; ölçüm ve saat eşitleme diyagramlarının sözdizimi düzeltildi.
 - Mesajlaşma notları kapsamlı protokol taslağına dönüştürüldü: ölçüm alanlarının anlamı, kesinti/tampon davranışı, saat eşitleme, komut/yanıt diyagramları ve açık paket/MQTT ayrıntıları bir araya getirildi.
 - Eski dokümantasyon, başlıklar ve diyagramlar Cluster/ClusterPilot/Vertex adlandırmasına uyarlandı; adlandırma rehberi eklendi. Ortak fiziksel altyapı ile Linux sunucusu ayrıldı; teknik yollar ve şema adları korundu.
 - ADR-0007: Sıra numarası test başında sıfırlama şartı olmayan, artan bir kayıt ayırt edicisi olarak netleştirildi.
