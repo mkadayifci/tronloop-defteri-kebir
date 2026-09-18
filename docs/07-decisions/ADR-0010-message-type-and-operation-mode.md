@@ -8,52 +8,36 @@ guncelleyen: "Codex"
 
 # ADR-0010 — Tür alanıyla ayrıştırma ve birleşik çalışma modu
 
-**Son Güncelleme:** 2026-09-18
+Mesaj tipini uzunluğundan tahmin etmiyoruz; **tür alanından okuyoruz**. İki farklı mesaj aynı uzunlukta olabilir. `dataLength` bize yalnızca o tür için beklediğimiz kadar veri gelip gelmediğini söylüyor. Bu karar [ADR-0008](ADR-0008-unique-message-length.md) yerine geçti.
 
-- **Durum:** Kabul edildi
-- **Tarih:** 2026-09-18
-- **Yerine geçtiği karar:** [ADR-0008](ADR-0008-unique-message-length.md).
+Alıcı önce türü okuyacak kadar veri var mı diye bakacak. Ardından tür kodunu ve o türün uzunluğunu kontrol edip alanları okuyacak. Tür bilinmiyorsa veya boyut yanlışsa başka bir mesajmış gibi yorumlamayacak. Alan boyutlarını, kodları ve sürümleri açıkça yazacağız; C enum/struct boyutlarına güvenerek ilerlemeyeceğiz. Alıcı kodu henüz bu düzene geçirilmedi.
 
-## Mesaj türünü belirleme
+## Genel durumu nasıl taşıyoruz?
 
-Alıcı mesajı **mesaj türü alanına** göre ayrıştıracak. Farklı türler aynı veri uzunluğuna sahip olabilir. `dataLength` tür seçmek için değil, seçilen türün beklenen paket uzunluğunu doğrulamak için kullanılacak. Tür alanı okunmadan önce yeterli veri bulunduğu kontrol edilir; ardından tür tanımı ve gerekli uzunluk doğrulanarak alanlar okunur. Bilinmeyen tür veya geçersiz uzunluk başka bir tür olarak tahmin edilmez.
+Şarj etkinliği ve ters mod için iki ayrı bayrak yerine tek bir çalışma modu var:
 
-Gerçek tel biçimindeki alan boyutları açıkça tanımlanmalı; C enum/struct boyutları varsayılmamalıdır. Tür kodlarının ve desteklenen sürümlerin eşlemesi ayrıca belgelenecek. Bu karar mevcut alıcının zaten böyle çalıştığı iddiası değildir; hedef ayrıştırma davranışıdır.
-
-## Genel durumdaki çalışma modu
-
-`charger_enabled` ve `charger_reverse_mode` ayrı alanları yerine tek bir **çalışma modu** kullanılacak:
-
-| Mod | Anlam |
+| Kod | Mod |
 |---|---|
-| Idle | Şarj/deşarj çalışması yok |
-| Şarj | Pil şarj ediliyor |
-| Deşarj | Pil deşarj ediliyor |
+| 0 | Idle |
+| 1 | Şarj |
+| 2 | Deşarj |
 
-Senaryo oynatıcı durumu ayrı bir bilgidir ve korunur; çalışan bir senaryo bekleme adımında idle olabilir. Çalışma modunun sayısal kodları, bit yerleşimi ve firmware'deki doğrulanmış kaynak durumu henüz seçilmedi. Eski iki bayraktan doğrudan güvenilir fiziksel durum türetildiği varsayılmaz.
+Oynatıcı durumu ayrı. Örneğin senaryo çalışıyor olabilir ama o an bekleme adımındadır; charger modu idle görünür. İki bilgiyi **ayrı birer baytta** tutuyoruz.
 
-## Durum alanları — ayrı birer bayt
+Toplam boyut: tür (1) + gerilim (2) + oynatıcı durumu (1) + charger modu (1) + akım (2) = **7 bayt**. Bu pakette zaman ve sıra numarası yok.
 
-**Oynatıcı durumu 1 bayt**, **charger çalışma modu 1 bayt** olarak ayrı taşınacak. Önceki aynı baytta bit alanları kullanma kararı bu düzenlemeyle değiştirildi. Charger çalışma modu idle / şarj / deşarj anlamını korur; eski iki bağımsız şarj bayrağına geri dönülmez.
+Akım mA cinsinden `int16_t`: −32768…+32767 mA. Pozitif şarj, negatif deşarj. Context içindeki değişkenin `int32_t` kalması sorun değil; pakete yazmadan önce aralığı kontrol ediyoruz. Sığmıyorsa o tur genel durumu göndermiyor, hata logluyoruz.
 
-Hedef genel durum boyutu: tür (1) + gerilim (2) + oynatıcı durumu (1) + charger çalışma modu (1) + işaretli akım (2) = **7 bayt**. Ölçüm zamanı ve sıra numarası bu genel durum yerleşimine dahil değildir.
+Modu context bayraklarından çıkarıyoruz: önce reverse, sonra enabled kontrolü. Reverse açıksa deşarj, yalnız enabled açıksa şarj, ikisi de kapalıysa idle. Bu yazılımın kontrol durumu; donanımdan geri okunmuş fiziksel durum değil.
 
-## Akım alanı — 2 bayt
+## Neden 7 bayt?
 
-Pil akımı mA cinsinden **`int16_t` (2 bayt)** olarak taşınır. Değer aralığı −32768…+32767 mA; pozitif şarj, negatif deşarj anlamına gelir. Bu karar context içindeki dahili akım değişkeninin boyutunu değiştirmeyi gerektirmez.
+ISO-TP’nin tek çerçevesinde bir bayt başlıktan sonra 7 bayt uygulama verisi kalıyor. Genel durum tam buraya sığıyor; ham CAN’a geçmeye gerek yok. CAN veri alanı toplam 8 bayt oluyor.
 
-## Taşıma ve açık konular
+Önce oynatıcı ve charger durumunu aynı baytta bit alanlarıyla taşımayı düşünmüştük. Akımı 2 bayta indirdiğimizde o ara tasarım 6 bayttı. Sonra durumları ayrı baytlara aldık; son biçim 7 bayt.
 
-Mevcut ISO-TP kütüphanesi 7 bayt uygulama verisini bir bayt ISO-TP başlığıyla tek klasik CAN çerçevesinde taşır. Hedef genel durum bu sınıra sığar; ham CAN'a geçmek gerekmez. Uygulama verisi 7 bayt, CAN veri alanı 8 bayttır.
+Firmware bu biçimi gönderiyor. Debug derlemesi ve bilgisayarda gerçek dispatcher/ISO-TP koduyla paket kontrolleri geçti. Alıcıyı güncellemek ve kart üzerinde test etmek hâlâ gerekiyor.
 
-Uygulama sırasında mod kodları 0 idle, 1 şarj, 2 deşarj olarak seçildi. Reverse bayrağına öncelik verilir, ardından enabled kontrol edilir; kaynak donanım geri okuması değil yazılım context durumudur. Akım aralık dışındaysa genel durum paketi o tur atlanır ve hata loglanır; sessiz daraltma yapılmaz.
+**Kayıt:** 2026-09-18 · Kabul edildi.
 
-## Kararın gelişimi
-
-Önce iki durumun aynı baytta bit alanları olarak taşınması seçildi. Akım 2 bayta indirildiğinde bu ara tasarım 6 bayttı. Son durumlar ayrı birer bayta ayrıldı; geçerli hedef **7 bayt** oldu.
-
-## Uygulama durumu
-
-Vertex firmware’i 7 baytlık biçime geçirildi. Debug derlemesi ve bilgisayar üzerinde gerçek dispatcher/ISO-TP koduyla paket kontrolleri başarılı. Alıcı yazılım değiştirilmedi; 7 baytlık biçime uyarlanması gerekir. Kart üzerinde test yapılmadı.
-
-[Genel durum mesajı](../03-software/general-status-message.md) · [Mesajlaşma protokolü](../03-software/communication-notes.md)
+[Genel durumun alanları](../03-software/general-status-message.md) · [Haberleşme notları](../03-software/communication-notes.md)

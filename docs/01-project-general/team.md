@@ -12,6 +12,8 @@ guncelleyen: "Codex"
 
 **Kurum:** Biruni Üniversitesi — Elektrik Elektronik Mühendisliği
 
+Görev dağılımını burada tutacağız. İsimler ve iletişim bilgileri henüz eklenmedi.
+
 | İsim | Rol | Sorumluluk Alanı | İletişim |
 |------|-----|------------------|----------|
 | — | Donanım Tasarımcısı | ClusterPilot + Vertex devreleri | — |

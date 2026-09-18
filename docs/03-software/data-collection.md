@@ -10,13 +10,13 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-> **Belge kapsamı:** Adlandırma 2026-09-18 tarihinde güncellendi. Aşağıdaki eski teknik tasarım ayrıntılarının güncel uygulamayla uyumu henüz doğrulanmadı; güncel sistem yapısı için [Mimari çalışma notları](architecture-notes.md) esas alınır.
+Bu sayfada ilk tasarım notları duruyor. İsimleri güncelledik ama aşağıdaki bütün seçimleri yeniden doğrulamadık. Güncel yapı için [mimari notlara](architecture-notes.md) bakıyoruz; burası geçmişte düşündüğümüz seçenekleri kaybetmemek için duruyor.
 
-ClusterPilot (BeagleBone), CAN bus üzerinden Vertex’lerden gelen ölçümleri toplar, yerel RAID1 depolamaya yazar ve her 1 dakikada bir cloud'a senkronize eder.
+İlk veri toplama planında ClusterPilot’un ölçümleri CAN üzerinden alıp yerel RAID1 depolamaya yazmasını, sonra dakikada bir buluta göndermesini düşünmüştük. Bu sayfadaki tablolar o planı gösteriyor.
 
 ---
 
-Güncel mesajlaşma davranışları: [Mesajlaşma Protokolü — Çalışma Taslağı](communication-notes.md). Aşağıdaki eski CAN alan tablosu yeni mesaj sözleşmesi değildir.
+Bugünkü paketler için [haberleşme notlarına](communication-notes.md) bakıyoruz. Aşağıdaki CAN tablosu eski; yeni alıcıyı buna göre yazmıyoruz.
 
 ## Veri Akışı
 
@@ -33,7 +33,7 @@ flowchart LR
 
 ## CAN Frame Yapısı
 
-Her Vertex, ölçüm verilerini standart bir CAN frame formatında gönderir.
+İlk taslaktaki CAN veri alanı şöyleydi:
 
 | Byte | İçerik | Tip |
 |------|--------|-----|
@@ -43,7 +43,7 @@ Her Vertex, ölçüm verilerini standart bir CAN frame formatında gönderir.
 | 6 | SoH (%) | uint8 |
 | 7 | Durum flag | uint8 |
 
-Sıcaklık ve döngü sayısı ikinci bir frame ile gönderilir (CAN ID + 1).
+O taslakta sıcaklık ve döngü sayısı ikinci bir çerçeveye ayrılmıştı (CAN ID + 1).
 
 ---
 
@@ -59,7 +59,7 @@ Sıcaklık ve döngü sayısı ikinci bir frame ile gönderilir (CAN ID + 1).
 
 ### Offline Tampon
 
-İnternet bağlantısı kesildiğinde ölçümler BeagleBone üzerindeki **SQLite** veritabanına yazılır. Bağlantı geri geldiğinde tampondaki tüm kayıtlar InfluxDB'ye toplu gönderilir ve SQLite temizlenir.
+Eski planda bağlantı kesilince ölçümler **SQLite**’ta bekleyecek, bağlantı gelince InfluxDB’ye toplu gönderilip silinecekti. Güncel yapıda hedef TSphere üzerindeki MQTT; kaydın ne zaman silineceğini ayrıca netleştireceğiz.
 
 ---
 

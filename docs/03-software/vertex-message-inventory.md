@@ -10,9 +10,9 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-## Kapsam ve kanıt
+## Kodda hangi mesajlar var?
 
-CAN/ISO-TP temelini koruyor, mesaj tiplerini yeniden ele alıyoruz. Aşağıdakiler 2026-09-18 tarihinde yerel çalışma ağacından okunan mevcut davranıştır; yeni protokol kararı veya donanım üzerinde test sonucu değildir. Genel durum paketi 7 bayta güncellendi; diğer mesajlar mevcut kaynak gözlemleridir.
+CAN/ISO-TP’yi koruyoruz, mesajları ise ihtiyaçlarımıza göre düzenliyoruz. Bu sayfa 2026-09-18’de firmware’de gördüğümüz durumu anlatıyor. Telemetri 17, genel durum 7 bayt. Kart üzerinde uçtan uca test henüz yapılmadı.
 
 Kaynak yolları çalışma alanı köküne göredir:
 
@@ -34,13 +34,13 @@ CAN/ISO-TP bağlantısı, sabit `0x100` cihaz kimliği ve ayrı ayrı 1024 bayt 
 | `HeartbeatPayload` | `PAYLOAD_TYPE_HEARTBEAT` | `0x02` | 500 ms | Context içindeki senaryo oynatıcı durumu |
 | `VertexStatusPayload` | `PAYLOAD_TYPE_GENERAL_STATUS` | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger modu (0 idle, 1 şarj, 2 deşarj), ölçülen pil akımı `int16_t` mA |
 
-**Adlandırma notu:** Yapı adları güncel kodla eşleştirildi. Tür sabitlerinin adları değiştirilmedi; bu nedenle kodda `FAST_TELEMETRY` ve `GENERAL_STATUS` hâlâ bulunur. Bunlar eski yapı adı değil, mevcut tür sabitleridir. `HeartbeatPayload` için yeni ad henüz seçilmedi.
+Yapı adlarını yeniledik ama tür sabitlerini aynı bıraktık. Kodda `FAST_TELEMETRY` ve `GENERAL_STATUS` görmemizin nedeni bu. `HeartbeatPayload` için henüz başka bir ad seçmedik. ClusterPilot tarafında ise eski `FastTelemetryPayload` hâlâ duruyor; alıcı güncellemesi bekliyor.
 
-Aralıklar hedef deneme zamanlarıdır; teslim garantisi değildir. `VertexTelemetryPayload` ve `HeartbeatPayload` ISO-TP meşgulse o tur gönderilmez. `VertexStatusPayload` meşgul bağlantının boşalmasını bekler ve diğer periyodik paketlerden önce denenir.
+Bunlar hedef gönderim aralıkları. ISO-TP meşgulse telemetri ve heartbeat o tur atlanıyor. Genel durum ise bağlantının boşalmasını bekliyor ve diğer periyodik mesajlardan önce deneniyor.
 
-`VertexTelemetryPayload` 17 bayt, `VertexStatusPayload` sabit 7 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. `VertexTelemetryPayload` tür alanı artık açıkça `uint8_t` olarak tanımlıdır. `HeartbeatPayload` içindeki tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
+Telemetri 17, genel durum 7 bayt. Genel durumun [alanları ve kodları](general-status-message.md) ayrı sayfada. Telemetride türü açıkça `uint8_t` tuttuk. Heartbeat ise hâlâ C enum kullanıyor; `packed` yazması tek başına alanın bir bayt olduğunu söylemiyor. Boyuta yorumdan değil derleyicinin ürettiği düzenden bakıyoruz.
 
-`VertexTelemetryPayload` içindeki sabit `state` alanı kaldırıldı. `HeartbeatPayload` context durumunu, `VertexStatusPayload` ise doğrudan senaryo oynatıcısının durumunu kullanır. `VertexStatusPayload` içindeki charger modu context bayraklarından üretilir, donanım geri okuması değildir. Gerilim ölçümünün güncellenmesi henüz uygulanmamıştır. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
+Telemetriden sabit `state` alanını çıkardık. Heartbeat durumu context’ten, genel durum ise doğrudan senaryo oynatıcısından alıyor; bu iki kaynağın aynı kaldığını henüz doğrulamadık. Charger modu da context bayraklarından geliyor, donanım geri okuması değil. Gerilim alanı pakette var ama okuması henüz bağlı değil.
 
 ## ClusterPilot → Vertex: mevcut komutlar
 
@@ -89,6 +89,6 @@ Sonraki tasarımda komutun alınması ile uygulanması, mesajların kimlikleri, 
 | 7–8 | `ambient_temperature_dc` | int16_t, °C × 10 |
 | 9–16 | `measurement_time_ms` | uint64_t, Unix ms |
 
-Sıcaklıklarda −32768 ölçüm yok/geçersizdir. Zaman context ölçüm güncellemesinde kaydedilir; mevcut RTC yaklaşık 3,9 ms adımlıdır. Sıcaklık sensörü okumaları henüz uygulanmadı. Mesaj ISO-TP ile 3 veri çerçevesinde gider; Flow Control trafiği ayrıca vardır. Sıra numarası ve dairesel tampon henüz uygulanmadı.
+Sıcaklıkta −32768, ölçüm yok demek. Zamanı payload oluştururken `TL_RTC_GetMs()` ile okuyoruz; RTC yaklaşık 3,9 ms adımlı. Sıcaklık okumaları, sıra numarası ve ring buffer henüz yok. Paket 3 ISO-TP veri çerçevesiyle gidiyor; Flow Control de ayrıca var.
 
 [Alanların anlamı, zaman kaynağı, uygulama sınırları ve doğrulama](vertex-telemetry-message.md). Önceki 7 bayt ve tek bayt sıcaklık biçimi artık geçerli değildir.

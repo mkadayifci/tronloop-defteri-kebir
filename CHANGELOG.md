@@ -14,7 +14,7 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-Tüm önemli değişiklikler bu dosyada belgelenir.
+Önemli değişiklikleri burada kısa notlarla tutuyoruz. Aynı gün içindeki kayıtlar da en yeniden eskiye gidiyor; eski paket boyutları o sıradaki tasarımı anlatıyor.
 Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 
 ---
@@ -22,13 +22,15 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.09.3] - 2026-09-18
 
 ### Güncellendi
+
+- Bütün defteri dil açısından yeniden okuduk. Kararları daha kısa ve doğal anlattık; rapor gibi duran başlıkları azalttık. Eski planları güncel koddan ayırdık.
 - Defteri Kebir’in dili sadeleştirildi; görüşme notları konu bazında toparlandı. Doğrudan, doğal Türkçeyle yazma ilkesi ana çalışma kurallarına eklendi. Eski kararların tarihçesi ve uygulama sınırları korundu.
 - ADR-0012: Telemetri zamanı payload oluşturulurken doğrudan RTC’den okunuyor; context zaman alanı kaldırıldı. 17 baytlık tel biçimi değişmedi.
 - CAN bant hesabı güncel 17 bayt telemetriye göre doğrulandı: 16 Vertex × 10 Hz, ISO-TP Flow Control ve periyodik diğer mesajlarla 75,184–91,440 kbit/s, 500 kbit/s hatta %15,037–18,288.
 - Zaman alanını küçültme seçenekleri değerlendirildi; uint64_t Unix milisaniye ve 17 baytlık telemetri biçimi korundu.
 - ADR-0011 uygulandı: telemetri sıcaklıkları ayrı int16_t °C×10, zaman uint64_t Unix ms oldu; paket 17 bayt. RTC subsecond API ve context ölçüm zamanı eklendi. Debug derlemesi, çok çerçeveli ISO-TP ve RTC kontrolleri başarılı.
 - 16 Vertex ve 100 ms ölçüm aralığı için 500 kbit/s CAN kapasite hesabı eklendi: öneri 19 baytlık telemetri, heartbeat ve durum toplamı belirtilen varsayımlarla yaklaşık %15–18,3 hat yükü. Yeni mesaj biçimi henüz onaylanmadı.
-- Telemetride tek CAN çerçevesi hedefi ile ölçüm zamanı/sıra bilgisi arasındaki ödünleşim ve çok çerçeveli ISO-TP önerisi kaydedildi; yeni karar veya kod değişikliği yapılmadı.
+- Telemetride tek CAN çerçevesi hedefi ile ölçüm zamanı/sıra bilgisi arasındaki tercih ve çok çerçeveli ISO-TP önerisi kaydedildi; yeni karar veya kod değişikliği yapılmadı.
 - Telemetri sıcaklığı ayrı 1 bayt pil/ortam alanlarına ayrıldı: int8_t, tam °C, −127…+127; −128 geçersiz/ölçüm yok. Ortam context kaynağı eklendi, henüz uygulanmayan sıcaklık okumaları başlangıçta geçersiz işaretleniyor. Paket 7 bayt kaldı; derleme ve bilgisayarda paket/sınır kontrolleri geçti.
 - `VertexTelemetryPayload` içindeki sabit `state` kaldırıldı; tür alanı uint8_t ve toplam boyut 7 bayt olarak sabitlendi. Debug derlemesi ve gerçek dispatcher/ISO-TP ile tek çerçeve doğrulaması başarılı.
 - `VertexTelemetryPayload` boyutu mevcut Debug ARM derleyicisiyle 8 bayt olarak doğrulandı; alan yerleşimi envantere eklendi.
@@ -48,10 +50,10 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 - Mesajlaşma diyagramlarında Mermaid tarafından komut ayırıcı olarak yorumlanan iki noktalı virgül kaldırıldı; ölçüm ve saat eşitleme diyagramlarının sözdizimi düzeltildi.
 - Mesajlaşma notları kapsamlı protokol taslağına dönüştürüldü: ölçüm alanlarının anlamı, kesinti/tampon davranışı, saat eşitleme, komut/yanıt diyagramları ve açık paket/MQTT ayrıntıları bir araya getirildi.
 - Eski dokümantasyon, başlıklar ve diyagramlar Cluster/ClusterPilot/Vertex adlandırmasına uyarlandı; adlandırma rehberi eklendi. Ortak fiziksel altyapı ile Linux sunucusu ayrıldı; teknik yollar ve şema adları korundu.
-- ADR-0007: Sıra numarası test başında sıfırlama şartı olmayan, artan bir kayıt ayırt edicisi olarak netleştirildi.
+- ADR-0007: Sıra numarası test başında sıfırlama şartı olmayan, artan bir kayıt ayırt edicisi olarak belirlendi.
 - ADR-0007 netleştirildi: Ölçüm zamanında milisaniye çözünürlüğü kabul edildi; mevcut RTC kodunun uyarlanması uygulama işi olarak kaydedildi.
 - ADR-0007: Ölçüm zamanı, sıra numarası ve Linux/Unix zamanıyla periyodik STM32 RTC eşitleme kaydedildi; mevcut RTC/CAN kodu ile hedef protokol ayrıntıları ayrıldı.
-- ADR-0006, ADR-0005’in yerine geçti: Vertex tamponu kısa kesintilere yönelik, sınırlı ve dolduğunda en eski kayıtların üzerine yazan dairesel tampon olarak netleştirildi; kayıpsız teslim varsayımı kaldırıldı.
+- ADR-0006, ADR-0005’in yerine geçti: Vertex tamponu kısa kesintilere yönelik, sınırlı ve dolduğunda en eski kayıtların üzerine yazan dairesel tampon olarak belirlendi; kayıpsız teslim varsayımı kaldırıldı.
 - ADR-0005: Vertex’in bağlantı kesintisinde test verilerini biriktirmesi ve bağlantı düzelince aktarması kaydedildi; mimari diyagramı ve açık konular güncellendi.
 - ADR-0004: Testin Vertex firmware’i üzerinde ClusterPilot’tan bağımsız yürütülmesi kararı ve ilişkili açık konular kaydedildi.
 - Vertex firmware kaynaklarından mevcut mesaj envanteri çıkarıldı; CAN/ISO-TP temeli ile yeniden tasarlanacak mesaj tipleri ayrıldı.
@@ -60,6 +62,7 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 - `__` ile biten klasörler geçersiz olarak kaydedildi; güncel mimari kaynak kapsamından çıkarıldı.
 
 ### Eklendi
+
 - Karar ve Mimari Defteri giriş sayfası ve açık konu takibi.
 - ADR karar dizini, kayıt şablonu ve dokümantasyon düzeni kararı.
 - Haberleşme ve mimari çalışma notları; doğrulanmamış eski bilgiler açıkça işaretlendi.
@@ -70,6 +73,7 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.02.1] - 2026-02-26
 
 ### Eklendi
+
 - Proje dokümantasyon yapısı kuruldu (wiki tarzı klasör sistemi)
 - `CLAUDE.md` — AI asistan konfigürasyon dosyası oluşturuldu
 - `README.md` — Ana proje giriş sayfası oluşturuldu

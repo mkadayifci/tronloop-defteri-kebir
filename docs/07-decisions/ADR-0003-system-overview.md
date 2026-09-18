@@ -8,30 +8,14 @@ guncelleyen: "Codex"
 
 # ADR-0003 — Cluster, Vertex ve ClusterPilot genel yapısı
 
-**Son Güncelleme:** 2026-09-18
+Tronloop bir pil test sistemi. Pilleri belli senaryolara göre şarj ve deşarj ediyor, verileri bulutta saklıyoruz.
 
-- **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi
+Sisteme Cluster’lar bağlanıyor. Her Cluster’ın içinde **Vertex** dediğimiz test birimleri var. **ClusterPilot** ise Linux üzerinde çalışan sunucu: Vertex’lerden veriyi alıyor, **TSphere** üzerindeki MQTT’ye gönderiyor. Gönderemezse veriyi SQLite’ta biriktirip bağlantı düzelince tekrar gönderiyor.
 
-## Bağlam ve karar
+Komutlar da panelden MQTT’ye geliyor. ClusterPilot komutu doğru Vertex’e iletiyor, cihazın yanıtını aynı yoldan geri gönderiyor. Böylece yerel cihazlarla bulut arasındaki iletişimi tek yerde topluyoruz.
 
-Tronloop, pilleri senaryolara göre şarj/deşarj eder ve verileri bulutta saklar. Sisteme bağlanan Cluster'ların içinde Vertex’ler bulunur. Linux sunucusu ClusterPilot, Vertex verilerini TSphere üzerindeki MQTT'ye gönderir. Gönderemediği verileri yerel SQLite'ta biriktirir ve sonradan gönderir.
+Bu kayıt genel yapıyı anlatıyor. MQTT konuları, teslim onayları, kuyrukta hangi kayıtların tutulacağı ve bulut veritabanı burada seçilmedi. Vertex’in bağımsız çalışması [ADR-0004](ADR-0004-autonomous-vertex.md) ile, CAN/ISO-TP ayrıntıları da [haberleşme notlarında](../03-software/communication-notes.md) ele alınıyor. Bütün sistemi uçtan uca kod üzerinden henüz kontrol etmedik.
 
-Kullanıcı panellerinden başlatılan komutlar MQTT'ye ulaşır. ClusterPilot bunları okuyup doğru cihazlara iletir ve cihaz yanıtlarını yine MQTT'ye gönderir.
+**Kayıt:** 2026-09-18 · Kabul edildi.
 
-## Gerekçe ve sonuçlar
-
-SQLite biriktirme davranışı, buluta gönderim yapılamayan dönemde verilerin daha sonra gönderilebilmesini sağlar. Veri ve komut akışlarında ClusterPilot yönlendirme sorumluluğu taşır. Diğer teknoloji seçimlerinin gerekçeleri ve alternatifleri bu görüşmede açıklanmadı.
-
-## Kesinleşmeyen ayrıntılar
-
-Yerel Vertex protokolü, MQTT konu/mesaj şeması, teslim güvenceleri, kuyruk kapsamı, komut yaşam döngüsü, senaryo yürütme sorumluluğu ve bulut depolama bileşenleri bu kayıtla karara bağlanmaz.
-
-## Uygulama durumu
-
-Bu kayıt hedef mimariyi anlatıyor; kodun tamamı bu yapı açısından henüz incelenmedi.
-
-## İlişkili belgeler
-
-[Mimari notlar](../03-software/architecture-notes.md) · [Haberleşme notları](../03-software/communication-notes.md)
-
+[Mimari notlar](../03-software/architecture-notes.md)

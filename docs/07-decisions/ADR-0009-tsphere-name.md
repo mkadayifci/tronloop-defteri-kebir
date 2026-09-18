@@ -8,19 +8,12 @@ guncelleyen: "Codex"
 
 # ADR-0009 — Bulut sunucusunun adı TSphere
 
-**Son Güncelleme:** 2026-09-18
+Bulut sunucusuna **TSphere** diyoruz. MQTT ise orada çalışan haberleşme hizmeti.
 
-- **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi
+ClusterPilot verileri ve cihaz yanıtlarını MQTT üzerinden TSphere’e gönderiyor; panel komutlarını da aynı yoldan alıyor. Bu adlandırmayla akış değişmiyor. DNS adresi, MQTT konusu ya da veritabanı seçmiş olmuyoruz; sunucunun adını netleştiriyoruz.
 
-## Karar ve kapsam
+Belgeler ve diyagramlar buna göre güncellendi. Kod değişikliği yok.
 
-Bulut sunucusu dokümantasyonda **TSphere** adıyla anılacak. MQTT bir sunucu adı değil, TSphere üzerindeki haberleşme hizmeti/protokolü olarak belirtilecek. ClusterPilot, Vertex verilerini ve yanıtlarını TSphere'e MQTT üzerinden iletir; panel kaynaklı komutları aynı yol üzerinden alır.
+**Kayıt:** 2026-09-18 · Kabul edildi.
 
-Bu adlandırma mevcut MQTT akışlarını değiştirmez; yeni bir sunucu kurulumu, DNS adresi, MQTT konu adı veya bulut depolama teknolojisi seçimi değildir.
-
-## Uygulama durumu
-
-Belge metinleri, diyagramlar ve kalıcı adlandırma kuralları güncellendi. Kod değiştirilmedi.
-
-[Adlandırma rehberi](../01-project-general/terminology.md) · [Mesajlaşma protokolü](../03-software/communication-notes.md)
+[İsimler](../01-project-general/terminology.md) · [Haberleşme notları](../03-software/communication-notes.md)

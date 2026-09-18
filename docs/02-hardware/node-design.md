@@ -10,13 +10,13 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-Her Vertex bağımsız olarak bir test bataryasını şarj/deşarj döngüsüne alır; elektriksel parametreler ve iklim koşullarını ölçer.
+Her Vertex bir pili test ediyor. Şarj/deşarj senaryosunu kendi çalıştırmasını, elektriksel ölçümlerle birlikte pil ve ortam sıcaklığını kaydetmesini istiyoruz. Bu sayfa donanım taslağı; bütün ölçümlerin firmware’de hazır olduğu anlamına gelmiyor.
 
-> **Faz 1** kapsamında Vertex, iklimlendirme olmadan oda sıcaklığında çalışır. TMP117 ve NTC termistör Faz 1'de de mevcuttur; sıcaklık verisi kaydedilir ancak iklim kontrolü yapılmaz. Hava kanalı bağlantıları ve valf mekanizması **Faz 2** ile devreye girer.
+> **Faz 1’de** oda sıcaklığında çalışacağız. Planda TMP117 ve NTC ile sıcaklık kaydı var, iklim kontrolü yok. Hava kanalları ve valfler **Faz 2’ye** kalıyor. Sıcaklık okuma kodu henüz tamamlanmadı.
 
 ## Enerji Döngüsü (Loop) Mimarisi
 
-Sistem regeneratif bir döngü üzerine kuruludur:
+Deşarj sırasında enerjiyi kaynak pakete geri vermeyi planlıyoruz. Döngü şöyle:
 
 ```mermaid
 flowchart LR
@@ -26,11 +26,11 @@ flowchart LR
     TP -->|"deşarj — kaynak paketi şarj eder"| KP
 ```
 
-Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı test pilinden yüksek voltajlı kaynak pakete enerji aktarımı IC'nin dahili boost dönüştürücüsü ile sağlanır.
+Buradaki fikir, deşarj enerjisini ısı olarak harcamak yerine kaynak pakete geri göndermek. Test pilinden daha yüksek gerilimli kaynak pakete geçişte boost yönünü kullanıyoruz.
 
 ## Güç Yönetimi
 
-Şarj ve deşarj tek bir **çift yönlü (bidirectional) DC-DC dönüştürücü** ile yönetilir.
+Şarjı ve deşarjı aynı **çift yönlü DC-DC dönüştürücü** üzerinden yönetiyoruz.
 
 **Seçilen IC: BQ25756 (Texas Instruments)**
 
@@ -58,7 +58,7 @@ Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı te
 
 *Pratik limit harici MOSFET ve bobine bağlı.
 
-> EV profili (anlık 3C–4C deşarj, dinamik akım geçişleri) bu IC ile rahatlıkla karşılanır.
+> Bu seçimde hedefimiz EV profilindeki anlık 3C–4C deşarjı ve akım geçişlerini karşılamak. Son sınırları kart üzerinde doğrulayacağız.
 
 ## Kapasite Ölçümü
 
@@ -68,11 +68,11 @@ Deşarj enerjisi israf olmaz, kaynak pakete geri beslenir. Düşük voltajlı te
 
 ![BQ34Z100](assets/BQ34Z100-small.png)
 
-Her iki yönde coulomb sayımı yaparak anlık kapasite ve SoH değerlerini raporlar. LFP'nin düz voltaj eğrisinde SoC tespiti için kritik — voltaj bazlı tahmin bu kimyada güvenilmez.
+Kapasite ve SoH takibinde BQ34Z100’den yararlanmayı düşünüyoruz. LFP’nin gerilim eğrisi düz olduğu için yalnızca gerilime bakarak SoC tahmini yapmak istemiyoruz; akımın zaman içindeki toplamı da önemli.
 
 ### Impedance Track™ Algoritması
 
-TI'ın tescilli **Impedance Track™** algoritması BQ34Z100'ün temel teknolojisidir. Basit coulomb sayımının ötesinde, bataryanın iç empedansını sürekli ölçerek gerçek kullanılabilir kapasiteyi hesaplar.
+BQ34Z100, kapasite hesabında TI’ın **Impedance Track™** algoritmasını kullanıyor. Buradaki ilgimiz, coulomb sayımının yanında pilin empedansını da hesaba katması.
 
 | Özellik | Açıklama |
 |---------|----------|
@@ -81,7 +81,7 @@ TI'ın tescilli **Impedance Track™** algoritması BQ34Z100'ün temel teknoloji
 | LFP uyumu | Düz voltaj eğrisine bağımlı değil, coulomb + empedans bazlı |
 | Dinamik profil | EV gibi değişken akım profillerinde de doğru çalışır |
 
-Bu proje için kritik avantaj: batarya yaşlandıkça artan iç empedans zaten izleniyor — SoH trendini ayrıca hesaplamaya gerek kalmıyor.
+Bu takip, pil yaşlandıkça empedansın ve kullanılabilir kapasitenin nasıl değiştiğini görmemize yardımcı olabilir. SoH sonucunu referans kapasite testleriyle de karşılaştıracağız.
 
 ### Pil Sıcaklığı Ölçümü
 
@@ -109,7 +109,7 @@ Pil yüzeyine temas ettirilerek BQ34Z100'ün `TS` (Temperature Sense) pinine ba�
 
 ![TMP117](assets/TMP117-small.png)
 
-Pilin bulunduğu ortam sıcaklığını ölçer. I2C üzerinden doğrudan MCU'ya bağlanır. Yüksek hassasiyeti sayesinde pil yüzeyi ile ortam sıcaklığı arasındaki fark (ısınma etkisi) analiz edilebilir.
+TMP117’yi pilin bulunduğu ortamı ölçmek için kullanmayı planlıyoruz. MCU’ya I2C üzerinden bağlanıyor. Pil yüzeyiyle ortamı ayrı ölçerek pilin ne kadar ısındığını takip edebileceğiz.
 
 | Parametre | Değer |
 |-----------|-------|
@@ -119,7 +119,7 @@ Pilin bulunduğu ortam sıcaklığını ölçer. I2C üzerinden doğrudan MCU'ya
 | Arayüz | I2C (4 adrese kadar adreslenebilir) |
 | Güç tüketimi | 3.5 µA (sürekli dönüşüm) |
 
-> Ortam ve yüzey sıcaklığı birlikte kaydedilerek pil ısınma profili uzun vadeli degradasyon analizine dahil edilir.
+> Pil ve ortam sıcaklığını birlikte tutacağız; böylece yaşlanma verisini incelerken pilin ısınmasını da görebileceğiz.
 
 ## Mikrodenetleyici (MCU)
 

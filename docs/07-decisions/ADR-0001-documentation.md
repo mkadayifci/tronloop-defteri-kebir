@@ -8,37 +8,12 @@ guncelleyen: "Codex"
 
 # ADR-0001 — Kararların ve mimari notların kalıcı tutulması
 
-**Son Güncelleme:** 2026-09-18
+Tronloop’ta neyi neden yaptığımızı burada tutuyoruz. Özellikle haberleşme ve mimari kararlar konuşmanın içinde kaybolmasın; aylar sonra geri dönünce de anlaşılır olsun.
 
-- **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi
-- **Kaynak:** 2026-09-18 tarihli proje notları.
+Kararları `tronloop-defteri-kebir` altında, ilgili konunun yanına yazıyoruz. Aklımızdaki bir fikirle kesinleşmiş kararı ayırıyoruz. Fikir değişirse eski kaydı silmek yerine yenisine bağlıyoruz; böylece hangi yoldan geldiğimiz de belli oluyor.
 
-## Bağlam
+Bu ilk kayıtla karar dizini ve konu notları açıldı. Klasör düzeni, sistemin teknik mimarisinden ayrı bir konu. Belgeleri çalışma sırasında güncelliyoruz; başka görüşmelerde kalan bilgiler kendiliğinden buraya gelmiyor.
 
-Tronloop kararlarını, haberleşme ayrıntılarını ve mimari notları aynı yerde tutuyoruz. Amaç, projenin nasıl şekillendiğini gerekçeleriyle birlikte takip edebilmek.
+**Kayıt:** 2026-09-18 · Kabul edildi.
 
-## Karar
-
-Görüşmelerde paylaşılan kararlar, haberleşme ayrıntıları ve mimari notlar düzenli, kalıcı dokümantasyona dönüştürülecek. Öneriler ile kesinleşmiş kararlar ayrı tutulacak.
-
-## Gerekçe
-
-Karar gerekçelerinin kaybolmasını önlemek ve projenin mimarisini daha sonra anlaşılır biçimde takip edebilmek.
-
-## Uygulama düzeni
-
-Karar kayıtları ve konu notları `tronloop-defteri-kebir` altında tutuluyor. Klasör düzeni dokümantasyonu organize eder; sistemin teknik mimarisini belirlemez.
-
-## Alternatifler ve etkiler
-
-Alternatifler bu görüşmede tartışılmadı. Belgelerin ilgili görüşmeler sırasında güncellenmesi gerekir; bu kayıt arka planda izleme veya diğer görüşmelere otomatik erişim oluşturmaz.
-
-## Uygulama durumu
-
-Dokümantasyon yapısı oluşturuldu. Teknik mimari ve protokol ayrıntıları henüz doğrulanmadı.
-
-## İlişkili belgeler
-
-[Karar ve Mimari Defteri](../01-project-general/decision-hub.md)
-
+[Karar defteri](../01-project-general/decision-hub.md) · [Ana merkez ve kaynaklar](ADR-0002-documentation-scope.md)

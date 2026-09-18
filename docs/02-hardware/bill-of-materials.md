@@ -8,6 +8,8 @@ guncelleyen: "Codex"
 
 # Malzeme Listesi (BOM)
 
+Malzeme listesini burada toplayacağız. Parça, adet ve tedarik bilgileri henüz eklenmedi.
+
 **Son Güncelleme:** 2026-09-18
 
 ---

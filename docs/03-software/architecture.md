@@ -10,9 +10,9 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-> **Belge kapsamı:** Adlandırma 2026-09-18 tarihinde güncellendi. Aşağıdaki eski teknik tasarım ayrıntılarının güncel uygulamayla uyumu henüz doğrulanmadı; güncel sistem yapısı için [Mimari çalışma notları](architecture-notes.md) esas alınır.
+Bu sayfada ilk tasarım notları duruyor. İsimleri güncelledik ama aşağıdaki bütün seçimleri yeniden doğrulamadık. Güncel yapı için [mimari notlara](architecture-notes.md) bakıyoruz; burası geçmişte düşündüğümüz seçenekleri kaybetmemek için duruyor.
 
-Vertex firmware'i + ClusterPilot koordinasyon yazılımı + analiz araçlarından oluşan üç katmanlı yapı. Vertex’ler ile ClusterPilot CAN bus üzerinden haberleşir. ClusterPilot topladığı veriyi her 1 dakikada bir cloud'a senkronize eder.
+İlk planda yazılımı Vertex firmware’i, ClusterPilot ve analiz araçları olarak üçe ayırmıştık. Vertex–ClusterPilot arasında CAN, buluta aktarım için de dakikada bir eşitleme düşünülüyordu. Aşağıdaki diyagram ve veritabanı tabloları o plana ait.
 
 ---
 
@@ -48,7 +48,7 @@ flowchart TD
 
 ### InfluxDB — Ölçüm Verisi (Zaman Serisi)
 
-Vertex’lerden gelen tüm elektriksel ve iklimsel ölçümler burada saklanır. Zaman serisi veritabanı olduğundan yüksek frekanslı yazma ve trend sorguları için optimize edilmiştir.
+Ölçümleri zaman serisi olarak saklamak için InfluxDB düşünülmüştü. Sık gelen kayıtları yazmak ve zaman içindeki değişimi sorgulamak bu seçimin nedeniydi. Aşağıdaki servis ve paket bilgileri eski notlar; güncel koşulları ayrıca kontrol etmek gerekiyor.
 
 | Parametre | Değer |
 |-----------|-------|
@@ -83,7 +83,7 @@ Vertex’lerden gelen tüm elektriksel ve iklimsel ölçümler burada saklanır.
 
 ### PostgreSQL — Konfigürasyon ve Metadata
 
-Deney tanımları, Vertex konfigürasyonları, batarya bilgileri ve sistem ayarları burada saklanır.
+Deney tanımlarını, Vertex ayarlarını ve pil bilgilerini PostgreSQL’de tutmayı düşünmüştük.
 
 | Parametre | Değer |
 |-----------|-------|
@@ -107,7 +107,7 @@ Deney tanımları, Vertex konfigürasyonları, batarya bilgileri ve sistem ayarl
 
 ## Yerel Depolama
 
-ClusterPilot (BeagleBone) internet bağlantısı kesildiğinde veriyi yerel olarak tamponlar; bağlantı geri gelince cloud'a toplu gönderir. Yerel depolama iki USB SSD üzerinde **mdadm RAID1** ile yedeklenir.
+Yerel depolama için iki USB SSD üzerinde **mdadm RAID1** planlanmıştı. Bağlantı yokken kayıtlar burada bekleyecek, bağlantı gelince buluta gidecekti. Güncel kararda SQLite kuyruğu var; RAID düzeni henüz yeniden kesinleştirilmedi.
 
 | Bileşen | Açıklama |
 |---------|----------|
@@ -120,7 +120,7 @@ ClusterPilot (BeagleBone) internet bağlantısı kesildiğinde veriyi yerel olar
 
 ## Docker Compose (Dev Ortamı)
 
-Yerel geliştirme ortamında InfluxDB ve PostgreSQL tek komutla ayağa kalkar:
+İlk planı yerelde denemek için hazırlanan Compose örneği:
 
 ```yaml
 services:
@@ -147,7 +147,7 @@ volumes:
   postgres_data:
 ```
 
-`docker compose up -d` ile her iki servis ayağa kalkar. Prod'a geçişte sadece connection string değişir.
+Örneği `docker compose up -d` ile çalıştırabiliriz. Üretim ayarları bu geliştirme örneğinden ayrı ele alınacak.
 
 ---
 

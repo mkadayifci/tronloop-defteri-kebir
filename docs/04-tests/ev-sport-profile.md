@@ -12,11 +12,11 @@ guncelleyen: "Codex"
 
 > **Hücre:** 3Ah LFP · **IC:** BQ25756 bidirectional buck-boost · **Döngü:** ~8 dk sürüş + dinlenme (~498 s)
 
-Bu profil, sportif bir elektrikli araç sürüşünü simüle eden şarj/deşarj test senaryosunu tanımlar. Amaç, batarya hücrelerini gerçekçi dinamik yüklere maruz bırakarak kapasite degradasyonunu hızlandırılmış koşullarda gözlemlemektir.
+Bu taslakta sportif bir elektrikli araç sürüşünü akım adımlarıyla taklit ediyoruz. Sürekli aynı akımı uygulamak yerine hızlanma, frenleme ve bekleme bölümleri var. Böylece pilin değişken yük altında nasıl yaşlandığını incelemek istiyoruz. Aşağıdaki değerler senaryo planı; tamamlanmış bir testin sonucu değil.
 
 ## Senaryo Özeti
 
-Profil, tipik bir sportif EV sürüşünü 20 fazda modeller: sert kalkış, otoyol sprinti, şehir içi dur-kalk trafiği, rejeneratif frenleme ve park. Her faz belirli bir akım seviyesinde sabit süre çalışır.
+Senaryoda 20 adım var: sert kalkış, otoyol, dur-kalk, rejeneratif frenleme ve park. Her adımda akımı belli bir süre sabit tutuyoruz.
 
 ```mermaid
 flowchart LR
@@ -107,7 +107,7 @@ pie title Akım Dağılımı (süreye göre)
 
 ## BQ25756 Uyumu
 
-Bu profildeki tüm akım değerleri BQ25756'nın limitleri içindedir:
+İlk planda profil akımlarını BQ25756 için aşağıdaki sınırlarla karşılaştırmıştık. Bu tabloyu kart ve hücre üzerinde yapılmış uygunluk testi gibi almıyoruz:
 
 | Parametre | IC Limiti | Profil Max | Durum |
 |-----------|-----------|------------|-------|
@@ -118,7 +118,7 @@ Bu profildeki tüm akım değerleri BQ25756'nın limitleri içindedir:
 
 ## Test Tekrarı ve Degradasyon İzleme
 
-Bu profil sürekli döngü olarak tekrarlanır. Her N döngüde bir referans ölçümü yapılır:
+Profili döngü halinde tekrarlayıp aralara referans kapasite ölçümü koymayı planlıyoruz. Aşağıdaki taslakta bu aralık 50 döngü:
 
 ```mermaid
 flowchart TD
@@ -132,7 +132,7 @@ flowchart TD
     CHECK -->|Evet| DONE["Test Tamamlandı<br/>Rapor oluştur"]
 ```
 
-Her 50 döngüde bir yapılan referans ölçümü ile gerçek kapasite kaybı izlenir. BQ34Z100'ün Impedance Track algoritması sürekli SoH takibi yaparken, referans ölçümü bağımsız doğrulama sağlar.
+Her 50 döngüde bir referans ölçümü alarak kapasite kaybını takip edeceğiz. BQ34Z100’ün SoH tahminini de bu ölçümlerle karşılaştıracağız.
 
 ## Notlar
 

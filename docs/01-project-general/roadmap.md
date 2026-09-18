@@ -10,7 +10,7 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test altyapısını kurar ve doğrular; ikinci faz iklim kontrol sistemini entegre ederek çok değişkenli test senaryolarını etkinleştirir.
+Önce oda sıcaklığında kararlı çalışan bir test sistemi kuracağız. İklim kontrolünü, bu temel oturduktan sonra ekleyeceğiz. Aşağıdaki tablolar ilk planı gösteriyor; güncel firmware ve haberleşme ilerlemesi [karar defterinde](decision-hub.md).
 
 ---
 
@@ -18,7 +18,7 @@ Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test al
 
 > **Hedef:** Şarj/deşarj döngüsü, kapasite ölçümü ve CAN haberleşmesinin oda sıcaklığında kararlı çalıştığını doğrulamak.
 
-| Milestone | Durum | Açıklama |
+| İş | Durum | Açıklama |
 |-----------|-------|----------|
 | Vertex donanım tasarımı | ⚪ Başlamadı | BQ25756 + BQ34Z100 + STM32L476, KiCad şematik |
 | Vertex PCB üretimi | ⚪ Başlamadı | İlk prototip, 1–3 Vertex |
@@ -34,7 +34,7 @@ Proje iki ana faza ayrılmıştır. İlk faz iklimlendirme olmadan temel test al
 
 > **Hedef:** Faz 1 sistemi üzerine iklimlendirme katmanı ekleyerek sıcaklık kontrollü test senaryolarını çalıştırmak.
 
-| Milestone | Durum | Açıklama |
+| İş | Durum | Açıklama |
 |-----------|-------|----------|
 | Peltier + soğutma tasarımı | ⚪ Başlamadı | Kapalı döngü, kondenzasyon tuzağı, hot side ısı eşanjörü |
 | PTC trim ısıtıcı entegrasyonu | ⚪ Başlamadı | 50W, 24V, PWM kontrol |

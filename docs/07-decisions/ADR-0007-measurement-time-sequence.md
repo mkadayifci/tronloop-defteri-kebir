@@ -8,53 +8,31 @@ guncelleyen: "Codex"
 
 # ADR-0007 — Ölçüm zamanı, sıra numarası ve saat eşitleme
 
-**Son Güncelleme:** 2026-09-18
+Gecikmeli gelen bir kaydın ne zamana ait olduğunu ve arada kayıt atlanıp atlanmadığını anlayabilmek için **zaman ve sıra numarası** kullanıyoruz. Zaman milisaniye cinsinden olacak. Bir kayıt tamponda beklediyse, tekrar gönderirken zamanını değiştirmeyeceğiz.
 
-- **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi
-- **Kaynak:** 2026-09-18 tarihli proje notları.
+İlk karar zamanı ölçüm anında almaktı. Sonrasında [ADR-0012](ADR-0012-payload-time.md) ile telemetride RTC’yi payload oluştururken okumaya geçtik. Yani bugünkü `measurement_time_ms`, sensörün okunduğu anı değil paketin oluşturulduğu anı gösteriyor.
 
-## Karar
+Sıra numarası sadece kayıtları ayırt etmek için. Artmaya devam edecek; test değişince sıfırlamak zorunda değiliz. Tek başına bütün cihazlarda ve her yeniden başlatmada benzersiz bir kimlik gibi düşünmüyoruz.
 
-Test ölçüm kayıtları **milisaniye çözünürlüğünde ölçüm zamanını** ve sıra numarasını içerecek. Zaman ölçümün alındığı anı ifade eder; tampon boşaltılırken gönderim zamanı ile değiştirilmez. Bu alanlar gecikmeli kayıtların zamanını ve aradaki kayıt boşluklarını ayırt etmek için kullanılır.
+## Saat nereden geliyor?
 
-STM32 üzerinde RTC çalışır. ClusterPilot Linux sistem zamanı, periyodik saat güncelleme mesajlarıyla Vertex'e iletilir ve Vertex saati güncellenir. Unix zaman temeli kullanılır. Bağlantı kesilince Vertex kendi saatiyle çalışmayı sürdürür.
+STM32’de RTC çalışıyor. ClusterPilot, Linux/Unix zamanını belli aralıklarla mesajla gönderecek; Vertex de saatini güncelleyecek. Bağlantı kesilince kendi saatiyle devam edecek.
 
-## Kaynaktan doğrulanan mevcut uygulama
+İlk incelemede `TL_RTC_Set(uint32_t unix_ts)` ve `TL_RTC_Get()` yalnızca Unix saniyesiyle çalışıyordu. [ADR-0011](ADR-0011-telemetry-time-temperature.md) ile `uint64_t` Unix ms alanı ve `TL_RTC_GetMs()` eklendi. Bu fonksiyon RTC’nin saniye altı bilgisini kullanıyor. Mevcut ayarda adım yaklaşık **3,9 ms**; milisaniye yazıyor olmamız 1 ms doğruluk sağladığımız anlamına gelmiyor.
 
-2026-09-18 tarihinde geçerli Vertex çalışma ağacı incelendi:
+## Kodda şu an ne var?
 
-- `Core/Inc/tl_rtc.h` ve `Core/Src/tl_rtc.c`: `TL_RTC_Set(uint32_t unix_ts)` ve `TL_RTC_Get()` Unix saniyeleri ile çalışıyor. Mevcut dönüşüm saniye çözünürlüğünde.
-- `Core/Src/tl_can.c`: ham CAN alım yolunda RTC ayarlama komutu, dört bayt little-endian zaman değerini `TL_RTC_Set` çağrısına aktarıyor. Komut değeri `Core/Inc/tl_can.h` içinde `0x01`.
-- `Core/Src/main.c`: başlangıçta RTC sabit `1710255720UL` değeriyle ayarlanıyor. Bu değer güncel Linux saati değildir; ilk eşitleme öncesi zamanın geçerliliği tasarımda ele alınmalı.
-- Periyodik Linux göndericisinin uygulaması bu incelemede doğrulanmadı. Mevcut RTC komut biçimi yeni protokol için bağlayıcı mesaj tipi olarak kabul edilmedi.
+- `Core/Inc/tl_rtc.h` ve `Core/Src/tl_rtc.c`: saniye ve milisaniye okuma, saniye cinsinden saat ayarlama.
+- `Core/Src/tl_can.c`: ham CAN üzerinde `0x01` komutu ve dört bayt little-endian zaman değeriyle RTC ayarlama.
+- `Core/Src/main.c`: açılışta sabit `1710255720UL` zamanı atanıyor. Linux’tan ilk eşitleme gelmeden bu tarih güncel değil.
+- Telemetride zaman var; ölçüm sıra numarası henüz yok. Linux’un periyodik eşitleme göndericisini henüz doğrulamadık.
 
-Bu yollar `tronloop-vertex-firmware/` deposuna göredir. Kod değiştirilmedi, donanım testi yapılmadı.
+Dosyalar `tronloop-vertex-firmware/` altında. İlk inceleme 2026-09-18’de yapıldı; o incelemede kod değişmemişti. Daha sonraki zaman düzenlemeleri ADR-0011 ve ADR-0012’de kayıtlı. Kart üzerinde zaman doğrulaması yapılmadı.
 
-## Gerekçe ve etkiler
+## Kalan sorular
 
-Dairesel tampondan gecikmeli gelen ölçümlerin zamanı korunur. Sıra numarası kayıt sırasını ve boşlukları değerlendirmeyi sağlar; kayıpsız teslim garantisi oluşturmaz.
+Sayacın kaç bayt olacağını, taşınca ve cihaz yeniden başlayınca ne yapacağını belirleyeceğiz. Saatin ne sıklıkla eşitleneceği, ilk eşitlemeden önce kayıtların nasıl işaretleneceği ve saat ileri/geri alındığında verinin nasıl yorumlanacağı da açık. Eski ham CAN saat komutunu yeni protokolde aynen kullanmaya henüz karar vermedik.
 
-## Kararın netleştirilmesi — 2026-09-18
+**Kayıt:** 2026-09-18 · Kabul edildi; telemetride zamanın okunduğu an için ADR-0012 geçerli.
 
-Ölçüm zamanı milisaniye cinsinden tutulacak. Bu, mevcut RTC kodunun milisaniye ürettiği veya saat eşitlemenin 1 ms doğruluk sağladığı anlamına gelmez. Mevcut saniye tabanlı uygulamanın uyarlanması gerekiyor. Kod değişikliği yapılmadı; alanın kodlanma biçimi ve saat güncelleme paketinin çözünürlüğü ayrıca seçilecek.
-
-## Sıra numarasının netleştirilmesi — 2026-09-18
-
-Sıra numarası artmaya devam edecek ve kayıtları ayırt etmek için kullanılacak. Her testte sıfırdan başlatma önerisi benimsenmedi; test değişimi sayacı sıfırlamayı gerektirmez. Bu alan tek başına tüm cihazlar ve yeniden başlamalar boyunca benzersiz bir kimlik garantisi olarak yorumlanmaz.
-
-## Açık konular
-
-- Milisaniye çözünürlüklü ölçüm zamanının alan boyutu ve tel biçimi; STM32 üzerinde saniye altı zamanın nasıl üretileceği.
-- Artan ayırt edici sayacın alan genişliği, cihaz yeniden başladığında başlangıç değeri ve taşma davranışı. Test başında sıfırlama şartı yoktur.
-- Saat eşitleme aralığı ve ilk eşitlemenin zamanı.
-- İlk eşitleme öncesi zaman geçerliliği ve saat ileri/geri düzeltildiğinde kayıtların yorumlanması.
-- Saat güncelleme mesajının yeni protokoldeki biçimi ve yanıtı.
-
-## İlişkili belgeler
-
-[Dairesel tampon](ADR-0006-vertex-ring-buffer.md) · [Haberleşme notları](../03-software/communication-notes.md)
-
-## Uygulama güncellemesi — ADR-0011
-
-Telemetriye uint64_t Unix milisaniye alanı eklendi. İlk uygulamada zaman hızlı context ölçümünde kaydediliyordu. [ADR-0012](ADR-0012-payload-time.md) ile bu bölüm değişti: zaman artık payload oluşturulurken RTC’den okunuyor. Ölçüm anı ile paket oluşturma anı aynı kabul edilmemeli. `TL_RTC_GetMs()` RTC subsecond alanını kullanıyor; mevcut prescaler nominal ~3,9 ms adımlı. Önceki yalnız saniye çözünürlüklü uygulama gözlemi `TL_RTC_Get()` için geçerli kalır, yeni API ayrı eklenmiştir. Sıra numarası ve Linux saat eşitleme ayrıntıları henüz uygulanmadı. [Güncel telemetri](../03-software/vertex-telemetry-message.md).
+[Dairesel tampon](ADR-0006-vertex-ring-buffer.md) · [Güncel telemetri](../03-software/vertex-telemetry-message.md) · [Haberleşme notları](../03-software/communication-notes.md)

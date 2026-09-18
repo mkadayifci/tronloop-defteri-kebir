@@ -8,6 +8,8 @@ guncelleyen: "Codex"
 
 # Test Protokolü
 
+Ortak test adımlarını ve kabul ölçütlerini burada toparlayacağız. Henüz tamamlanmış bir protokol yok; ilk senaryo taslağı [sportif EV profili](ev-sport-profile.md).
+
 **Son Güncelleme:** 2026-09-18
 
 ---

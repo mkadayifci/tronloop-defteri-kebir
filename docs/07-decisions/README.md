@@ -10,7 +10,7 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-Her karar ayrı bir `ADR-NNNN-kisa-baslik.md` dosyasında tutulur. Kimlikler tekrar kullanılmaz.
+Kararları ayrı dosyalarda tutuyoruz. Dosya adı `ADR-NNNN-kisa-baslik.md`; numarayı bir kez kullanıyoruz. Karar değişirse eski kaydı silmek yerine yenisine bağlıyoruz.
 
 | Kimlik | Tarih | Karar | Durum |
 |---|---|---|---|
@@ -36,15 +36,16 @@ Her karar ayrı bir `ADR-NNNN-kisa-baslik.md` dosyasında tutulur. Kimlikler tek
 - Durum: Öneri / Kabul edildi / Reddedildi / Yerine yeni karar geldi
 - Kaynak: Görüşme tarihi veya belge/kod bağlantısı
 
-## Bağlam ve problem
-## Karar
-## Gerekçe
-## Değerlendirilen alternatifler
-## Etkiler ve ödünleşimler
-## Uygulama durumu ve doğrulama
-## Açık konular
-## İlişkili belgeler ve kararlar
+Ne yapıyoruz, neden bu yolu seçtik? Birkaç açık cümleyle anlat.
+
+## Düşündüğümüz diğer yol
+Gerekiyorsa alternatifini ve neden seçmediğimizi yaz.
+
+## Kodda durum
+Ne hazır, ne eksik, neyi test ettik?
+
+## Kalan sorular
+Henüz netleşmeyenler ve ilgili belge bağlantıları.
 ```
 
-Dosyanın başına diğer belgelerde kullanılan YAML ön bilgisini ve son güncelleme tarihini ekle. Kararın kabul edilmesi, uygulamanın tamamlandığı anlamına gelmez.
-
+Dosyanın başına tarih ve YAML bilgisini ekle. Her karar için bütün başlıkları doldurmak zorunda değiliz; kısa bir karar birkaç paragrafla anlatılabiliyorsa öyle kalsın. Kararlaştırdığımız işle kodda bitirdiğimiz işi ayıralım.

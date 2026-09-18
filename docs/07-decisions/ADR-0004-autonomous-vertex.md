@@ -8,37 +8,19 @@ guncelleyen: "Codex"
 
 # ADR-0004 — Vertex üzerinde bağımsız test yürütme
 
-**Son Güncelleme:** 2026-09-18
+**Vertex, testi ClusterPilot’a muhtaç olmadan çalıştıracak.** Senaryo adımlarını ve geçişlerini kendi firmware’i yönetecek. Her adımda sunucudan yeni komut ya da onay beklemeyecek.
 
-- **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi
-- **Kaynak:** 2026-09-18 tarihli proje notları.
+ClusterPilot’un işi veriyi toplamak, komutları yönlendirmek ve sistemi izlemek. Bağlantı kesildi diye testin de durmasını istemiyoruz. Tabii cihazın korumaları ve senaryonun kendi durdurma koşulları yine geçerli.
 
-## Bağlam ve karar
+Bu yüzden senaryoyu cihaza aktarmakla senaryoyu adım adım çalıştırmayı ayrı düşünüyoruz. Aktarım, doğrulama ve başlatma mesajlarını daha tasarlayacağız. Firmware’de bütün senaryo türlerini ve kesinti durumlarını test etmiş değiliz; bu kayıt hedeflediğimiz davranışı anlatıyor.
 
-Test senaryosunu Vertex firmware'i yürütür. Vertex, testi sürdürmek için ClusterPilot'tan sürekli komut veya adım onayı beklemez. Senaryo yürütme sorumluluğu ve adım geçişleri Vertex üzerindedir. ClusterPilot veri aktarımı, komut yönlendirme ve izleme sorumluluklarını sürdürür.
+## Kalan işler
 
-## Gerekçe ve etkiler
+- Senaryoyu nasıl aktaracağımız, doğrulayacağımız ve başlatacağımız.
+- Bağlantı gelince test durumunun nasıl eşitleneceği ve bekleyen verinin nasıl aktarılacağı.
+- Güç kesilince ya da Vertex yeniden başlayınca senaryo ve ilerlemenin korunup korunmayacağı.
+- Kısa kesintiler için seçtiğimiz [dairesel tamponun](ADR-0006-vertex-ring-buffer.md) kapasitesi, belleği ve hangi kayıtları tutacağı.
 
-Testin yürütülmesi ClusterPilot'un sürekli erişilebilir olmasına bağlı olmayacaktır. ClusterPilot bağlantısının kesilmesi tek başına test yürütmenin durmasını gerektirmez. Bu karar, diğer test durdurma koşullarını veya cihaz korumalarını kaldırmaz.
+**Kayıt:** 2026-09-18 · Kabul edildi. Bu karar alınırken kod değişmedi.
 
-Protokol tasarımında senaryo aktarımı ve test kontrolü, adım adım yürütmeden ayrılmalıdır. Aktarım biçimi, komut isimleri ve mesaj kodları henüz seçilmedi.
-
-## Alternatifler
-
-ClusterPilot'un her adımı yönettiği, testin sürekli bağlantı gerektirdiği yaklaşım yerine Vertex üzerinde bağımsız yürütme seçildi.
-
-## Uygulama durumu
-
-Bu kayıt hedef davranış kararıdır. Mevcut firmware'in bütün senaryo türlerini veya kesinti durumlarını eksiksiz desteklediği doğrulanmış değildir. Kod değiştirilmedi.
-
-## Açık konular
-
-- Senaryo aktarımı, doğrulama ve başlatma sözleşmesi.
-- Vertex kısa kesintiler için dairesel tampon kullanır; dolunca en eski kayıtların üzerine yazar. Geçerli karar [ADR-0006](ADR-0006-vertex-ring-buffer.md); kapasite, bellek ortamı ve olay kapsamı açık.
-- Bağlantı geri geldiğinde test durumunun eşleştirilmesi ve birikmiş verinin aktarım sözleşmesi.
-- Vertex yeniden başladığında veya güç kesildiğinde senaryonun ve ilerlemenin korunması; yeniden başlatma/devam politikası. Bağımsız yürütme kararı bunları otomatik olarak belirlemez.
-
-## İlişkili belgeler
-
-[Genel yapı kararı](ADR-0003-system-overview.md) · [Mimari notlar](../03-software/architecture-notes.md) · [Haberleşme notları](../03-software/communication-notes.md)
+[Genel yapı](ADR-0003-system-overview.md) · [Mimari notlar](../03-software/architecture-notes.md) · [Haberleşme notları](../03-software/communication-notes.md)

@@ -10,7 +10,7 @@ guncelleyen: "Codex"
 
 # Batarya Kapasite Kayıp İzleme Sistemi
 
-> Cluster’lar içindeki Vertex birimleriyle pilleri senaryolara göre test eden; ClusterPilot üzerinden test verilerini buluta taşıyan araştırma platformu.
+Tronloop’ta pilleri farklı senaryolarla şarj ve deşarj ediyor, zamanla nasıl yaşlandıklarını takip ediyoruz. Testi Vertex çalıştırıyor; ClusterPilot veriyi TSphere’e taşıyor. Bu defterde de sistemi nasıl kurduğumuzu ve neyi neden seçtiğimizi tutuyoruz.
 
 **Durum:** 🟡 Faz 1 — Kurulum Aşaması &nbsp;|&nbsp; **Başlangıç:** 2026 &nbsp;|&nbsp; **Son Güncelleme:** 2026-09-18
 
@@ -26,9 +26,9 @@ guncelleyen: "Codex"
 
 - [Karar ve Mimari Defteri](docs/01-project-general/decision-hub.md) — kararlar, haberleşme notları ve açık konular
 
-- [Proje Tanımı & Hedefler](docs/01-project-general/project-definition.md)
-- [Ekip & Roller](docs/01-project-general/team.md)
-- [Yol Haritası & Milestone'lar](docs/01-project-general/roadmap.md)
+- [Proje ve hedefler](docs/01-project-general/project-definition.md)
+- [Ekip ve görevler](docs/01-project-general/team.md)
+- [Yol haritası](docs/01-project-general/roadmap.md)
 - [ClusterPilot Tasarımı](docs/02-hardware/main-unit.md)
 - [Vertex Tasarımı](docs/02-hardware/node-design.md)
 - [İklim İzleme](docs/02-hardware/climate-monitoring.md)
@@ -73,15 +73,15 @@ Ayrıntılar: [Bileşen adlandırması](docs/01-project-general/terminology.md) 
 
 ## Proje Hakkında
 
-Bu proje, bataryaların uzun vadeli kapasite kayıp davranışlarını sistematik olarak ölçmek ve belgelemek amacıyla tasarlanmıştır. Her Vertex bağımsız şarj/deşarj döngüleri yürütürken iklim parametrelerini (sıcaklık, nem, vb.) eş zamanlı kaydeder. Toplanan veriler analiz edilerek akademik yayınlara dönüştürülür.
+Asıl görmek istediğimiz, farklı koşullarda çalışan pillerin kapasitesinin zamanla nasıl değiştiği. Önce oda sıcaklığında test ve veri toplama işini oturtacağız. Sonraki aşamada iklim kontrolünü ekleyeceğiz. Biriken veriyi hem yaşlanma analizi hem de akademik çalışmalar için kullanmayı hedefliyoruz.
 
 ---
 
-## Katkıda Bulunma
+## Bu defteri güncellerken
 
 1. İlgili `docs/` alt klasörüne git
 2. Değişikliğini yap, front matter'daki `son_guncelleme` ve `guncelleyen` alanlarını güncelle
 3. `CHANGELOG.md` dosyasına kısa bir not ekle
 4. Commit mesajı formatı: `docs(konu): kısa açıklama`
 
-Detaylı talimatlar için [CLAUDE.md](CLAUDE.md) dosyasına bakınız.
+Yazım düzeni ve çalışma kuralları [burada](CLAUDE.md).

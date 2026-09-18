@@ -10,9 +10,9 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-## Uygulama durumu
+## Paketin son hali
 
-[ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md) ile belirlenen yapı 2026-09-18 tarihinde Vertex firmware'ine uygulandı. Önceki 10 baytlık biçim yerine **7 baytlık VertexStatusPayload** gönderilir. Alıcı yazılımın yeni yerleşime uyarlanması ayrıca gerekir; bu çalışma kapsamında alıcı kodu değiştirilmedi. TSphere üzerindeki MQTT konu ve içerik şeması henüz seçilmedi.
+Genel durumu **7 baytlık `VertexStatusPayload`** ile gönderiyoruz. Önceki 10 baytlık yapı değişti; firmware 2026-09-18’de [bu karara](../07-decisions/ADR-0010-message-type-and-operation-mode.md) göre güncellendi. ClusterPilot alıcısını daha uyarlamadık. TSphere tarafındaki MQTT konusu ve içerik biçimi de henüz belli değil.
 
 | Özellik | Değer |
 |---|---|
@@ -25,7 +25,7 @@ guncelleyen: "Codex"
 
 ## Alanlar ve bayt yerleşimi
 
-Konumlar uygulama verisinde sıfırdan başlar; ISO-TP başlığı dahil değildir.
+Baytları sıfırdan sayıyoruz. Tabloya ISO-TP başlığını dahil etmiyoruz.
 
 | Bayt | Alan | Tür / boyut | Birim veya anlam |
 |---|---|---|---|
@@ -35,7 +35,7 @@ Konumlar uygulama verisinde sıfırdan başlar; ISO-TP başlığı dahil değild
 | 4 | `charger_mode` | `uint8_t` / 1 bayt | Idle / şarj / deşarj |
 | 5–6 | `battery_current_ma` | `int16_t` / 2 bayt | Pil akımı, mA; pozitif şarj, negatif deşarj |
 
-Toplam: **1 + 2 + 1 + 1 + 2 = 7 bayt**. Paket boyutu ve alan ofsetleri derleme zamanı kontrolleriyle sabitlenmiştir. Ölçüm zamanı, sıra numarası, sıcaklık, SOC/SOH, test kimliği ve hata ayrıntısı bu pakette yoktur. Oynatıcı ve charger modu ayrı baytlardır; ortak bit alanı kullanılmaz.
+Toplam **1 + 2 + 1 + 1 + 2 = 7 bayt**. Boyut ve alan yerleri derlemede kontrol ediliyor. Oynatıcıyla charger modunu ayrı baytlarda tutuyoruz. Bu pakette zaman, sıra numarası, sıcaklık, SOC/SOH, test kimliği veya hata ayrıntısı yok.
 
 ## Durum kodları
 
@@ -53,19 +53,19 @@ Toplam: **1 + 2 + 1 + 1 + 2 = 7 bayt**. Paket boyutu ve alan ofsetleri derleme z
 | 1 | `TL_CHARGER_MODE_CHARGING` | Reverse kapalı, enabled açık |
 | 2 | `TL_CHARGER_MODE_DISCHARGING` | Reverse açık; enabled değerinden bağımsız |
 
-Mod kodları uygulama sırasında seçilmiştir. Mevcut senaryo kodu deşarjda `enabled=false`, `is_reverse_mode=true` kullanır; bu nedenle reverse kontrolü önceliklidir. Her iki bayrak da açıksa deşarj kodlanır.
+Deşarj sırasında senaryo kodu `enabled=false`, `is_reverse_mode=true` kullanıyor. Bu yüzden önce reverse’e bakıyoruz. İki bayrak birden açık olsa da pakette deşarj görünüyor.
 
 ## Veri kaynakları ve sınırlar
 
 - Oynatıcı durumu doğrudan `g_scenario_player.playerState` üzerinden alınır.
-- Charger modu yazılımın context kontrol durumudur; donanımdan doğrulanmış fiziksel çalışma bilgisi değildir.
-- Gerilim `g_tl_context.dut.voltage_mV` üzerinden alınır. Mevcut `tl_context.c` gerilimi sıfırla başlatır ve ölçüm güncellemesi yorum satırındadır; alanın varlığı ölçümün uygulandığı anlamına gelmez.
+- Charger modu context’teki kontrol bayraklarından geliyor. Donanımdan geri okuyup doğruladığımız bir durum değil.
+- Gerilim `g_tl_context.dut.voltage_mV` alanından geliyor. Şu an sıfırla başlıyor ve güncellemesi yorum satırında; paket alanı hazır ama gerçek gerilim okuması bağlı değil.
 - Akım `g_tl_context.dut.current_mA` üzerinden alınır; bu alan fuel gauge ölçümünden güncellenir. Dahili context alanı `int32_t` kalmıştır.
 - Akım −32768…+32767 mA dışındaysa **genel durum paketi o tur gönderilmez**, hata loglanır ve sonraki deneme 3 saniye sonra yapılır. Değer kırpılmaz veya taşarak farklı bir ölçüm gibi gönderilmez. Bu koruma genel durum paketine aittir; diğer telemetri davranışları değiştirilmedi.
 
 ## Gönderim ve ayrıştırma
 
-Gönderim zamanı geldiğinde ISO-TP meşgulse paket bekler; uygun olduğunda diğer periyodik paketlerden önce denenir. Gönderim başlatma hatası loglanır ve sonraki deneme 3 saniye sonradır. Bu aralık teslim garantisi değildir.
+Üç saniye dolduğunda ISO-TP meşgulse bekliyoruz. Bağlantı boşalınca önce genel durumu göndermeyi deniyoruz. Başlatma hatası olursa loga yazıp sonraki denemeyi üç saniye sonra yapıyoruz. Yani bu süre gönderim hedefi; her paketin teslim edildiğini söylemiyor.
 
 Alıcı, ISO-TP başlığını ayırdıktan sonra uygulama tür alanını okumalı ve `0x03` için 7 bayt beklemelidir. Farklı mesaj türlerinin aynı uzunlukta olması mümkündür; uzunluk tür seçmek için kullanılmaz.
 
@@ -78,7 +78,7 @@ Mevcut ISO-TP kütüphanesinin tek çerçeve sınırı 7 bayt uygulama verisidir
 
 ## Örnek paket
 
-Alan yerleşimi örneğidir; cihazdan alınmış ölçüm değildir. Gerilim ölçümünün çalıştığına ilişkin kanıt olarak kullanılmaz.
+Alanların nasıl yerleştiğini görmek için bir örnek. Bu veri cihazdan alınmadı; gerilim okumasının çalıştığını göstermiyor.
 
 ```text
 Uygulama verisi: 03 74 0E 01 02 18 FC
@@ -87,9 +87,9 @@ CAN veri alanı:  07 03 74 0E 01 02 18 FC
 
 Tür `0x03`, gerilim 3700 mV, oynatıcı running (`1`), charger deşarj (`2`), akım −1000 mA (`0xFC18`).
 
-## Doğrulama ve kaynaklar
+## Kontroller ve kaynak kod
 
-Debug firmware derlemesi başarılı. Gerçek dispatcher ve ISO-TP kütüphanesi, donanım çağrıları taklit edilerek bilgisayarda çalıştırıldı: tel üzerindeki 8 bayt, üç mod, reverse önceliği, pozitif/negatif akım, `int16_t` sınırları, sınır dışı kayıt, meşgul ISO-TP bağlantısı ve gönderim hatası sonrası deneme zamanı doğrulandı. Kart üzerinde test yapılmadı.
+Debug derlemesi geçti. Donanım çağrılarını taklit ederek gerçek dispatcher ve ISO-TP kodunu bilgisayarda çalıştırdık. CAN’deki 8 baytı, üç modu, reverse önceliğini, akımın işaretini ve sınırlarını kontrol ettik. Aralık dışı akımda, meşgul bağlantıda ve gönderim hatasında ne olduğunu da denedik. Kart üzerinde test henüz yapılmadı.
 
 Kaynaklar `tronloop-vertex-firmware/` deposuna göredir:
 

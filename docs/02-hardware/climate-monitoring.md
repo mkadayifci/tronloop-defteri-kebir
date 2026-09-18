@@ -10,9 +10,9 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-> ⚠️ **Bu belge Faz 2 kapsamındadır.** Faz 1'de iklimlendirme sistemi devrede değildir; Vertex’ler oda sıcaklığında çalışır. İklim kontrol entegrasyonu Faz 1 doğrulandıktan sonra başlar.
+> Bu sayfa **Faz 2 planı**. İlk aşamada oda sıcaklığında çalışıyoruz; temel sistemi doğruladıktan sonra iklim kontrolüne geçeceğiz. Aşağıdaki donanım düzeni henüz taslak.
 
-Her Vertex, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek için ortam koşullarını elektriksel ölçümlerle eş zamanlı olarak kaydeder.
+Pilin hangi ortamda yaşlandığını bilmek istiyoruz. Bunun için sıcaklık ve diğer ortam verilerini elektriksel ölçümlerle birlikte kaydetmeyi planlıyoruz.
 
 ---
 
@@ -20,7 +20,7 @@ Her Vertex, batarya yaşlanması üzerindeki iklim etkisini analiz edebilmek iç
 
 ### Genel Yaklaşım
 
-Soğuk kanal **Peltier soğuk tarafından**, sıcak kanal ise bağımsız bir **PTC ısıtıcıdan** beslenir. Bu ayrım kritiktir: sıcak taraf için 40°C hedeflendiğinde Peltier hot side'ının yeterince sıcak olması garanti edilemez — özellikle soğuk tarafı düşük tutmak için sıcak taraf aktif soğutuluyorsa. PTC ısıtıcı bu bağımlılığı ortadan kaldırır, iki kanalı birbirinden bağımsız kontrol edilebilir kılar.
+Soğuk kanalı **Peltier’in soğuk tarafından**, sıcak kanalı **PTC ısıtıcıyla** beslemeyi düşünüyoruz. Sıcak kanalın hedefini yalnızca Peltier’in sıcak yüzeyine bağlamak istemiyoruz: soğutma için o yüzeyi de soğutunca istediğimiz 40°C’yi bulamayabiliriz. PTC ile iki kanalı ayrı ayarlayabiliyoruz.
 
 ```
 T_soğuk = T_sıcak − ΔT_aktif
@@ -35,7 +35,7 @@ T_soğuk = T_sıcak − ΔT_aktif
 | Soğuk | Peltier soğuk tarafı | ~5°C (nem alma) → düşük Vertex sıcaklıkları |
 | Sıcak | PTC ısıtıcı | 24°C → 40°C+ (bağımsız kontrol) |
 
-Merkezi Peltier modülü (Cluster altyapısında) soğuk kanalı besler ve kapalı döngüde nem alma görevini üstlenir. PTC ısıtıcı sıcak kanalı bağımsız olarak ısıtır. Her Vertex, bu iki kanaldan aldığı hava akışını bağımsız valfler aracılığıyla karıştırarak hedef ortam sıcaklığını dinamik olarak oluşturur.
+Cluster’daki merkezi Peltier hem soğuk havayı hazırlayacak hem de nemi alacak. Her Vertex, sıcak ve soğuk kanaldan gelen havayı kendi valfleriyle karıştırıp hedef sıcaklığını tutacak.
 
 ```mermaid
 flowchart TD
@@ -61,7 +61,7 @@ flowchart TD
 
 ### Valf Kontrolü
 
-Her Vertex iki bağımsız oransal valf içerir — biri soğuk kanala, biri sıcak kanala. İki valf birlikte kontrol edilerek hem toplam hava akışı hem de karışım oranı ayarlanabilir.
+Her Vertex için iki oransal valf düşünüyoruz: biri sıcak, biri soğuk hava için. İkisini ayrı kontrol edince hem karışım oranını hem toplam debiyi ayarlayabiliyoruz.
 
 | Parametre | Açıklama |
 |-----------|----------|
@@ -70,7 +70,7 @@ Her Vertex iki bağımsız oransal valf içerir — biri soğuk kanala, biri sı
 | Algoritma | PID — MCU (STM32L476) üzerinde çalışır |
 | Bağımsızlık | Her Vertex kendi sıcaklık hedefini bağımsız tutar |
 
-**İki valfli yaklaşımın avantajı:** Yalnızca karışım oranı değil, toplam debi de kontrol edilebilir. Hızlı sıcaklık geçişlerinde her iki valf açılarak debi artırılır; kararlı durumda valfler kısılarak enerji tasarrufu sağlanır.
+Hızlı sıcaklık değişimi gerektiğinde iki valfi de açıp debiyi artırabiliriz. Sıcaklık oturunca akışı kısarız. İki valf kullanma fikrinin nedeni bu esneklik.
 
 ### Kontrol Döngüsü
 
@@ -120,7 +120,7 @@ flowchart LR
 
 ### Pilden Geçen Hava Akışı
 
-Hava karışım odasından doğrudan pil yüzeyinin üzerinden geçerek egzoza ulaşır. Bu **zorla konveksiyon (forced convection)** düzenlemesi kasıtlı olarak tercih edilmiştir:
+Karışan havayı doğrudan pilin üzerinden geçirip egzoza almak istiyoruz. **Zorlanmış taşınım** kullanmamızın nedeni, pil ile hava arasındaki ısı alışverişini hızlandırmak:
 
 - Hedef sıcaklıktaki hava sürekli pil üzerinden aktığı için ısı transferi doğal konveksiyona göre çok daha hızlı ve homojen gerçekleşir
 - Pil, hedef sıcaklığa daha kısa sürede ulaşır ve o sıcaklıkta sabit kalır
@@ -140,7 +140,7 @@ Hava karışım odasından doğrudan pil yüzeyinin üzerinden geçerek egzoza u
 
 ### Yapı
 
-50 Vertex, 5 adet 10'lu gruba bölünür. Her grup bir alt manifolda bağlanır; alt manifoldlar ana hattan beslenir.
+50 Vertex’lik taslakta 10’ar cihazlık 5 grup var. Her grubun bir alt manifoldu olacak; hepsi ana hattan beslenecek.
 
 ```mermaid
 flowchart TD
@@ -199,7 +199,7 @@ Fazla hava dışarı atılmaz — kapalı döngüde Peltier girişine (egzoz tar
 | Bağlantı | Ana hat → Peltier egzoz girişi |
 | Kontrol | Mekanik, yazılımdan bağımsız |
 
-**İkincil güvence:** MCU tüm Vertex valflerinin kapandığını tespit ederse fan hızını da düşürür. Donanım + yazılım çift katmanlı koruma sağlar.
+Yazılım tarafında da bütün valfler kapandığında fan hızını düşürmeyi planlıyoruz. Mekanik tahliye valfi ise yazılımdan bağımsız kalacak.
 
 ### Manifold Tasarım İpuçları (Onshape / 3D Baskı)
 

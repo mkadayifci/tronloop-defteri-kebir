@@ -10,11 +10,11 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-## Kapsam ve karar durumu
+## Genel akış
 
-Bu belge, görüşmede kesinleşen mesajlaşma davranışlarını ve henüz tasarlanacak mesaj sözleşmelerini bir araya getirir. **Kesinleşti** uygulanacak tasarımı, **mevcut kod** kaynaklardan gözlemi, **öneri** değerlendirme seçeneğini, **açık** henüz seçilmemiş ayrıntıyı ifade eder. Belgenin taslak olması, aşağıda bağlantısı verilen kabul edilmiş kararları geçersiz kılmaz.
+Vertex’ten çıkan veri ClusterPilot üzerinden TSphere’e gidiyor. Komutlar da aynı yolun tersinden geliyor. Bu sayfada mesajların nasıl taşınacağını, bağlantı kesilince ne olacağını ve henüz tamamlamadığımız ayrıntıları bir arada tutuyoruz. “Öneri” yazan bölümler hâlâ fikir aşamasında; “kodda” dediğimiz yerler mevcut uygulama.
 
-Adlandırma: **Cluster**, Vertex birimlerini içeren test grubudur; **ClusterPilot**, Linux sunucusudur; **Vertex**, testi firmware üzerinde bağımsız yürüten pil test birimidir. `__` ile biten klasörler kaynak alınmaz.
+İsimleri sabit tutuyoruz: test grubu **Cluster**, Linux sunucusu **ClusterPilot**, pili test eden birim **Vertex**. `__` ile biten eski klasörleri kullanmıyoruz.
 
 Dayanaklar: [Genel yapı](../07-decisions/ADR-0003-system-overview.md), [bağımsız test yürütme](../07-decisions/ADR-0004-autonomous-vertex.md), [dairesel tampon](../07-decisions/ADR-0006-vertex-ring-buffer.md), [zaman ve sıra numarası](../07-decisions/ADR-0007-measurement-time-sequence.md). Eski ADR-0005'in yerini ADR-0006 almıştır.
 
@@ -31,18 +31,18 @@ Dayanaklar: [Genel yapı](../07-decisions/ADR-0003-system-overview.md), [bağım
 | COM-005 | ClusterPilot → Vertex | CAN/ISO-TP | Komut yönlendirme ve periyodik saat güncelleme | Kesinleşti; mesaj biçimi ve zamanlama açık |
 | COM-006 | ClusterPilot ↔ SQLite | Yerel veritabanı | Buluta gönderilemeyen veriyi biriktirme ve yeniden gönderme | Kesinleşti; kayıt silme/onay koşulları açık |
 
-Buluttaki verileri kalıcı depolamaya yazan servis ve panelin yanıtları alma yolu henüz tanımlanmadı. MQTT'ye gönderim, bu belgede bulut veritabanına yazıldığına ilişkin onay olarak kabul edilmez; bu onayın gerekip gerekmediği ve biçimi açık konudur.
+Bulutta kaydı hangi servis veritabanına yazacak, yanıt panele nasıl dönecek; bunları daha belirleyeceğiz. MQTT’ye gönderdik diye veritabanına da yazıldı saymıyoruz. Bunun için ayrı bir onay gerekip gerekmediği açık.
 
 ## 1.1. Tür alanıyla ayrıştırma
 
-**Kesinleşti — [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md):** Mesaj türü, mesajdaki tür alanından belirlenir. **Farklı türler aynı veri uzunluğunu kullanabilir.** `dataLength`, türü seçmek için değil seçilen türün paket uzunluğunu doğrulamak içindir. ADR-0008'in benzersiz uzunluk şartı yürürlükten kalktı.
+Mesajın ne olduğunu **tür alanından** anlıyoruz. Uzunluk yalnızca o tür için yeterli veri gelip gelmediğini kontrol ediyor. Dolayısıyla iki farklı tür aynı uzunlukta olabilir. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md) ile eski benzersiz uzunluk kuralını bıraktık.
 
-Alıcı önce tür alanını okuyacak kadar veri bulunduğunu, ardından tür kodunu ve o türe ait uzunluğu doğrulayarak diğer alanları okur. Bilinmeyen tür veya geçersiz uzunluk, başka türe benzetilerek işlenmez. Gerçek alan boyutları, tür kodları ve sürüm eşlemesi açıkça belgelenecek; C enum boyutları varsayılmayacak.
+Alıcı önce türü okuyabilecek kadar veri var mı diye bakacak. Sonra türü ve boyutu kontrol edip alanları açacak. Tanımadığı bir mesajı başka türe benzetmeye çalışmayacak. Alan boyutlarını ve sürümleri açıkça yazıyoruz; özellikle C enum boyutunu varsaymıyoruz.
 
-## 2. Ölçüm akışı
+## 2. Verinin izleyeceği yol
 
 1. Vertex, test senaryosunu kendi üzerinde yürütür ve ölçümü üretir.
-2. Ölçüm kaydı, ölçüm anının zamanını ve artan sıra numarasını taşır.
+2. Kayda zaman eklenir. Güncel telemetride bu, payload oluşturma anıdır. Artan sıra numarası da eklenecek; henüz kodda yok.
 3. Vertex kaydı CAN/ISO-TP üzerinden ClusterPilot'a aktarır. Kısa gönderim kesintileri dairesel tamponla karşılanır.
 4. ClusterPilot aldığı veriyi TSphere üzerindeki MQTT'ye gönderir.
 5. Buluta gönderemediği veriyi SQLite'ta biriktirir ve daha sonra gönderir.
@@ -65,27 +65,27 @@ sequenceDiagram
     end
 ```
 
-Bu diyagram mantıksal akıştır; teslim onayı, SQLite işlem sınırları ve mesajların bire bir veya toplu taşınacağı konusunda karar içermez.
+Diyagram gitmek istediğimiz yolu gösteriyor. Ring buffer ve sıra numarası henüz yok. Teslim onayını, SQLite işlem sınırlarını ve kayıtları tek tek mi toplu mu göndereceğimizi de ayrıca belirleyeceğiz.
 
 ## 3. Ölçüm kaydının anlamı
 
-Aşağıdaki adlar açıklama amaçlıdır; JSON anahtarı, C alanı veya ikili paket yerleşimi henüz seçilmedi.
+Burada bir kayıtta neyi bilmek istediğimizi yazıyoruz. Güncel C alanları [telemetri sayfasında](vertex-telemetry-message.md); MQTT/JSON biçimi henüz belli değil.
 
 | Bilgi | Anlamı | Karar durumu |
 |---|---|---|
-| Ölçüm zamanı | Ölçümün Vertex'te alındığı an; Unix zaman temeli, **milisaniye çözünürlüğü** | Kesinleşti |
+| Zaman | Unix milisaniye; güncel telemetride payload oluşturma anı | ADR-0012 ile güncellendi |
 | Sıra numarası | Artmaya devam eden kayıt ayırt edicisi; test değişiminde sıfırlama şartı yok | Kesinleşti |
-| Ölçüm değerleri | Gerilim, akım, sıcaklık gibi deney verileri | Yeni mesajdaki kesin alan listesi, türler ve birimler açık |
+| Ölçüm değerleri | Gerilim, akım, pil ve ortam sıcaklığı | Telemetri biçimi belli; bazı sensör okumaları henüz yok |
 | Kaynak Vertex/Cluster bilgisi | Kaydın hangi cihaza ait olduğunu belirleme | Adres/konu/paket içindeki temsil biçimi açık |
 | Test kimliği | Ölçümü bir test çalıştırmasıyla ilişkilendirme | Alan olarak kullanımı ve üretimi henüz kararlaştırılmadı |
 
-Tamponda bekleyen ölçüm aktarılırken ölçüm zamanı gönderim zamanı ile değiştirilmez. Sıra numarası tek başına tüm cihazlar veya yeniden başlamalar boyunca benzersizlik garantisi değildir. Alan genişliği, sayaç taşması ve cihaz yeniden başladığındaki davranış henüz seçilmedi.
+Tamponu eklediğimizde, bekleyen kaydı yeniden gönderirken içindeki zamanı değiştirmeyeceğiz. Sıra numarası sadece ayırt edici; bütün cihazlarda ve her yeniden başlatmada benzersiz değil. Kaç bayt olacağını, taşınca ve cihaz yeniden başlayınca ne yapacağını henüz seçmedik.
 
 **Anlam örneği:** Sıra 105 numaralı kayıt tamponda kaldıysa, bağlantı sonrasında aynı ölçüm zamanı ve sıra bilgisiyle aktarılır. Uzun kesintide 106–120 üzerine yazılmışsa bu kayıtlar geri getirilemez. Bu örnek mesaj kodu, aktarım sırası veya boşluk bildirim mekanizması belirlemez.
 
 ## 4. Vertex dairesel tamponu
 
-**Kesinleşen amaç:** Normal çalışma varsayımı sürekli açık bağlantıdır. Tampon kısa kesintileri karşılar; kayıpsız arşiv değildir.
+Bağlantının normalde açık kalacağını varsayıyoruz. Ring buffer kısa kesintiler için; her veriyi sonsuza kadar korumaya çalışmıyoruz.
 
 | Durum | Davranış |
 |---|---|
@@ -95,7 +95,7 @@ Tamponda bekleyen ölçüm aktarılırken ölçüm zamanı gönderim zamanı ile
 | Bağlantı düzeldi | Tamponda hâlâ bulunan, aktarılmayı bekleyen kayıtlar gönderilir |
 | Kesinti tamponun kapsadığı süreden uzun | Üzerine yazılan eski veriler kaybolabilir; bu kabul edilen davranıştır |
 
-“ClusterPilot kalıcı kaydettiğini onaylayana kadar Vertex veriyi mutlaka korusun” önerisi kabul edilmedi. Olası aktarım onayı veya tekrar mekanizması, tamponun üzerine yazmasını engelleyen kayıpsız teslim şartına dönüştürülmeyecek.
+Eski kayıt için onay beklerken tamponu durdurmayacağız. Teslim onayı veya tekrar gönderme eklesek bile yeni veri eski kaydın üzerine yazabilmeli.
 
 **Açık:** Tampon kapasitesi ve bellek ortamı, kayıt sıklığı, aktarım konumunun ilerletilmesi, canlı/birikmiş veri önceliği, tekrarlar ve kayıp bildirimi. Güç kesintisinde tamponun korunacağına ilişkin karar yoktur.
 
@@ -117,9 +117,9 @@ sequenceDiagram
     Note over V: Ölçüm zamanı kayıt oluşturulurken alınır
 ```
 
-**Mevcut kod:** `tl_rtc.c` içindeki `TL_RTC_Set(uint32_t unix_ts)` ve `TL_RTC_Get()` Unix saniyeleri kullanır. `tl_can.c` içinde ham CAN üzerinden dört bayt little-endian zaman değeriyle RTC ayarlama yolu vardır. `main.c` başlangıçta sabit `1710255720UL` değerini kurar. Milisaniye çözünürlüğü için uygulama uyarlanmalıdır. Linux tarafındaki periyodik gönderici bu incelemede doğrulanmadı.
+**Kodda:** `TL_RTC_Set()` ve `TL_RTC_Get()` saniye cinsinden çalışıyor. Sonradan eklediğimiz `TL_RTC_GetMs()` milisaniye döndürüyor; payload oluştururken onu çağırıyoruz. `tl_can.c` içinde dört bayt little-endian zamanla RTC ayarlama var. Açılışta hâlâ sabit `1710255720UL` atanıyor. Linux’taki periyodik göndericiyi henüz doğrulamadık.
 
-**Açık:** Eşitleme aralığı, ilk eşitleme, saat henüz geçerli değilken kayıt davranışı, ileri/geri saat düzeltmeleri, saniye altı zaman üretimi ve yeni saat mesajının kodlanması. Eski ham CAN komutu yeni protokol için otomatik olarak kabul edilmiş değildir.
+**Kalanlar:** Eşitleme aralığı, ilk eşitlemeden önce kayıtların durumu, saatin ileri/geri alınması ve yeni saat mesajının biçimi. Eski ham CAN komutunu aynen kullanacağımızı henüz söylemiyoruz.
 
 ## 6. Komut ve yanıt akışı
 
@@ -137,7 +137,7 @@ sequenceDiagram
     Note over P,M: Yanıtın panele dönüş yolu henüz tanımlanmadı
 ```
 
-ClusterPilot komutu doğru cihaza yönlendirir. Testin her adımı için yeni komut veya onay gönderilmesi gerekmez; senaryoyu Vertex yürütür. Senaryo aktarımı ve test kontrolü mesajları ayrıca tanımlanacaktır.
+ClusterPilot komutu doğru Vertex’e iletecek. Testi adım adım uzaktan yönetmiyoruz; senaryoyu Vertex çalıştıracak. Senaryo aktarımı ve test kontrolü mesajlarını daha tanımlayacağız.
 
 **Öneri — henüz karar değil:** Komutun alındığı, kabul/ret edildiği ve uygulandığı durumları ayırmak; komutla yanıtı eşleştiren bir kimlik kullanmak. Ölçüm sıra numarasının bu amaçla kullanılacağı kararlaştırılmadı.
 
@@ -145,7 +145,7 @@ ClusterPilot komutu doğru cihaza yönlendirir. Testin her adımı için yeni ko
 
 ## 7. Mesaj aileleri — öneri
 
-Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
+Mesajları aşağıdaki gibi gruplamayı düşünüyoruz. Bunlar henüz seçilmiş tür kodları değil.
 
 | Aile | Yön | Amaç |
 |---|---|---|
@@ -163,14 +163,14 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 | Başlık | Mevcut kod gözlemi | Hedef / durum |
 |---|---|---|
 | Gönderilen mesajlar | `VertexTelemetryPayload` (`0x01`), `HeartbeatPayload` (`0x02`), `VertexStatusPayload` (`0x03`) | Tipler yeniden tasarıma açık |
-| Hedef gönderim aralıkları | 100 ms, 500 ms, 3000 ms | Yeni protokolün gönderim sıklığı olarak onaylanmadı |
+| Hedef gönderim aralıkları | Telemetri 100 ms, heartbeat 500 ms, durum 3000 ms | Hesapta bunları kullanıyoruz; gerçek zamanlamayı kartta kontrol edeceğiz |
 | Gelen komut başlığı | command, version, sequence, flags; her biri bir bayt, toplam dört bayt | Yeni başlık ve ölçüm sıra alanıyla ilişkisi açık |
-| Komut uygulama/yanıt | İncelenen ayrıştırıcı komutları logluyor; cihaz işlemleri yorum satırında; ağ yanıtı üretmiyor | Komut yürütme ve yanıt sözleşmesi tasarlanacak |
+| Komut uygulama/yanıt | İncelenen ayrıştırıcı komutları logluyor; cihaz işlemleri yorum satırında; ağ yanıtı üretmiyor | Komut yürütme ve yanıt biçimi tasarlanacak |
 | Ölçüm zamanı | Telemetride uint64_t Unix ms, payload oluşturma zamanı; RTC doğrudan okunur | Uygulandı; mevcut adım yaklaşık 3,9 ms, Linux eşitleme ayrıntıları açık |
 | Ölçüm sıra numarası | İncelenen periyodik paketlerde ölçüm sayacı yok | Artan ayırt edici eklenecek |
 | Dairesel tampon | İstenen davranışın uygulanmış olduğu doğrulanmadı | ADR-0006 davranışı uygulanacak |
 
-Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Genel durum kodu güncellendi ve Debug derlemesi ile bilgisayarda paket kontrolleri geçti; bu, donanım doğrulaması değildir.
+Kodun ayrıntıları [mesaj envanterinde](vertex-message-inventory.md). Genel durumun derlemesi ve bilgisayardaki paket kontrolleri geçti; kart testi daha yapılmadı.
 
 `VertexTelemetryPayload` artık **17 bayt**: tür (1), gerilim (2), akım (2), pil sıcaklığı (2), ortam sıcaklığı (2), Unix milisaniye zamanı (8). Sıcaklıklar int16_t ve °C × 10; −32768 geçersiz işaretidir. Payload oluşturulurken RTC’den okunan zaman taşınır, sıra numarası henüz yoktur. [Güncel şema ve doğrulama](vertex-telemetry-message.md).
 
@@ -178,7 +178,7 @@ Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-in
 
 Mevcut genel durum mesajı **7 bayt**, tür alanı **0x03**, hedef gönderim aralığı **3000 ms**: tür, pil gerilimi (mV), senaryo oynatıcı durumu, charger çalışma modu (0 idle, 1 şarj, 2 deşarj) ve işaretli 2 bayt pil akımı (mA) taşır. [Bayt yerleşimi, durum kodları, veri kaynakları ve örnek paket](general-status-message.md). Ölçüm zamanı ve sıra numarası bu mevcut pakette henüz yoktur.
 
-**Yeni karar:** Genel durum tasarımında iki şarj bayrağı yerine tek **idle / şarj / deşarj çalışma modu** kullanılacak. Oynatıcı durumu ayrı anlamını korur. Bu değişiklik Vertex firmware’ine uygulandı; alıcı yazılım henüz güncellenmedi. Oynatıcı durumu ve charger çalışma modu ayrı birer `uint8_t` (1 bayt) olarak taşınacak. Akım mA cinsinden işaretli `int16_t` olarak 2 bayt taşınacak; hedef paket **7 bayt**. Mod kodları 0 idle, 1 şarj, 2 deşarj; reverse bayrağı önceliklidir. Akım aralık dışındaysa genel durum paketi atlanıp loglanır. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md).
+Oynatıcı ve charger modu ayrı birer bayt. Modu belirlerken önce reverse’e bakıyoruz. Akım `int16_t` aralığı dışındaysa o tur genel durumu göndermiyoruz, hata logluyoruz. Firmware bu biçime geçti; ClusterPilot alıcısını daha güncellemedik. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md).
 
 Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçevesinde taşır. Bu nedenle 7 baytlık hedef genel durum ISO-TP ile tek çerçevede gönderilebilir. Telde `0x07` ISO-TP başlığı (1 bayt) + 7 bayt veri bulunur; ek dolgu yoktur. Alıcı uygulama verisi 7 bayttır. 8 bayt uygulama verisi çok çerçeveli gönderim gerektirir. [Kaynak incelemesi](general-status-message.md).
 
@@ -195,7 +195,7 @@ Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçeves
 | Komutlar | İşlem listesi, hedefleme, ilişkilendirme, hata kodları ve yeniden deneme |
 | Bulut ve panel | Kalıcı depolama tüketicisi, panel bağlantısı ve yanıtın panele iletilmesi |
 
-Yeni kararlar ilgili ADR kaydına bağlanarak bu belgeye işlenecek; değerlendirme aşamasındaki öneriler kesinleşmiş protokol gibi yazılmayacak.
+Bu ayrıntılar netleştikçe burayı ve ilgili karar kaydını birlikte güncelleyeceğiz.
 
 ## Önceki değerlendirme: Tek çerçeve hedefi
 
@@ -234,7 +234,7 @@ Standart 8 veri baytlı CAN çerçevesi için 3 bit çerçeveler arası boşluk 
 | VertexStatusPayload, 3000 ms | 5,333 | 0,592–0,720 | %0,118–0,144 |
 | **Toplam** | **677,333** | **75,184–91,440** | **%15,037–18,288** |
 
-**Sonuç:** Bu varsayımlarla ortalama sürekli yük yaklaşık **%15–18,3**, geriye kalan nominal hat kapasitesi yaklaşık **%82–85**. 17 ve 19 bayt aynı ISO-TP veri çerçevesi sayısını gerektirdiği ve dolgu kullanıldığı için önceki hesapla sonuç aynıdır.
+Bu hesapla hattın yaklaşık **%15–18,3’ünü** kullanıyoruz; nominal kapasitenin **%82–85’i** kalıyor. 17 ve 19 bayt aynı sayıda ISO-TP çerçevesine bölündüğü ve dolgu kullanıldığı için önceki hesapla sonuç aynı.
 
 Komutlar, saat eşitleme, hata/yeniden denemeler ve kesinti sonrası tampon boşaltma dahil değildir. Flow Control blocksize=1, ek bekletme çerçeveleri, genişletilmiş CAN kimlikleri veya farklı dolgu ayarları sonucu değiştirir. 100 ms toplu gönderim anındaki gecikme ve yazılımın ölçüm/gönderim zamanlaması bu ortalama bant hesabıyla garanti edilmez. Tampon boşaltma canlı trafiğe yer bırakacak şekilde sınırlandırılmalı.
 
@@ -242,6 +242,6 @@ Komutlar, saat eşitleme, hata/yeniden denemeler ve kesinti sonrası tampon boş
 
 Kaynaklar: [Linux ISO-TP akış kontrolü](https://kernel.org/doc/html/latest/networking/iso15765-2.html), [Kvaser CAN çerçeve yapısı](https://kvaser.com/can-protocol-tutorial/); parçalama/dolgu ve paket boyutları yerel firmware kaynaklarından doğrulandı.
 
-## Güncel uygulama — ADR-0011
+## Son durum
 
-Telemetri 17 bayta geçirildi; kapasite hesabı da bu güncel biçime göre yenilendi. 17 bayt da normal adreslemede 3 veri + bir Flow Control varsayımıyla aynı çerçeve sayısına sahiptir. Yeni sıcaklık ve zaman biçimi için [güncel telemetri belgesi](vertex-telemetry-message.md) esas alınır. RTC saniye altı okuması eklendi; önceki yalnız saniye tabanlı mevcut uygulama notları bu konuda tarihsel kalmıştır. Sıra numarası ve dairesel tampon henüz uygulanmadı.
+Telemetri 17 bayt ve yukarıdaki hesap buna göre. Zamanı RTC’den milisaniye olarak okuyabiliyoruz; sıra numarası ve ring buffer henüz yok. Alanların son hali [telemetri sayfasında](vertex-telemetry-message.md).

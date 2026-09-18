@@ -12,9 +12,9 @@ guncelleyen: "Codex"
 
 ## Genel yapı
 
-**Kaynak:** 2026-09-18 tarihli görüşme. Aşağıda hedef mimari anlatılıyor; bütün bileşenlerin koddaki karşılığı henüz doğrulanmadı. Vertex CAN/ISO-TP mesajları ayrıca incelendi; [mevcut mesaj envanteri](vertex-message-inventory.md). [ADR-0003](../07-decisions/ADR-0003-system-overview.md).
+Burada kurmak istediğimiz sistemi anlatıyoruz. 2026-09-18’de Vertex’in CAN/ISO-TP koduna baktık; diğer bileşenlerin tamamını henüz kontrol etmedik. [Kodda bulunan mesajlar](vertex-message-inventory.md) ve [genel yapı kararı](../07-decisions/ADR-0003-system-overview.md) ayrı sayfalarda.
 
-Tronloop, pilleri belirli test senaryolarına göre şarj/deşarj eden ve test verilerini bulutta saklayan bir pil test sistemidir. Sisteme Cluster'lar bağlanır; her Cluster içinde **Vertex** adlı test birimleri bulunur. **ClusterPilot**, Vertex'lerle bulut arasındaki veri ve komut akışını yöneten Linux sunucusudur.
+Tronloop’ta pilleri senaryoya göre şarj ve deşarj ediyoruz. Pili test eden birim **Vertex**. Bunları Cluster içinde topluyoruz; **ClusterPilot** da Vertex’lerle bulut arasındaki iletişimi yönetiyor.
 
 | Bileşen | Sorumluluk |
 |---|---|
@@ -41,19 +41,23 @@ flowchart LR
     STORE["Bulutta kalıcı veri saklama · bağlantı ayrıntısı açık"]
 ```
 
-Diyagram mantıksal akışı gösterir. Panelin MQTT'ye hangi ara servis üzerinden eriştiği, bulut depolama hattı ve bir Cluster'daki ClusterPilot sayısı henüz belirlenmedi. SQLite'ta komut yanıtlarının da saklanıp saklanmadığı ayrıca netleştirilecek.
+Diyagramda verinin gittiği yolu görüyoruz. Panelin MQTT’ye nasıl bağlanacağı, bulutta veriyi hangi servisin saklayacağı ve bir Cluster’da kaç ClusterPilot olacağı hâlâ açık. Komut yanıtlarını da SQLite’ta tutacak mıyız, onu ayrıca belirleyeceğiz.
 
 ## Bağımsız test yürütme
 
-[ADR-0004](../07-decisions/ADR-0004-autonomous-vertex.md) uyarınca senaryo adımları Vertex firmware’i tarafından yürütülür; ClusterPilot’tan sürekli adım komutu veya onayı beklenmez. ClusterPilot bağlantısının kesilmesi tek başına testi durdurmaz. [ADR-0006](../07-decisions/ADR-0006-vertex-ring-buffer.md) uyarınca Vertex kısa kesintiler için sınırlı dairesel tampon kullanır. Sürekli bağlantı normal çalışma varsayımıdır. Tampon dolduğunda en eski kayıtların üzerine yazılır; test ve kayıt sürer. Bağlantı düzeldiğinde tamponda kalan bekleyen veriler aktarılır; kayıpsız saklama garantisi yoktur. Depolama ortamı, kapasite ve güç kesintisi sonrası davranış henüz seçilmedi.
+Testi Vertex kendi çalıştıracak; her adımda ClusterPilot’tan komut beklemeyecek. Bağlantı kesilmesi tek başına testi durdurmayacak. [Bağımsız çalışma kararı](../07-decisions/ADR-0004-autonomous-vertex.md).
+
+Bağlantının normalde açık olduğunu varsayıyoruz. Kısa kesintiler için [ring buffer](../07-decisions/ADR-0006-vertex-ring-buffer.md) kullanacağız. Dolunca eski kayıtların üzerine yazılacak; bağlantı gelince elde kalan veriler gönderilecek. Tampon henüz kodda yok. Bellek türü, kapasitesi ve güç kesintisinde ne olacağı da açık.
 
 ## Zaman kaynağı ve ölçüm sırası
 
-[ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md): Vertex ölçümleri milisaniye çözünürlüğünde ölçüm zamanı ve sıra numarasıyla kaydedecek. STM32 RTC aktif çalışır; Linux üzerinde çalışan ClusterPilot periyodik mesajlarla saati eşitler. Mevcut RTC kodu Unix saniyelerini kullanır. Hedef milisaniye çözünürlüğü için mevcut kodun uyarlanması gerekiyor; eşitleme aralığı henüz seçilmedi. Sıra numarası artan bir kayıt ayırt edicisidir; test değişiminde sıfırlama şartı yoktur. Sayacın genişliği, yeniden başlama ve taşma davranışları henüz seçilmedi.
+Zaman ve artan sıra numarası kullanmayı seçtik; [ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md). Zaman artık telemetride `uint64_t` Unix ms olarak var. [Son düzenlemeyle](../07-decisions/ADR-0012-payload-time.md) RTC’yi payload oluştururken okuyoruz; sensörün ölçüm anını ayrıca saklamıyoruz.
+
+ClusterPilot saati Linux zamanıyla belli aralıklarla eşitleyecek. Bu aralığı henüz seçmedik. Sıra numarası da henüz kodda yok; test değişince sıfırlanması gerekmiyor ama genişliğini, taşmasını ve yeniden başlama davranışını belirleyeceğiz.
 
 ## Önceki mimari belgesinin durumu
 
-[Önceki mimari belgesi](architecture.md) tarihsel referanstır. Buradaki veritabanı, donanım ve senkronizasyon ayrıntıları güncel kararlarla veya kodla doğrulanmadan güncel mimari kararı sayılmaz.
+[Eski mimari sayfasını](architecture.md) geçmiş tasarımı görmek için tutuyoruz. Oradaki veritabanı, donanım ve eşitleme seçeneklerinin hepsi bugünkü kararlar değil.
 
 ## Kaynak kapsamı
 
@@ -77,7 +81,7 @@ Aşağıdaki bileşenlerin ayrıntılı sorumlulukları ve aralarındaki bağlan
 
 Bu klasörler yalnızca özellikle istenen tarihsel karşılaştırmalarda incelenir.
 
-## Her mimari konu için kayıt biçimi
+## Yeni bir konu eklerken
 
 1. Amaç ve çözülen problem.
 2. Bileşenler ve sorumluluk sınırları.
@@ -87,5 +91,4 @@ Bu klasörler yalnızca özellikle istenen tarihsel karşılaştırmalarda incel
 6. Alternatifler, gerekçeler ve ilgili karar kayıtları.
 7. Açık sorular, kaynaklar ve doğrulama tarihi.
 
-Haberleşme sözleşmeleri netleştikçe ayrıntılı sıralama diyagramları eklenecek.
-
+Mesajlar netleştikçe akış diyagramlarını da tamamlayacağız.

@@ -1,4 +1,14 @@
+---
+baslik: "Kapasite Analiz Algoritmaları"
+kategori: "03-software"
+durum: "taslak"
+son_guncelleme: "2026-09-18"
+guncelleyen: "Codex"
+---
+
 # Kapasite Analiz Algoritmaları
+
+Kapasite hesabını ve yaşlanma analizlerini burada toparlayacağız. Yöntemler ve karşılaştırma ölçütleri henüz yazılmadı.
 
 ---
 

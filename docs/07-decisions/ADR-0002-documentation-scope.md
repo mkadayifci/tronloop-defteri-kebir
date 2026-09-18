@@ -8,30 +8,10 @@ guncelleyen: "Codex"
 
 # ADR-0002 — Dokümantasyon merkezi ve geçerli kaynak kapsamı
 
-**Son Güncelleme:** 2026-09-18
+**Defteri Kebir bu işin ana üssü.** Kararlar, mimari ve haberleşme notları burada duracak. Diğer klasörler kod ve tasarım için.
 
-- **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi
-- **Kaynak:** 2026-09-18 tarihli proje notları.
+Adı `__` ile biten klasörler geçersiz. Güncel sistemi anlamak için onlara bakmıyoruz; yoksa eski kodla yeni tasarım birbirine karışıyor. Silinmeleri gerekmiyor. Ancak özellikle geçmişi karşılaştırmak istersek kullanırız.
 
-## Bağlam ve karar
+Bu düzeni ana çalışma kurallarına ve [mimari notlara](../03-software/architecture-notes.md) ekledik. [ADR-0001](ADR-0001-documentation.md) aynı şekilde geçerli; bu kayıt dokümantasyonun nerede tutulacağını netleştiriyor.
 
-`tronloop-defteri-kebir`, konuşulan kararların, haberleşme notlarının ve mimari dokümantasyonun ana merkezidir. Diğer klasörler kod ve tasarım kaynaklarını barındırır. Adı `__` ile biten klasörler geçersizdir; güncel sistemi tanımlamak veya teknik kararları dayandırmak için kullanılmaz.
-
-## Gerekçe ve etkiler
-
-Dokümantasyon tek merkezde yönetilir; geçersiz kodun güncel mimariyle karıştırılması önlenir. Yeni incelemelerde `__` ile biten klasörler kapsam dışında tutulur. Tarihsel karşılaştırma ancak açıkça istendiğinde yapılır. Bu karar klasörlerin silinmesini gerektirmez.
-
-## Alternatifler
-
-Bu görüşmede alternatif tartışılmadı.
-
-## Uygulama durumu
-
-Çalışma alanı talimatları, karar defteri ve mimari kaynak envanteri güncellendi. Kodda değişiklik yapılmadı.
-
-## İlişkili kayıtlar
-
-[ADR-0001](ADR-0001-documentation.md) kararını tamamlar; onu yürürlükten kaldırmaz. Dokümantasyonun ana merkezi bu kayıtla Defteri Kebir olarak belirlendi.
-
-[Mimari çalışma notları](../03-software/architecture-notes.md)
+**Kayıt:** 2026-09-18 · Kabul edildi. Kod değişikliği yok.

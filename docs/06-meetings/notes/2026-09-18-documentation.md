@@ -8,7 +8,7 @@ guncelleyen: "Codex"
 
 # 2026-09-18 — Mimari ve haberleşme notları
 
-Kararları ve mimari notları Defteri Kebir’de topluyoruz. Diğer klasörler kod ve tasarım kaynakları; adı `__` ile biten klasörler güncel çalışmaların dışında. [Dokümantasyon düzeni](../../07-decisions/ADR-0001-documentation.md) ve [kaynak kapsamı](../../07-decisions/ADR-0002-documentation-scope.md) bu ayrımı tanımlıyor.
+Defteri Kebir’i ana üs olarak kullanıyoruz. Kod ve tasarım diğer klasörlerde; burada neden böyle yaptığımızı ve sırada ne olduğunu tutuyoruz. `__` ile biten klasörler eski, onları kullanmıyoruz. [Dokümantasyon düzeni](../../07-decisions/ADR-0001-documentation.md) ve [kaynak kapsamı](../../07-decisions/ADR-0002-documentation-scope.md) bu ayrımı tanımlıyor.
 
 ## Sistemin genel yapısı
 
@@ -20,11 +20,11 @@ Her Cluster içinde Vertex test birimleri var. Test senaryosunu Vertex kendi ba�
 
 Normalde Vertex–ClusterPilot bağlantısının açık kalmasını bekliyoruz. Vertex’teki dairesel tampon kısa kesintileri karşılayacak. Dolunca en eski kayıtların üzerine yazılacak; test ve kayıt durmayacak. Bağlantı düzelince tamponda kalan kayıtlar aktarılacak. Kayıpsız saklama veya kalıcı teslim onayına kadar koruma şartı yok. İlk biriktirme kararı [ADR-0005](../../07-decisions/ADR-0005-vertex-data-buffer.md), bu davranışı netleştiren [ADR-0006](../../07-decisions/ADR-0006-vertex-ring-buffer.md) ile değişti.
 
-Kayıtlar için milisaniye cinsinden zaman ve artan bir sıra numarası seçildi. Sıra numarası yalnızca ayırt edici; her testin başında sıfırlanması gerekmiyor. Sayaç genişliği, taşma ve yeniden başlama davranışları açık. STM32 saati Linux zamanıyla periyodik mesajlar üzerinden eşitlenecek. Ham CAN üzerinden saniye tabanlı RTC ayarlama kodu var; Linux’taki periyodik gönderici henüz doğrulanmadı. [ADR-0007](../../07-decisions/ADR-0007-measurement-time-sequence.md).
+Kayıtta zaman ve sıra numarası olsun istiyoruz. Zaman milisaniye cinsinden. Sıra numarası sadece ayırt edici olduğu için her testin başında sıfırlamaya gerek yok. Kaç bayt olacağına, taşınca ve cihaz yeniden başlayınca ne yapacağına daha bakacağız. STM32 saati Linux zamanıyla periyodik mesajlar üzerinden eşitlenecek. Ham CAN üzerinden saniye tabanlı RTC ayarlama kodu var; Linux’taki periyodik gönderici henüz doğrulanmadı. [ADR-0007](../../07-decisions/ADR-0007-measurement-time-sequence.md).
 
 ## Mesaj tasarımının gelişimi
 
-Aşağıdaki ara tasarımlar tarihçedir. Güncel biçimler genel durumda **7 bayt**, telemetride **17 bayt**.
+Mesajları birkaç kez değiştirdik. Nereden geldiğimiz kaybolmasın diye aşağıya eski seçenekleri de yazdık. Bugünkü boyutlar genel durumda **7 bayt**, telemetride **17 bayt**.
 
 | Konu | İlk yaklaşım | Son durum |
 |---|---|---|
@@ -38,13 +38,13 @@ Aşağıdaki ara tasarımlar tarihçedir. Güncel biçimler genel durumda **7 ba
 | Geçersiz sıcaklık | `int8_t` tasarımında −128 | Güncel `int16_t` tasarımında −32768 |
 | Zaman | Önce hızlı context güncellemesinde saklanan zaman | Payload oluşturulurken doğrudan `TL_RTC_GetMs()` çağrısı |
 
-Zamanı küçültüp iki veri çerçevesine inme seçeneği değerlendirildi; **uint64_t Unix milisaniye** korundu. Güncel telemetri 3 ISO-TP veri çerçevesiyle taşınıyor. Alıcının Flow Control çerçevesi de trafik hesabına dahil. [Sıcaklık ve zaman biçimi](../../07-decisions/ADR-0011-telemetry-time-temperature.md), [RTC okuma anı](../../07-decisions/ADR-0012-payload-time.md).
+İki veri çerçevesine inmek için zamanı küçültmeyi düşündük, sonra **uint64_t Unix milisaniye** olarak bıraktık. Güncel telemetri 3 ISO-TP veri çerçevesiyle taşınıyor. Alıcının Flow Control çerçevesi de trafik hesabına dahil. [Sıcaklık ve zaman biçimi](../../07-decisions/ADR-0011-telemetry-time-temperature.md), [RTC okuma anı](../../07-decisions/ADR-0012-payload-time.md).
 
 ## Firmware’deki karşılığı
 
-Genel durumun 7 baytlık biçimi ve telemetrinin 17 baytlık biçimi uygulandı. Genel durumda mod kodları 0 idle, 1 şarj, 2 deşarj; reverse kontrolü öncelikli. Akım `int16_t` aralığı dışındaysa genel durum gönderilmiyor ve hata loglanıyor.
+Genel durumun 7 baytlık, telemetrinin de 17 baytlık hali kodda hazır. Genel durumda mod kodları 0 idle, 1 şarj, 2 deşarj; reverse kontrolü öncelikli. Akım `int16_t` aralığı dışındaysa genel durum gönderilmiyor ve hata loglanıyor.
 
-Telemetride pil ve ortam sıcaklıklarının alanları hazır, sensör okumaları henüz yok. Gerilim güncellemesi de yorum satırında. Zaman alanının adı `measurement_time_ms`, fakat son düzenlemede sensör edinim anını değil payload oluşturma anını gösteriyor. RTC’nin nominal adımı yaklaşık 3,9 ms; milisaniye birimi 1 ms doğruluk garantisi vermiyor.
+Telemetride pil ve ortam sıcaklıklarının alanları hazır, sensör okumaları henüz yok. Gerilim güncellemesi de yorum satırında. Zaman alanının adı `measurement_time_ms`, fakat son düzenlemede sensörün okunduğu annı değil payload oluşturma anını gösteriyor. RTC’nin nominal adımı yaklaşık 3,9 ms; milisaniye birimi 1 ms doğruluk garantisi vermiyor.
 
 Debug derlemesi geçti. Önceki paket düzenlemelerinde gerçek dispatcher/ISO-TP koduyla bilgisayarda boyut, alan yerleşimi, sıcaklık ve akım sınırları, çok çerçeveli aktarım; RTC yardımcı kodunda saniye altı hesaplar ve hata dönüşleri kontrol edildi. Son RTC çağrı yeri değişikliği derlemeyle doğrulandı. Kart ve sensör testi yapılmadı. ClusterPilot alıcısı eski biçimde; sıra numarası ve dairesel tampon firmware’de henüz yok.
 
@@ -56,4 +56,4 @@ Alanların güncel karşılığı: [genel durum](../../03-software/general-statu
 
 ## Dokümantasyon düzeni
 
-Eski terimler Cluster, ClusterPilot, Vertex ve TSphere adlarıyla eşleştirildi; teknik semboller ve dosya yolları korundu. Mesaj akışları diyagramlarla belgelendi. Defteri Kebir’de konuşma dökümü yerine doğrudan kararları, gerekçeleri ve uygulama durumunu anlatıyoruz. Dil sade ve doğal; geçmiş tasarımlar güncel durumdan ayrı tutuluyor.
+İsimleri Cluster, ClusterPilot, Vertex ve TSphere olarak toparladık. Kod sembollerini ve dosya yollarını sırf bunun için değiştirmedik. Mesajların gidiş gelişini de diyagramlara koyduk. Bu defterde uzun konuşma dökümleri tutmak istemiyoruz; neyi neden seçtik, ne hazır, ne kaldı, bunları rahatça okuyabilmek yeterli.

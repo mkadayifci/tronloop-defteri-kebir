@@ -10,9 +10,9 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-## Güncel biçim
+## Pakette ne var?
 
-Pil ve ortam sıcaklıkları ayrı **int16_t, 0,1 °C** alanlarına geçirildi ve zaman alanı eklendi. Zamanın tel biçimi **uint64_t Unix milisaniye** olarak korundu. Toplam uygulama mesajı **17 bayt**, tür kodu **0x01**, hedef gönderim aralığı **100 ms**. Çok baytlı alanlar STM32 üzerinde little-endian gönderilir.
+Sık gelen ölçümleri bu paketle gönderiyoruz. Pil ve ortam sıcaklığı ayrı; ikisi de **int16_t, °C × 10**. Zaman için **uint64_t Unix milisaniye** kullanıyoruz. Toplam **17 bayt**, tür kodu **0x01**. Hedef aralık **100 ms**; çok baytlı alanlar little-endian gidiyor.
 
 | Bayt | Alan | Tür / boyut | Anlam |
 |---|---|---|---|
@@ -23,7 +23,7 @@ Pil ve ortam sıcaklıkları ayrı **int16_t, 0,1 °C** alanlarına geçirildi v
 | 7–8 | `ambient_temperature_dc` | `int16_t` / 2 | Ortam sıcaklığı × 10 |
 | 9–16 | `measurement_time_ms` | `uint64_t` / 8 | Payload oluşturulurken RTC’den okunan Unix milisaniye zamanı |
 
-Boyut ve ofsetler derleme zamanı `_Static_assert` kontrolleriyle sabitlenir. `state` alanı yoktur. Sıra numarası önceki kararlarda istenmiştir ancak bu kod değişikliğinde eklenmedi; henüz bu pakette bulunmaz.
+Boyutu ve alanların yerini `_Static_assert` ile derlemede kontrol ediyoruz. `state` alanını çıkardık. Sıra numarası ekleme kararımız var ama henüz pakete girmedi.
 
 ## Sıcaklık kodlaması
 
@@ -34,9 +34,9 @@ Boyut ve ofsetler derleme zamanı `_Static_assert` kontrolleriyle sabitlenir. `s
 
 ## Ölçüm zamanı
 
-Dispatcher, payload oluştururken `.measurement_time_ms = TL_RTC_GetMs()` ile zamanı doğrudan RTC’den alır. Context içinde zaman alanı tutulmaz. ISO-TP devam çerçeveleri aynı paketin zamanını korur. [ADR-0012](../07-decisions/ADR-0012-payload-time.md).
+Zamanı payload oluştururken doğrudan RTC’den alıyoruz: `.measurement_time_ms = TL_RTC_GetMs()`. Context’te ayrıca zaman tutmuyoruz. Paket ISO-TP ile bölünse de içindeki zaman aynı kalıyor. [ADR-0012](../07-decisions/ADR-0012-payload-time.md).
 
-Alan adı korunmuştur; bu zaman payload oluşturma anını temsil eder, sensör edinim zamanı değildir. Sıcaklık sensörleri henüz çalışmadığından eşzamanlı çoklu sensör ölçümü iddiası değildir. Gerilim güncellemesi de henüz yorum satırındadır.
+Alanı `measurement_time_ms` diye bıraktık, ama şu an gösterdiği şey paketin oluşturulma anı. Sensörlerin tam o anda birlikte okunduğunu varsaymıyoruz. Zaten sıcaklık okumaları henüz yok, gerilim güncellemesi de yorum satırında.
 
 `TL_RTC_GetMs()` RTC tarih/saat ve subsecond alanlarını aynı okuma akışında kullanır; `HAL_RTC_GetTime` ardından kilidi açmak için her durumda `HAL_RTC_GetDate` çağrılır:
 
@@ -45,17 +45,17 @@ unix_ms = unix_seconds × 1000
         + floor((SecondFraction - SubSeconds) × 1000 / (SecondFraction + 1))
 ```
 
-Mevcut `SynchPrediv=255` ile nominal saniye altı adım yaklaşık **3,90625 ms**'dir. Alan milisaniye cinsindedir; 1 ms doğruluk/çözünürlük garantisi verilmez. RTC okuma hatasında veya geçersiz subsecond değerinde 0 döner.
+`SynchPrediv=255` ayarında RTC yaklaşık **3,90625 ms** adımlarla ilerliyor. Değeri milisaniye olarak göndermemiz, saatin 1 ms hassasiyetinde olduğu anlamına gelmiyor. Okuma hatasında veya geçersiz saniye altı değerinde fonksiyon 0 dönüyor.
 
-Başlangıç kodu RTC'yi hâlâ sabit `1710255720` değerine kurar. Gerçek mutlak zaman için Linux saat eşitlemesi gereklidir. Mevcut RTC ayarlama mesajı saniye tabanlıdır; periyodik Linux gönderimi, eşitleme doğruluğu ve ilk eşitleme geçerlilik takibi bu değişiklik kapsamında uygulanmadı. Mevcut takvim dönüşümleri 2000–2099 RTC yıl yorumuna dayanır.
+Açılışta RTC’ye hâlâ sabit `1710255720` yazılıyor. Doğru tarihi görmek için Linux’tan eşitleme gelmesi gerekiyor. Mevcut ayarlama mesajı saniye cinsinden; periyodik gönderim, eşitleme doğruluğu ve ilk eşitleme öncesindeki geçerlilik takibi henüz tamamlanmadı. Takvim dönüşümü 2000–2099 aralığını kullanıyor.
 
 ## ISO-TP gönderimi
 
 17 bayt veri üç veri çerçevesine ayrılır: **6 + 7 + 4 bayt**. Alıcı bir Flow Control ile devam izni verdiğinde (blocksize 0 veya en az 2), toplam trafik **3 veri + 1 Flow Control** çerçevesidir. Son çerçeve mevcut ayarla doldurulur. Veri uzunluğu türü seçmez; alıcı `0x01` için yeni 17 baytlık şemayı doğrulamalıdır.
 
-ISO-TP meşgulse mevcut dispatcher o tur telemetriyi göndermez; gönderim başlatma hatası loglanır. Daha önce kararlaştırılan Vertex dairesel tamponu henüz bu kodda uygulanmamıştır. Dolayısıyla kaydedilen zaman aktarım sırasında korunur, ancak kaçırılan ölçümlerin tamponlanıp sonradan gönderilmesi bu güncellemenin tamamladığı bir özellik değildir.
+ISO-TP meşgulse o tur telemetri atlanıyor. Gönderim başlatılamazsa hata loglanıyor. Ring buffer henüz yok; şu an kaçırılan ölçümleri saklayıp sonra gönderemiyoruz. Başlamış aktarımın içindeki zaman ise değişmiyor.
 
-## Doğrulama
+## Neyi kontrol ettik?
 
 - Debug firmware derlemesi başarılı; senaryo kaynağındaki mevcut printf bildirim/biçim uyarıları sürüyor.
 - Önceki uygulamada gerçek dispatcher ve ISO-TP koduyla bilgisayarda 17 bayt yerleşim, sıcaklıklar, 64 bit zaman ve üç veri çerçevesi doğrulandı. Bu testler context zamanını kullanan sürüme aittir; RTC’nin payload oluştururken okunması değişikliğinde Debug derlemesi kullanıldı.

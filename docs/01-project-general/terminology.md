@@ -10,7 +10,7 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-Bu adlandırma, 2026-09-18 tarihli mimari notlarını temel alır.
+İsimler birbirine karışmasın diye aynı parçaya her yerde aynı adı veriyoruz. 2026-09-18 itibarıyla kullandığımız adlar şöyle:
 
 | Ad | Kapsam | Belgelerde kullanım |
 |---|---|---|
@@ -27,8 +27,8 @@ Bu adlandırma, 2026-09-18 tarihli mimari notlarını temel alır.
 
 ## Teknik adlar ve belge geçmişi
 
-Mevcut dosya yolları, kod sembolleri ve şema alanları bu adlandırma çalışmasıyla yeniden adlandırılmaz. Örneğin `node-design.md`, `node_id` ve `nodes` eski teknik adlar olarak kalabilir; bunların açıklamalarında Vertex kullanılır. Bu adların yeni protokole aktarılacağı anlamı çıkmaz.
+Metinleri güncellerken dosya yollarını ve kod adlarını topluca değiştirmiyoruz. Bu yüzden `node-design.md`, `node_id` veya `nodes` gibi eski adlara hâlâ rastlayabiliriz; açıklamada Vertex diyoruz. Yeni protokolde hangi alan adlarını kullanacağımız ayrı konu.
 
-Eski belgelerde adların güncellenmesi, bu belgelerdeki donanım, veritabanı, yedeklilik veya mesaj biçimi tercihlerinin yeniden onaylandığı anlamına gelmez. Güncel kararlar için [Karar ve Mimari Defteri](decision-hub.md) esas alınır.
+Eski belgelerde yalnızca adı düzeltmiş olmamız, oradaki donanım ve veritabanı seçimlerini de kesinleştirmiyor. Bugün nerede olduğumuza [karar defterinden](decision-hub.md) bakıyoruz.
 
-Sunucu adı için [ADR-0009](../07-decisions/ADR-0009-tsphere-name.md) geçerlidir; MQTT hizmetin/protokolün adıdır.
+Bulut sunucusu TSphere; MQTT ise haberleşme hizmeti. [İsim kararı](../07-decisions/ADR-0009-tsphere-name.md).

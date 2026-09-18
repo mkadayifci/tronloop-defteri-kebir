@@ -10,9 +10,9 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-> **Belge kapsamı:** Adlandırma 2026-09-18 tarihinde güncellendi. Aşağıdaki eski teknik tasarım ayrıntılarının güncel uygulamayla uyumu henüz doğrulanmadı; güncel sistem yapısı için [Mimari çalışma notları](../03-software/architecture-notes.md) esas alınır.
+Bu sayfada ilk tasarım notları duruyor. İsimleri güncelledik ama aşağıdaki bütün seçimleri yeniden doğrulamadık. Güncel yapı için [mimari notlara](../03-software/architecture-notes.md) bakıyoruz; burası geçmişte düşündüğümüz seçenekleri kaybetmemek için duruyor.
 
-ClusterPilot, Cluster içindeki Vertex birimlerinden verileri toplayan ve bulutla iletişimi yöneten Linux sunucusudur. Bu belge ayrıca Cluster’ın ortak güç altyapısına ilişkin eski tasarım notlarını içerir.
+ClusterPilot, Vertex’lerden veriyi toplayıp buluta taşıyan Linux sunucusu. Bu sayfada onun için düşündüğümüz platformun yanında Cluster’ın ortak güç altyapısına ait eski notlar da var.
 
 ## İşlemci / Platform
 
@@ -48,7 +48,7 @@ Vertex’lerle haberleşme **CAN bus** üzerinden yapılır. AM3358 dahili **2x 
 
 ## Cluster Altyapısı ve Yedeklilik (Eski Tasarım)
 
-Sistem senelerce kesintisiz çalışacak şekilde tasarlanmıştır. Hiçbir tek nokta arızası (single point of failure) sistemi durdurmamalıdır.
+İlk yedeklilik planındaki hedef, sistemi yıllarca çalıştırabilmekti. Tek bir parçanın arızası bütün sistemi durdurmasın diye aşağıdaki düzeni düşünmüştük.
 
 ### BeagleBone — 2x Aktif/Standby
 
@@ -72,7 +72,7 @@ Vertex’ler ──── CAN Bus (DCAN0) ──┬── Primary BBB (aktif)
 
 ### Vertex Arızası
 
-Vertex arızası kabul edilebilir — arızalı Vertex CAN heartbeat kaybıyla tespit edilir, kaydedilir, ilgili test senaryosu ileride tekrarlanır. Diğer Vertex’ler etkilenmez.
+Bu planda bir Vertex arızalanırsa heartbeat kaybından fark ediyor, kayda alıyor ve o testi daha sonra tekrarlıyoruz. Hedef, diğer Vertex’lerin çalışmaya devam etmesi.
 
 ### Güç
 

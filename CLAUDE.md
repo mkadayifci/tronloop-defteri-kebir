@@ -8,8 +8,7 @@ guncelleyen: "Codex"
 
 # CLAUDE.md — AI Asistan Konfigürasyonu
 
-> Bu dosya, Claude'un bu projeyi nasıl anlayacağını ve dokümantasyonu nasıl sürdüreceğini tanımlar.
-> Ekip üyeleri bu dosyayı güncel tutmalıdır.
+Defteri Kebir’i düzenlerken izlediğimiz kurallar burada. Projenin ayrıntıları ilgili sayfalarda; bu dosya onların nasıl yazılacağını ve güncel tutulacağını anlatıyor.
 
 ---
 
@@ -34,6 +33,7 @@ ClusterPilot ile dağıtık Vertex’ler arasında bataryaları **sürekli şarj
 Bulut sunucusunun adı **TSphere**’dir; MQTT, TSphere üzerindeki haberleşme hizmetidir.
 
 **Temel bileşenler:**
+
 - Cluster (Vertex birimleri ve ortak test altyapısı)
 - ClusterPilot (koordinasyon, veri toplama, iletişim)
 - Vertex’ler (şarj/deşarj devresi + iklim sensörleri)
@@ -76,21 +76,23 @@ Bulut sunucusunun adı **TSphere**’dir; MQTT, TSphere üzerindeki haberleşme 
 
 ---
 
-## Claude İçin Talimatlar
+## Çalışma düzeni
 
-Bu projeye yardım ederken Claude şunları yapmalıdır:
+Belgeleri güncellerken şu düzeni izliyoruz:
 
 ### Belge Güncellemeleri
+
 - Yeni içerik eklerken her dosyanın başındaki `**Son Güncelleme:**` alanını güncelle
 - Donanım değişikliklerini `02-hardware/` altında ilgili dosyaya yansıt
 - Test sonuçlarını `04-tests/results/` altına `YYYY-MM-DD_test-name.md` formatında kaydet
 - `CHANGELOG.md` dosyasını her anlamlı değişiklikte güncelle
 
 ### Dil ve Format
+
 - Tüm dokümantasyon **Türkçe** yazılır
 - Teknik terimler Türkçe kullanılır, zorunlu hallerde parantez içinde İngilizce karşılığı verilir
 - Tablolar, kod blokları ve başlıklar için standart Markdown kullanılır
-- Her dosya **YAML front matter** ile başlamalıdır (aşağıya bakınız)
+- Her dosya **YAML front matter** ile başlamalıdır (örneği aşağıda)
 
 ### Dosya Şablonu (Front Matter)
 ```yaml
@@ -108,6 +110,7 @@ guncelleyen: "İsim"
 Mesaj türü tür alanından belirlenir; farklı türler aynı veri uzunluğunda olabilir. `dataLength`, seçilen türün uzunluğunu doğrulamak içindir. Eski benzersiz uzunluk şartı kaldırıldı. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek. Oynatıcı durumu ve charger çalışma modu ayrı birer uint8_t (1 bayt) olarak taşınacak. Akım mA cinsinden int16_t (2 bayt); hedef genel durum 7 bayttır ve ISO-TP ile tek CAN çerçevesine sığar. [ADR-0010](docs/07-decisions/ADR-0010-message-type-and-operation-mode.md).
 
 ### İçerik Tutarlılığı
+
 - Bileşen isimleri her dosyada aynı şekilde yazılmalı
 - Ölçüm birimleri standart SI birimleri olmalı (V, A, mAh, °C, % vb.)
 - Şarj/deşarj protokolleri `04-tests/test-protocol.md` ile tutarlı olmalı
@@ -127,9 +130,9 @@ _(Ekip üyeleri bu tabloyu dolduracak)_
 
 ---
 
-## Güncel Durum Özeti
+## İlk planın durum tablosu
 
-> _Bu bölümü her hafta güncelleyin._
+Bu tablo ilk kurulum planından kalıyor. Firmware ve haberleşmede daha sonra ilerleme oldu; güncel durum için [karar defterine](docs/01-project-general/decision-hub.md) bakıyoruz.
 
 **Son Güncelleme:** 2026-09-18
 
@@ -169,7 +172,7 @@ Proje uzun soluklu olduğu için semantik versiyonlama yerine tarih bazlı etike
 v{YIL}.{AY}.{HAFTA}  →  v2026.02.1
 ```
 
-Major değişiklikler (yeni donanım versiyonu, yeni test serisi) için `CHANGELOG.md` güncellenir.
+Yeni donanım sürümü veya test serisi gibi önemli değişiklikleri `CHANGELOG.md` dosyasına ekliyoruz.
 
 ## Defteri Kebir’in dili
 
@@ -178,3 +181,9 @@ Major değişiklikler (yeni donanım versiyonu, yeni test serisi) için `CHANGEL
 - Gereksiz resmiyet, tekrar, uzun giriş ve her küçük adım için ayrı başlıktan kaçın. Anlamı ve teknik ayrıntıyı koruyarak sadeleştir.
 - Karar, öneri, mevcut uygulama ve açık konu ayrımını koru. Henüz seçilmemiş bir fikri kesinleşmiş karar, yapılmamış bir işi tamamlanmış uygulama gibi gösterme.
 - Kaynak dosyalarını, tarihleri, test sonuçlarını ve eski kararların yeni kararlara bağlantılarını koru. Güncel durumu öne çıkar; geçmiş tasarımları tarihçe olarak belirt.
+
+- Ton, proje sahibinin kendi mühendislik defteri gibi olsun: rahat, samimi, düzgün Türkçe. “Tutuyoruz”, “burada amaç”, “şimdilik”, “bunu daha belirleyeceğiz” gibi doğal ifadeler kullan; her cümleyi “biz” diye başlatma.
+- Yalnızca birkaç kelimeyi değiştirerek üslup düzeltmesi yapma. Paragrafların akışını, tekrarları ve başlık sayısını da gözden geçir. “Bu kayıt hedef davranış kararıdır”, “doğrulama sınırı”, “kesin sözleşme” gibi rapor kalıplarını doğrudan anlatıma çevir.
+- Samimiyet için yazım yanlışı, argo, yapay heyecan veya gereksiz ünlem ekleme. Teknik tablolarda kısa ve net kal; asıl sıcaklığı açıklama cümlelerinde kur.
+- Kısa kararları boş “bağlam/gerekçe/etkiler” başlıklarına bölme. Kararı ve nedenini birlikte anlat; yalnızca gerçekten gerekliyse alt başlık aç.
+- Örnek: “Normal çalışma varsayımı sürekli açık bağlantıdır” yerine “Bağlantının normalde açık kalacağını varsayıyoruz.” “İstenen davranışın uygulanmış olduğu doğrulanmadı” yerine, kaynak bunu gösteriyorsa “Ring buffer henüz kodda yok.”
