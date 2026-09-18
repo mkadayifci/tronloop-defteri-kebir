@@ -31,7 +31,7 @@ Dayanaklar: [Genel yapı](../07-decisions/ADR-0003-system-overview.md), [bağım
 | COM-005 | ClusterPilot → Vertex | CAN/ISO-TP | Komut yönlendirme ve periyodik saat güncelleme | Kesinleşti; mesaj biçimi ve zamanlama açık |
 | COM-006 | ClusterPilot ↔ SQLite | Yerel veritabanı | Buluta gönderilemeyen veriyi biriktirme ve yeniden gönderme | Kesinleşti; kayıt silme/onay koşulları açık |
 
-Bulutta kaydı hangi servis veritabanına yazacak, yanıt panele nasıl dönecek; bunları daha belirleyeceğiz. MQTT’ye gönderdik diye veritabanına da yazıldı saymıyoruz. Bunun için ayrı bir onay gerekip gerekmediği açık.
+Zaman serilerini TSphere’de InfluxDB’ye yazacağız; [kayıt akışı taslağı](tsphere-timeseries.md). Kaydı hangi servisin yazacağını ve yanıtın panele nasıl döneceğini daha belirleyeceğiz. MQTT’ye gönderdik diye veritabanına da yazıldı saymıyoruz. Bunun için ayrı bir onay gerekip gerekmediği açık.
 
 ## 1.1. Tür alanıyla ayrıştırma
 

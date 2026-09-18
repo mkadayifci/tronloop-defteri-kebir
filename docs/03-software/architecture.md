@@ -28,7 +28,8 @@ flowchart LR
     end
     CP -->|Veri ve yanıt| MQTT
     MQTT -->|Komut| CP
-    MQTT -.->|"Servis ve veritabanı seçilecek"| STORE[("Bulutta kalıcı kayıt")]
+    MQTT -.->|"Kayıt servisi · öneri"| INGEST["Mesaj doğrulama ve yazma"]
+    INGEST -.->|"Planlanan kayıt"| STORE[("TSphere · InfluxDB")]
 ```
 
 Diyagram verinin izleyeceği yolu gösteriyor. Panelin MQTT’ye doğrudan mı bir servis üzerinden mi bağlanacağını, buluttaki kayıt servisini ve yanıtın panele dönüş yolunu henüz tamamlamadık. Kesikli bağlantılar bu bekleyen işleri gösteriyor.
@@ -39,7 +40,7 @@ Diyagram verinin izleyeceği yolu gösteriyor. Panelin MQTT’ye doğrudan mı b
 | **Cluster** | Vertex’leri ve ortak fiziksel altyapıyı bir araya getiriyor. Ayrı bir yazılım servisi değil. |
 | **ClusterPilot** | CAN verisini alıyor, TSphere’e iletiyor; panel komutlarını doğru Vertex’e yönlendiriyor. |
 | **SQLite** | ClusterPilot’un buluta gönderemediği kayıtları yerelde tutuyor. |
-| **TSphere** | Bulut tarafı. MQTT haberleşmesi burada; kalıcı depolamayı yapacak servis ve veritabanı henüz seçilmedi. |
+| **TSphere** | Bulut tarafı. MQTT haberleşmesi burada; zaman serileri için InfluxDB seçildi. Kayıt servisi ve InfluxDB sürümü henüz belirlenmedi. |
 | **Panel** | Testi izlemek ve komut vermek için kullandığımız arayüz. |
 
 ## Testi Vertex yürütüyor
@@ -55,6 +56,14 @@ Vertex, kayıtları **CAN/ISO-TP** üzerinden ClusterPilot’a gönderiyor. Clus
 Komut ters yönde ilerliyor: **panel → TSphere/MQTT → ClusterPilot → Vertex**. Cihazın yanıtı da ClusterPilot üzerinden geri dönecek. Komut kimliği, yanıt kodları, zaman aşımı ve tekrar gelen komutun davranışı henüz tamamlanmadı. Firmware’deki mevcut komut ayrıştırıcısının birçok işlemi şimdilik yalnızca log yazıyor.
 
 MQTT’ye teslim etmekle bulut veritabanına kaydetmek aynı şey değil. Kaydın ne zaman tamamlanmış sayılacağını ve SQLite’tan ne zaman silineceğini de netleştireceğiz. [Mesajlaşmanın ayrıntıları](communication-notes.md).
+
+## TSphere’de zaman serileri
+
+MQTT’den gelen ölçümleri **InfluxDB**’ye yazacağız. Araya mesajları doğrulayan ve toplu yazan küçük bir servis koymak şu anki öneri. Telemetri ve genel durumu ayrı serilerde tutmayı, Cluster/Vertex kimlikleriyle sorgulamayı planlıyoruz; ayrıntılı şema henüz kesinleşmedi.
+
+Telemetride Vertex’in gönderdiği zamanı korumalıyız. Genel durum paketinde zaman yok; ClusterPilot’un ilk alım zamanını MQTT’ye ve yeniden gönderim kuyruğuna taşımasını öneriyoruz. Bağlantı sonrası gelen eski veriye buluta varış zamanını vermek grafiği kaydırır. Sıcaklıklar genel durumdan gelecek; ayrı sıcaklık mesajı yok.
+
+InfluxDB kurulumu henüz yapılmadı. Sürüm, saklama süresi ve yazma onayı açık. [Kayıt akışı ve şema önerisi](tsphere-timeseries.md) · [InfluxDB kararı](../07-decisions/ADR-0016-tsphere-influxdb.md).
 
 ## Vertex’in gönderdiği mesajlar
 
@@ -109,7 +118,7 @@ ClusterPilot tarafında C#/.NET, Linux ISO-TP socket’leri, MQTT ve SQLite kodu
 
 ## Eski plandan kalanlar
 
-InfluxDB, PostgreSQL, dakikada bir bulut eşitleme, RAID1 ve örnek Docker Compose düzeni ilk plandaki seçeneklerdi. Bunları bugünkü mimarinin kesin parçaları gibi göstermiyoruz. Geçmişi kaybetmemek için [ilk tasarım sayfasına](architecture-archive.md) taşıdık.
+PostgreSQL, dakikada bir bulut eşitleme, RAID1 ve örnek Docker Compose düzeni ilk plandaki seçeneklerdi. Bunları bugünkü mimarinin kesin parçaları gibi göstermiyoruz. InfluxDB ise ADR-0016 ile zaman serileri için seçildi; eski plandaki kurulum ayrıntıları bu karara dahil değil. Geçmişi kaybetmemek için [ilk tasarım sayfasına](architecture-archive.md) taşıdık.
 
 **Kaynaklar:** 2026-09-18 proje kararları; `tronloop-vertex-firmware/Core/Inc/tl_dispatcher.h`, `Core/Src/tl_dispatcher.c`, `Core/Src/tl_rtc.c`; `tronloop-clusterpilot-engine/CanIsoTpListener.cs`, `TelemetryPublisher.cs`, `SqliteTelemetryStore.cs`. Diğer bileşenleri uçtan uca henüz doğrulamadık.
 

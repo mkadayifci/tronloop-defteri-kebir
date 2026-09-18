@@ -23,6 +23,8 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 
 ### Güncellendi
 
+- TSphere zaman serileri için InfluxDB’yi seçtik (ADR-0016). Mimariye ekledik; MQTT tüketicisi, zaman damgaları, veri şeması ve saklama düzenini ayrı taslakta topladık. Sürüm ve servis seçimi açık, kurulum yapılmadı.
+
 - Ana mimari sayfasını güncel Cluster–Vertex–ClusterPilot–TSphere yapısıyla yeniden yazdık. Mesajlar, kesinti davranışı, saat, iki BeagleBone hedefi ve kalan işler aynı sayfada. Eski veritabanı/RAID/Compose planını arşive taşıdık.
 
 - Ayrı sıcaklık mesajını ve testteki 10 saniyelik gönderimini kaldırdık. Sıcaklıklar yalnız 11 baytlık genel durumda kaldı; telemetri 13 bayt. Derleme ve paket kontrolleri geçti. 16 Vertex hat hesabı %11,7–14,3.

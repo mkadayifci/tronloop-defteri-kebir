@@ -29,6 +29,7 @@ Kararları ayrı dosyalarda tutuyoruz. Dosya adı `ADR-NNNN-kisa-baslik.md`; num
 | [ADR-0013](ADR-0013-separate-temperature-message.md) | 2026-09-18 | Sıcaklıkları 10 saniyede bir ayrı mesajla gönderme | Ayrı mesaj için ADR-0015 geçerli |
 | [ADR-0014](ADR-0014-status-temperatures.md) | 2026-09-18 | Genel duruma pil ve ortam sıcaklığını ekleme, 11 bayt | Kabul edildi |
 | [ADR-0015](ADR-0015-remove-temperature-message.md) | 2026-09-18 | Ayrı sıcaklık mesajını kaldırma | Kabul edildi |
+| [ADR-0016](ADR-0016-tsphere-influxdb.md) | 2026-09-18 | TSphere zaman serilerini InfluxDB’de tutma | Kabul edildi |
 
 ## Yeni karar şablonu
 

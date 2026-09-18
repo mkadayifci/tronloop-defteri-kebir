@@ -23,7 +23,7 @@ Tronloop’ta pilleri senaryoya göre şarj ve deşarj ediyoruz. Pili test eden 
 | Yerel SQLite | Buluta gönderilemeyen verileri daha sonra gönderilmek üzere biriktirme |
 | TSphere (MQTT hizmeti) | Verilerin, panel kaynaklı komutların ve cihaz yanıtlarının mesajlaşma noktası |
 | Kullanıcı panelleri | MQTT üzerinden cihazlara yönlendirilen komutları başlatma |
-| Bulut veri saklama | Test verilerini kalıcı saklama; tüketici servis ve veritabanı seçimi bu görüşmede belirtilmedi |
+| Bulut veri saklama | Zaman serileri için InfluxDB seçildi; sürüm ve tüketici servis henüz açık. [Kayıt taslağı](tsphere-timeseries.md) |
 
 ```mermaid
 flowchart LR
@@ -38,7 +38,7 @@ flowchart LR
         SQL -->|Sonradan gönderim| CP
     end
     CP -->|Test verisi ve komut yanıtı| MQTT
-    STORE["Bulutta kalıcı veri saklama · bağlantı ayrıntısı açık"]
+    MQTT -.->|"Tüketici servis ayrıntısı açık"| STORE[("TSphere · InfluxDB")]
 ```
 
 Diyagramda verinin gittiği yolu görüyoruz. Panelin MQTT’ye nasıl bağlanacağı, bulutta veriyi hangi servisin saklayacağı ve iki BeagleBone’un devralma düzeni hâlâ açık. Komut yanıtlarını da SQLite’ta tutacak mıyız, onu ayrıca belirleyeceğiz.

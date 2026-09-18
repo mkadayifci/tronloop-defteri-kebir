@@ -57,6 +57,8 @@ Mesaj türünü uzunluktan değil tür alanından okuyoruz. Genel durum **11 bay
 
 Telemetri artık **13 bayt**: tür, gerilim, akım ve Unix ms zamanı. Sıcaklıklar yalnız 11 baytlık genel durum mesajında. Ayrı sıcaklık mesajını kaldırdık; [ADR-0015](../07-decisions/ADR-0015-remove-temperature-message.md). Sıra numarası ve ring buffer henüz yok.
 
+TSphere’de zaman serileri için InfluxDB kullanacağız. Sürüm ve tüketici servis henüz seçilmedi; kayıt zamanı, tekrar gönderim ve veri şeması için [bir taslak var](../03-software/tsphere-timeseries.md). [ADR-0016](../07-decisions/ADR-0016-tsphere-influxdb.md).
+
 ## İki BeagleBone ile yedeklilik
 
 ClusterPilot’u iki BeagleBone ile yedeklemek istiyoruz. Aktif/yedek roller, CAN gönderme yetkisi, devralma ve SQLite kuyruğunun durumu için [bir taslak hazırladık](../03-software/clusterpilot-failover.md). Uygulama yöntemi henüz seçilmedi.
