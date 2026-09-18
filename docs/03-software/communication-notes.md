@@ -162,7 +162,7 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 
 | Başlık | Mevcut kod gözlemi | Hedef / durum |
 |---|---|---|
-| Gönderilen mesajlar | Hızlı telemetri `0x01`, heartbeat `0x02`, genel durum `0x03` | Tipler yeniden tasarıma açık |
+| Gönderilen mesajlar | `VertexTelemetryPayload` (`0x01`), `HeartbeatPayload` (`0x02`), `VertexStatusPayload` (`0x03`) | Tipler yeniden tasarıma açık |
 | Hedef gönderim aralıkları | 100 ms, 500 ms, 3000 ms | Yeni protokolün gönderim sıklığı olarak onaylanmadı |
 | Gelen komut başlığı | command, version, sequence, flags; her biri bir bayt, toplam dört bayt | Yeni başlık ve ölçüm sıra alanıyla ilişkisi açık |
 | Komut uygulama/yanıt | İncelenen ayrıştırıcı komutları logluyor; cihaz işlemleri yorum satırında; ağ yanıtı üretmiyor | Komut yürütme ve yanıt sözleşmesi tasarlanacak |
@@ -172,7 +172,7 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 
 Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Genel durum kodu kullanıcının talebiyle güncellendi ve Debug derlemesi ile bilgisayarda paket kontrolleri geçti; bu, donanım doğrulaması değildir.
 
-## 8.1. Genel durum mesajının ayrıntıları
+## 8.1. VertexStatusPayload — genel durum mesajı
 
 Mevcut genel durum mesajı **7 bayt**, tür alanı **0x03**, hedef gönderim aralığı **3000 ms**: tür, pil gerilimi (mV), senaryo oynatıcı durumu, charger çalışma modu (0 idle, 1 şarj, 2 deşarj) ve işaretli 2 bayt pil akımı (mA) taşır. [Bayt yerleşimi, durum kodları, veri kaynakları ve örnek paket](general-status-message.md). Ölçüm zamanı ve sıra numarası bu mevcut pakette henüz yoktur.
 

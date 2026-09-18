@@ -28,17 +28,19 @@ CAN/ISO-TP bağlantısı, sabit `0x100` cihaz kimliği ve ayrı ayrı 1024 bayt 
 
 ## Vertex → ClusterPilot: periyodik mesajlar
 
-| Tür | Mevcut kod | Hedef aralık | İçerik |
-|---|---|---|---|
-| Telemetri (`VertexTelemetryPayload`) | `0x01` | 100 ms | Pil gerilimi `uint16` mV, akımı `int16` mA, sıcaklığı `int16` 0,1 °C, durum `uint8` |
-| Heartbeat | `0x02` | 500 ms | Context içindeki senaryo oynatıcı durumu |
-| Genel durum | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger modu (0 idle, 1 şarj, 2 deşarj), ölçülen pil akımı `int16` mA |
+| Güncel C yapı adı | Tür sabiti | Kod | Hedef aralık | İçerik |
+|---|---|---|---|---|
+| `VertexTelemetryPayload` | `PAYLOAD_TYPE_FAST_TELEMETRY` | `0x01` | 100 ms | Pil gerilimi `uint16_t` mV, akımı `int16_t` mA, sıcaklığı `int16_t` 0,1 °C, durum `uint8_t` |
+| `HeartbeatPayload` | `PAYLOAD_TYPE_HEARTBEAT` | `0x02` | 500 ms | Context içindeki senaryo oynatıcı durumu |
+| `VertexStatusPayload` | `PAYLOAD_TYPE_GENERAL_STATUS` | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger modu (0 idle, 1 şarj, 2 deşarj), ölçülen pil akımı `int16_t` mA |
 
-Aralıklar hedef deneme zamanlarıdır; teslim garantisi değildir. Hızlı telemetri ve heartbeat ISO-TP meşgulse o tur gönderilmez. Genel durum meşgul bağlantının boşalmasını bekler ve diğer periyodik mesajlardan önce denenir.
+**Adlandırma notu:** Yapı adları güncel kodla eşleştirildi. Tür sabitlerinin adları değiştirilmedi; bu nedenle kodda `FAST_TELEMETRY` ve `GENERAL_STATUS` hâlâ bulunur. Bunlar eski yapı adı değil, mevcut tür sabitleridir. `HeartbeatPayload` için yeni ad henüz seçilmedi.
 
-Genel durum paketi sabit 7 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. Diğer iki pakette tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
+Aralıklar hedef deneme zamanlarıdır; teslim garantisi değildir. `VertexTelemetryPayload` ve `HeartbeatPayload` ISO-TP meşgulse o tur gönderilmez. `VertexStatusPayload` meşgul bağlantının boşalmasını bekler ve diğer periyodik paketlerden önce denenir.
 
-Hızlı telemetride `state` sabit `1` gönderilir. Heartbeat context durumunu, genel durum ise doğrudan senaryo oynatıcısının durumunu kullanır. Genel durumdaki charger modu context bayraklarından üretilir, donanım geri okuması değildir; başlık açıklaması gerilim ölçümünün henüz güncellenmediğini belirtir. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
+`VertexStatusPayload` sabit 7 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. Diğer iki pakette tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
+
+`VertexTelemetryPayload` içindeki `state` sabit `1` gönderilir. `HeartbeatPayload` context durumunu, `VertexStatusPayload` ise doğrudan senaryo oynatıcısının durumunu kullanır. `VertexStatusPayload` içindeki charger modu context bayraklarından üretilir, donanım geri okuması değildir. Gerilim ölçümünün güncellenmesi henüz uygulanmamıştır. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
 
 ## ClusterPilot → Vertex: mevcut komutlar
 
@@ -70,7 +72,7 @@ Başlık dört adet `uint8` alanından oluşur: `command`, `version`, `sequence`
 | Komut | Cihazdan yapılması istenen işlem |
 | Komut sonucu | Komutun kabul/ret bilgisi ve uygulanma sonucu |
 
-Sonraki tasarımda komutun alınması ile uygulanması, mesajların kimlikleri, ölçüm ve durum ayrımı, olayların saklanması, bağlantı kesintisi ve yinelenen komut davranışı netleştirilecek. Sayısal mesaj kodları ve alan yerleşimleri henüz seçilmedi.
+Sonraki tasarımda komutun alınması ile uygulanması, mesajların kimlikleri, ölçüm ve durum ayrımı, olayların saklanması, bağlantı kesintisi ve yinelenen komut davranışı netleştirilecek. Yukarıdaki mevcut tür kodları ve uygulanmış `VertexStatusPayload` yerleşimi geçerlidir; yeni mesaj aileleri ve henüz uygulanmamış alanlar için kod/yerleşim kararları ayrıca alınacak.
 
 ## Yeni tasarımda tür alanı ve uzunluk doğrulaması
 

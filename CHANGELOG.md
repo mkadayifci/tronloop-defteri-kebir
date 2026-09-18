@@ -22,6 +22,7 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.09.3] - 2026-09-18
 
 ### Güncellendi
+- Mesaj envanteri güncel C yapı adlarıyla düzenlendi; yapı adları ile değiştirilmemiş tür sabitleri ayrı sütunlarda gösterildi. Protokol taslağındaki adlar da eşitlendi.
 - Kullanıcı onayıyla telemetri yapı adı `VertexTelemetryPayload` olarak güncellendi; alanlar, tür kodu ve gönderim periyodu korunuyor.
 - Genel durumun C yapı adı `VertexStatusPayload` olarak değiştirildi; tel biçimi, tür kodu ve gönderim davranışı korunuyor.
 - 7 baytlık genel durum Vertex firmware’inde uygulandı: charger_mode 0/1/2, işaretli 2 bayt mA, boyut/ofset kontrolleri ve aralık dışı akımda paket atlama. Debug derlemesi ve gerçek dispatcher/ISO-TP koduyla bilgisayar üzerinde paket kontrolleri başarılı; alıcı ve kart doğrulaması yapılmadı.
