@@ -12,7 +12,6 @@ guncelleyen: "Codex"
 
 - **Durum:** Kabul edildi
 - **Tarih:** 2026-09-18
-- **Kararı veren / kaynak:** Kullanıcının bu görüşmede mesaj türünü uzunluk yerine tür alanıyla belirleme ve genel durumda şarj/ters mod bayraklarını birleştirme talebi.
 - **Yerine geçtiği karar:** [ADR-0008](ADR-0008-unique-message-length.md).
 
 ## Mesaj türünü belirleme
@@ -35,7 +34,7 @@ Senaryo oynatıcı durumu ayrı bir bilgidir ve korunur; çalışan bir senaryo 
 
 ## Durum alanları — ayrı birer bayt
 
-Kullanıcının son kararıyla **oynatıcı durumu 1 bayt**, **charger çalışma modu 1 bayt** olarak ayrı taşınacak. Önceki aynı baytta bit alanları kullanma kararı bu düzenlemeyle değiştirildi. Charger çalışma modu idle / şarj / deşarj anlamını korur; eski iki bağımsız şarj bayrağına geri dönülmez.
+**Oynatıcı durumu 1 bayt**, **charger çalışma modu 1 bayt** olarak ayrı taşınacak. Önceki aynı baytta bit alanları kullanma kararı bu düzenlemeyle değiştirildi. Charger çalışma modu idle / şarj / deşarj anlamını korur; eski iki bağımsız şarj bayrağına geri dönülmez.
 
 Hedef genel durum boyutu: tür (1) + gerilim (2) + oynatıcı durumu (1) + charger çalışma modu (1) + işaretli akım (2) = **7 bayt**. Ölçüm zamanı ve sıra numarası bu genel durum yerleşimine dahil değildir.
 
@@ -51,10 +50,10 @@ Uygulama sırasında mod kodları 0 idle, 1 şarj, 2 deşarj olarak seçildi. Re
 
 ## Kararın gelişimi
 
-Önce iki durumun aynı baytta bit alanları olarak taşınması seçildi. Akım 2 bayta indirildiğinde bu ara tasarım 6 bayttı. Son kullanıcı talebiyle durumlar ayrı birer bayta ayrıldı; geçerli hedef **7 bayt** oldu.
+Önce iki durumun aynı baytta bit alanları olarak taşınması seçildi. Akım 2 bayta indirildiğinde bu ara tasarım 6 bayttı. Son durumlar ayrı birer bayta ayrıldı; geçerli hedef **7 bayt** oldu.
 
 ## Uygulama durumu
 
-Kullanıcının kod güncelleme talebiyle Vertex firmware’i 7 baytlık biçime geçirildi. Debug derlemesi ve bilgisayar üzerinde gerçek dispatcher/ISO-TP koduyla paket kontrolleri başarılı. Alıcı yazılım değiştirilmedi; 7 baytlık biçime uyarlanması gerekir. Kart üzerinde test yapılmadı.
+Vertex firmware’i 7 baytlık biçime geçirildi. Debug derlemesi ve bilgisayar üzerinde gerçek dispatcher/ISO-TP koduyla paket kontrolleri başarılı. Alıcı yazılım değiştirilmedi; 7 baytlık biçime uyarlanması gerekir. Kart üzerinde test yapılmadı.
 
 [Genel durum mesajı](../03-software/general-status-message.md) · [Mesajlaşma protokolü](../03-software/communication-notes.md)

@@ -10,7 +10,7 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-Kaynak: Kullanıcının Cluster, ClusterPilot ve Vertex tanımları ve eski dokümantasyonun bu adlarla güncellenmesi talebi.
+Bu adlandırma, 2026-09-18 tarihli mimari notlarını temel alır.
 
 | Ad | Kapsam | Belgelerde kullanım |
 |---|---|---|

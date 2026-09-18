@@ -170,3 +170,11 @@ v{YIL}.{AY}.{HAFTA}  →  v2026.02.1
 ```
 
 Major değişiklikler (yeni donanım versiyonu, yeni test serisi) için `CHANGELOG.md` güncellenir.
+
+## Defteri Kebir’in dili
+
+- Belgeleri proje sahibinin kendi notları gibi, doğal ve akıcı Türkçeyle yaz. Teknik konuyu doğrudan anlat; konuşmayı dışarıdan raporlama.
+- “Kullanıcı istedi”, “kullanıcıyla karar verdik”, “kullanıcı onayladı”, “asistan önerdi” gibi ifadeler kullanma. “Zamanı payload oluştururken RTC’den alıyoruz” gibi açık cümleler kur.
+- Gereksiz resmiyet, tekrar, uzun giriş ve her küçük adım için ayrı başlıktan kaçın. Anlamı ve teknik ayrıntıyı koruyarak sadeleştir.
+- Karar, öneri, mevcut uygulama ve açık konu ayrımını koru. Henüz seçilmemiş bir fikri kesinleşmiş karar, yapılmamış bir işi tamamlanmış uygulama gibi gösterme.
+- Kaynak dosyalarını, tarihleri, test sonuçlarını ve eski kararların yeni kararlara bağlantılarını koru. Güncel durumu öne çıkar; geçmiş tasarımları tarihçe olarak belirt.

@@ -12,12 +12,11 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Yerine yeni karar geldi — [ADR-0006](ADR-0006-vertex-ring-buffer.md)
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** Bu görüşmede Vertex'in test verilerini biriktirip problem çözülünce aktaracağı yönündeki kullanıcı yanıtı.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 
 ## Sonraki açıklama
 
-Kullanıcı, bu kaydın kayıpsız veri saklama amacı taşıdığı yorumunu düzeltti. Kısa kesintiler için sınırlı dairesel tampon kullanılacak; dolduğunda en eski kayıtların üzerine yazılacak. Aşağıdaki ilk kayıt tarihçe olarak korunmuştur; geçerli davranış ADR-0006’dadır.
+Bu kaydın amacı kayıpsız veri saklama değil, kısa bağlantı kesintilerini karşılamak. Kısa kesintiler için sınırlı dairesel tampon kullanılacak; dolduğunda en eski kayıtların üzerine yazılacak. Aşağıdaki ilk kayıt tarihçe olarak korunmuştur; geçerli davranış ADR-0006’dadır.
 
 ## Bağlam ve karar
 

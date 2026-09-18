@@ -25,6 +25,7 @@ Her karar ayrı bir `ADR-NNNN-kisa-baslik.md` dosyasında tutulur. Kimlikler tek
 | [ADR-0009](ADR-0009-tsphere-name.md) | 2026-09-18 | Bulut sunucusunun TSphere olarak adlandırılması | Kabul edildi |
 | [ADR-0010](ADR-0010-message-type-and-operation-mode.md) | 2026-09-18 | Tür alanıyla ayrıştırma ve idle/şarj/deşarj çalışma modu | Kabul edildi |
 | [ADR-0011](ADR-0011-telemetry-time-temperature.md) | 2026-09-18 | Telemetride ayrı 2 bayt sıcaklıklar ve ölçüm zamanı | Kabul edildi |
+| [ADR-0012](ADR-0012-payload-time.md) | 2026-09-18 | Telemetri zamanını payload oluştururken doğrudan RTC’den alma | Kabul edildi |
 
 ## Yeni karar şablonu
 
@@ -34,7 +35,6 @@ Her karar ayrı bir `ADR-NNNN-kisa-baslik.md` dosyasında tutulur. Kimlikler tek
 - Tarih:
 - Durum: Öneri / Kabul edildi / Reddedildi / Yerine yeni karar geldi
 - Kaynak: Görüşme tarihi veya belge/kod bağlantısı
-- Kararı veren: Belirtilmediyse “Belirtilmedi”
 
 ## Bağlam ve problem
 ## Karar

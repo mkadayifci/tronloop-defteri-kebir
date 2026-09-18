@@ -12,16 +12,15 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Yürürlükten kalktı — [ADR-0010](ADR-0010-message-type-and-operation-mode.md)
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** Kullanıcının CAN üzerinden mesaj alan diğer yazılımın mesaj türünü `dataLength` üzerinden belirlediğini açıklaması ve farklı türlerin aynı uzunlukta olmamasını istemesi.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 
 ## Yürürlük durumu
 
-Kullanıcı tür alanıyla ayrıştırmaya geçilmesini istedi. **Aynı uzunlukta farklı mesaj türleri artık mümkündür.** Aşağıdaki eski karar tarihçe olarak korunur; geçerli kural ADR-0010’dadır.
+Mesajları tür alanıyla ayrıştırmaya geçiyoruz. **Aynı uzunlukta farklı mesaj türleri artık mümkündür.** Aşağıdaki eski karar tarihçe olarak korunur; geçerli kural ADR-0010’dadır.
 
 ## Bağlam ve karar
 
-Kullanıcının bildirdiği alıcı davranışı: CAN üzerinden alınan mesajın türü veri uzunluğundan (`dataLength`) bulunuyor. Bu nedenle **farklı mesaj türleri aynı veri uzunluğuna sahip olamaz**.
+İlk tasarımın dayandığı alıcı davranışı: CAN üzerinden alınan mesajın türü veri uzunluğundan (`dataLength`) bulunuyor. Bu nedenle **farklı mesaj türleri aynı veri uzunluğuna sahip olamaz**.
 
 CAN/ISO-TP mesajı tasarlanırken her türün alıcı tarafından görülen toplam bayt uzunluğu açıkça belgelenmeli ve diğer mesaj türlerinin uzunluklarıyla çakışmadığı kontrol edilmelidir. Tür alanı veya komut kodu bulunması, aynı uzunluğu farklı türler için kullanmaya izin vermez.
 
@@ -35,7 +34,7 @@ CAN/ISO-TP mesajı tasarlanırken her türün alıcı tarafından görülen topl
 
 ## Doğrulama sınırı ve açık noktalar
 
-Alıcının `dataLength` davranışı kullanıcı bilgisi olarak kaydedildi; alıcı kodu bu karar sırasında incelenmedi. ISO-TP ile yeniden birleştirilen uygulama mesajının uzunluğu ile tek CAN çerçevesinin DLC değeri birbirine karıştırılmamalıdır. Alıcıda ölçülen kesin katman ve başlıkların uzunluğa dahil oluşu kaynak koddan doğrulanarak uzunluk tablosuna işlenecek.
+Bu karar alıcının tarif edilen `dataLength` davranışına dayanıyordu; o sırada alıcı kodu incelenmemişti. ISO-TP ile yeniden birleştirilen uygulama mesajının uzunluğu ile tek CAN çerçevesinin DLC değeri birbirine karıştırılmamalıdır. Alıcıda ölçülen kesin katman ve başlıkların uzunluğa dahil oluşu kaynak koddan doğrulanarak uzunluk tablosuna işlenecek.
 
 Henüz yeni türlere sayısal uzunluk atanmadı. Her yeni tür için ad, yön, alan yerleşimi, toplam uzunluk, desteklenen sürüm ve alıcı eşlemesi birlikte belgelenecek.
 

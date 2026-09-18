@@ -12,7 +12,6 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Kabul edildi
-- **Kararı veren / kaynak:** Kullanıcının bu görüşmedeki sunucuyu TSphere olarak adlandırma talebi.
 
 ## Karar ve kapsam
 

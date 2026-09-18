@@ -12,12 +12,11 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Kabul edildi
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** 2026-09-18 tarihli görüşmedeki dokümantasyon talebi.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 
 ## Bağlam
 
-Kullanıcı bu görüşmeyi Tronloop için kararların alındığı, özellikle haberleşmelerin ve mimari notların düzenli tutulduğu çalışma alanı olarak kullanmak istiyor.
+Tronloop kararlarını, haberleşme ayrıntılarını ve mimari notları aynı yerde tutuyoruz. Amaç, projenin nasıl şekillendiğini gerekçeleriyle birlikte takip edebilmek.
 
 ## Karar
 
@@ -29,7 +28,7 @@ Karar gerekçelerinin kaybolmasını önlemek ve projenin mimarisini daha sonra 
 
 ## Uygulama düzeni
 
-Asistan, mevcut `tronloop-defteri-kebir` deposunu kullanarak karar dizini ve konu notları oluşturdu. Dosya yerleşimi asistanın düzenleme tercihidir; kullanıcı tarafından verilmiş teknik mimari kararı değildir.
+Karar kayıtları ve konu notları `tronloop-defteri-kebir` altında tutuluyor. Klasör düzeni dokümantasyonu organize eder; sistemin teknik mimarisini belirlemez.
 
 ## Alternatifler ve etkiler
 

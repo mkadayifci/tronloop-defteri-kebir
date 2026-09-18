@@ -12,8 +12,7 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Kabul edildi
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** Kullanıcının ölçüm zamanı ve sıra numarası önerisini kabul etmesi; STM32 saatinin aktif olacağını ve Linux zamanı kullanılarak mesajlarla belirli aralıklarla güncelleneceğini belirtmesi.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 
 ## Karar
 
@@ -38,11 +37,11 @@ Dairesel tampondan gecikmeli gelen ölçümlerin zamanı korunur. Sıra numaras�
 
 ## Kararın netleştirilmesi — 2026-09-18
 
-Kullanıcı ölçüm zamanını milisaniye çözünürlüğünde tutmayı kabul etti. Bu, mevcut RTC kodunun milisaniye ürettiği veya saat eşitlemenin 1 ms doğruluk sağladığı anlamına gelmez. Mevcut saniye tabanlı uygulamanın uyarlanması gerekiyor. Kod değişikliği yapılmadı; alanın kodlanma biçimi ve saat güncelleme paketinin çözünürlüğü ayrıca seçilecek.
+Ölçüm zamanı milisaniye cinsinden tutulacak. Bu, mevcut RTC kodunun milisaniye ürettiği veya saat eşitlemenin 1 ms doğruluk sağladığı anlamına gelmez. Mevcut saniye tabanlı uygulamanın uyarlanması gerekiyor. Kod değişikliği yapılmadı; alanın kodlanma biçimi ve saat güncelleme paketinin çözünürlüğü ayrıca seçilecek.
 
 ## Sıra numarasının netleştirilmesi — 2026-09-18
 
-Kullanıcı sıra numarasının artmaya devam etmesini ve yalnızca kayıtları ayırt etmek için kullanılmasını belirtti. Her testte sıfırdan başlatma önerisi benimsenmedi; test değişimi sayacı sıfırlamayı gerektirmez. Bu alan tek başına tüm cihazlar ve yeniden başlamalar boyunca benzersiz bir kimlik garantisi olarak yorumlanmaz.
+Sıra numarası artmaya devam edecek ve kayıtları ayırt etmek için kullanılacak. Her testte sıfırdan başlatma önerisi benimsenmedi; test değişimi sayacı sıfırlamayı gerektirmez. Bu alan tek başına tüm cihazlar ve yeniden başlamalar boyunca benzersiz bir kimlik garantisi olarak yorumlanmaz.
 
 ## Açık konular
 
@@ -58,4 +57,4 @@ Kullanıcı sıra numarasının artmaya devam etmesini ve yalnızca kayıtları 
 
 ## Uygulama güncellemesi — ADR-0011
 
-Telemetriye uint64_t Unix milisaniye alanı eklendi; zaman hızlı context ölçümünde kaydediliyor. `TL_RTC_GetMs()` RTC subsecond alanını kullanıyor; mevcut prescaler nominal ~3,9 ms adımlı. Önceki yalnız saniye çözünürlüklü uygulama gözlemi `TL_RTC_Get()` için geçerli kalır, yeni API ayrı eklenmiştir. Sıra numarası ve Linux saat eşitleme ayrıntıları henüz uygulanmadı. [Güncel telemetri](../03-software/vertex-telemetry-message.md).
+Telemetriye uint64_t Unix milisaniye alanı eklendi. İlk uygulamada zaman hızlı context ölçümünde kaydediliyordu. [ADR-0012](ADR-0012-payload-time.md) ile bu bölüm değişti: zaman artık payload oluşturulurken RTC’den okunuyor. Ölçüm anı ile paket oluşturma anı aynı kabul edilmemeli. `TL_RTC_GetMs()` RTC subsecond alanını kullanıyor; mevcut prescaler nominal ~3,9 ms adımlı. Önceki yalnız saniye çözünürlüklü uygulama gözlemi `TL_RTC_Get()` için geçerli kalır, yeni API ayrı eklenmiştir. Sıra numarası ve Linux saat eşitleme ayrıntıları henüz uygulanmadı. [Güncel telemetri](../03-software/vertex-telemetry-message.md).

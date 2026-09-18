@@ -12,8 +12,7 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Kabul edildi
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** Bu görüşmedeki dairesel tampon ve sürekli açık bağlantı varsayımı açıklaması.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 - **Yerine geçtiği kayıt:** [ADR-0005](ADR-0005-vertex-data-buffer.md).
 
 ## Bağlam ve karar
@@ -30,7 +29,7 @@ ClusterPilot'un buluta gönderilemeyen verileri SQLite'ta biriktirmesi ayrı dav
 
 ## Teslim onayı önerisinin durumu
 
-Asistanın önceki “ClusterPilot kalıcı kaydettikten sonra onaylasın, Vertex ancak onaydan sonra silebilsin” önerisi kabul edilmiş bir karar değildir. Onay gelene kadar eski verinin mutlaka korunması yeni dairesel tampon davranışının şartı olmayacaktır. Gerekirse kullanılacak aktarım onayı veya tekrar mekanizması ayrıca tasarlanır; üzerine yazma davranışını engellemez.
+“ClusterPilot kalıcı kaydı onaylayana kadar Vertex veriyi korusun” seçeneği benimsenmedi. Onay gelene kadar eski verinin mutlaka korunması yeni dairesel tampon davranışının şartı olmayacaktır. Gerekirse kullanılacak aktarım onayı veya tekrar mekanizması ayrıca tasarlanır; üzerine yazma davranışını engellemez.
 
 ## Açık konular
 

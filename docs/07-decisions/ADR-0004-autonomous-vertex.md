@@ -12,8 +12,7 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Kabul edildi
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** Senaryonun Vertex üzerinde yürütülmesi sorusuna kullanıcının “Evet testi firmware pilota muhtaç olmadan çalıştırabilecek” yanıtı.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 
 ## Bağlam ve karar
 

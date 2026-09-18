@@ -12,7 +12,7 @@ guncelleyen: "Codex"
 
 ## Kapsam ve kanıt
 
-Kullanıcı CAN/ISO-TP temelini koruyarak mesaj tiplerini birlikte yeniden değerlendirmek istiyor. Aşağıdakiler 2026-09-18 tarihinde yerel çalışma ağacından okunan mevcut davranıştır; yeni protokol kararı veya donanım üzerinde test sonucu değildir. Genel durum paketi kullanıcının talebiyle 7 bayta güncellendi; diğer mesajlar mevcut kaynak gözlemleridir.
+CAN/ISO-TP temelini koruyor, mesaj tiplerini yeniden ele alıyoruz. Aşağıdakiler 2026-09-18 tarihinde yerel çalışma ağacından okunan mevcut davranıştır; yeni protokol kararı veya donanım üzerinde test sonucu değildir. Genel durum paketi 7 bayta güncellendi; diğer mesajlar mevcut kaynak gözlemleridir.
 
 Kaynak yolları çalışma alanı köküne göredir:
 
@@ -40,7 +40,7 @@ Aralıklar hedef deneme zamanlarıdır; teslim garantisi değildir. `VertexTelem
 
 `VertexTelemetryPayload` 17 bayt, `VertexStatusPayload` sabit 7 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. `VertexTelemetryPayload` tür alanı artık açıkça `uint8_t` olarak tanımlıdır. `HeartbeatPayload` içindeki tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
 
-`VertexTelemetryPayload` içindeki sabit `state` alanı kullanıcı talebiyle kaldırıldı. `HeartbeatPayload` context durumunu, `VertexStatusPayload` ise doğrudan senaryo oynatıcısının durumunu kullanır. `VertexStatusPayload` içindeki charger modu context bayraklarından üretilir, donanım geri okuması değildir. Gerilim ölçümünün güncellenmesi henüz uygulanmamıştır. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
+`VertexTelemetryPayload` içindeki sabit `state` alanı kaldırıldı. `HeartbeatPayload` context durumunu, `VertexStatusPayload` ise doğrudan senaryo oynatıcısının durumunu kullanır. `VertexStatusPayload` içindeki charger modu context bayraklarından üretilir, donanım geri okuması değildir. Gerilim ölçümünün güncellenmesi henüz uygulanmamıştır. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
 
 ## ClusterPilot → Vertex: mevcut komutlar
 

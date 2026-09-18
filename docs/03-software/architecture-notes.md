@@ -10,13 +10,13 @@ guncelleyen: "Codex"
 
 **Son Güncelleme:** 2026-09-18
 
-## Kullanıcının tanımladığı genel yapı
+## Genel yapı
 
-**Kaynak:** 2026-09-18 tarihli görüşme. Aşağıdaki bilgiler kullanıcı anlatımıdır; genel mimarinin tamamı koddan doğrulanmadı. Vertex CAN/ISO-TP mesajları ayrıca incelendi; [mevcut mesaj envanteri](vertex-message-inventory.md). [ADR-0003](../07-decisions/ADR-0003-system-overview.md).
+**Kaynak:** 2026-09-18 tarihli görüşme. Aşağıda hedef mimari anlatılıyor; bütün bileşenlerin koddaki karşılığı henüz doğrulanmadı. Vertex CAN/ISO-TP mesajları ayrıca incelendi; [mevcut mesaj envanteri](vertex-message-inventory.md). [ADR-0003](../07-decisions/ADR-0003-system-overview.md).
 
 Tronloop, pilleri belirli test senaryolarına göre şarj/deşarj eden ve test verilerini bulutta saklayan bir pil test sistemidir. Sisteme Cluster'lar bağlanır; her Cluster içinde **Vertex** adlı test birimleri bulunur. **ClusterPilot**, Vertex'lerle bulut arasındaki veri ve komut akışını yöneten Linux sunucusudur.
 
-| Bileşen | Kullanıcının belirttiği sorumluluk |
+| Bileşen | Sorumluluk |
 |---|---|
 | Vertex | Cluster içindeki pil test birimi; senaryoyu ClusterPilot’a sürekli ihtiyaç duymadan yürütür |
 | ClusterPilot | Vertex verilerini alma, TSphere üzerindeki MQTT'ye gönderme, komutları doğru cihaza iletme ve yanıtları MQTT'ye gönderme |
@@ -53,11 +53,11 @@ Diyagram mantıksal akışı gösterir. Panelin MQTT'ye hangi ara servis üzerin
 
 ## Önceki mimari belgesinin durumu
 
-[Önceki mimari belgesi](architecture.md) tarihsel referanstır. Buradaki veritabanı, donanım ve senkronizasyon ayrıntıları güncel kullanıcı anlatımıyla veya kodla doğrulanmadan güncel mimari kararı sayılmaz.
+[Önceki mimari belgesi](architecture.md) tarihsel referanstır. Buradaki veritabanı, donanım ve senkronizasyon ayrıntıları güncel kararlarla veya kodla doğrulanmadan güncel mimari kararı sayılmaz.
 
 ## Kaynak kapsamı
 
-Kullanıcının 2026-09-18 tarihli açıklamasına göre `tronloop-defteri-kebir` kararların ve dokümantasyonun ana merkezidir. Diğer klasörler kod ve tasarım kaynaklarıdır. Adı `__` ile biten klasörler geçersizdir ve güncel mimari için kaynak alınmaz. Dayanak: [ADR-0002](../07-decisions/ADR-0002-documentation-scope.md).
+`tronloop-defteri-kebir` kararların ve dokümantasyonun ana merkezidir. Diğer klasörler kod ve tasarım kaynaklarıdır. Adı `__` ile biten klasörler geçersizdir ve güncel mimari için kaynak alınmaz. Dayanak: [ADR-0002](../07-decisions/ADR-0002-documentation-scope.md).
 
 ### Güncel inceleme kapsamındaki klasörler
 
@@ -75,7 +75,7 @@ Aşağıdaki bileşenlerin ayrıntılı sorumlulukları ve aralarındaki bağlan
 - `tronloop-clusterpilot-can-processor__`
 - `tronloop-node-orchestrator__`
 
-Bu klasörler yalnızca kullanıcı açıkça tarihsel inceleme isterse değerlendirilir.
+Bu klasörler yalnızca özellikle istenen tarihsel karşılaştırmalarda incelenir.
 
 ## Her mimari konu için kayıt biçimi
 

@@ -11,8 +11,7 @@ guncelleyen: "Codex"
 **Son Güncelleme:** 2026-09-18
 
 - **Tarih:** 2026-09-18
-- **Durum:** Kabul edildi — kullanıcı tarafından tanımlanan sistem yapısı
-- **Kararı veren / kaynak:** Kullanıcı; bu görüşmedeki genel mimari açıklaması.
+- **Durum:** Kabul edildi
 
 ## Bağlam ve karar
 
@@ -30,7 +29,7 @@ Yerel Vertex protokolü, MQTT konu/mesaj şeması, teslim güvenceleri, kuyruk k
 
 ## Uygulama durumu
 
-Kullanıcı anlatımı kaydedildi; kodun bu mimariye uyumu henüz incelenmedi.
+Bu kayıt hedef mimariyi anlatıyor; kodun tamamı bu yapı açısından henüz incelenmedi.
 
 ## İlişkili belgeler
 

@@ -6,107 +6,54 @@ son_guncelleme: "2026-09-18"
 guncelleyen: "Codex"
 ---
 
-# 2026-09-18 — Dokümantasyon Düzeni
+# 2026-09-18 — Mimari ve haberleşme notları
 
-**Son Güncelleme:** 2026-09-18
+Kararları ve mimari notları Defteri Kebir’de topluyoruz. Diğer klasörler kod ve tasarım kaynakları; adı `__` ile biten klasörler güncel çalışmaların dışında. [Dokümantasyon düzeni](../../07-decisions/ADR-0001-documentation.md) ve [kaynak kapsamı](../../07-decisions/ADR-0002-documentation-scope.md) bu ayrımı tanımlıyor.
 
-## Görüşme özeti
+## Sistemin genel yapısı
 
-Kullanıcı, bu alanın Tronloop kararları ve dokümantasyonu için kullanılmasını; özellikle haberleşmeler ile mimari notların iyi biçimlendirilmiş ve düzenli tutulmasını istedi.
+Her Cluster içinde Vertex test birimleri var. Test senaryosunu Vertex kendi başına yürütüyor; ClusterPilot’un sürekli komut göndermesine ihtiyaç duymuyor. Linux üzerinde çalışan ClusterPilot, CAN/ISO-TP üzerinden verileri topluyor ve TSphere üzerindeki MQTT’ye gönderiyor. Buluta gönderilemeyen veriler SQLite’ta bekliyor. Panel komutları da aynı yolun tersinden ilgili Vertex’e ulaşıyor; yanıtlar ClusterPilot üzerinden geri dönüyor.
 
-## Kesinleşen karar
+İlgili kararlar: [genel mimari](../../07-decisions/ADR-0003-system-overview.md), [bağımsız test yürütme](../../07-decisions/ADR-0004-autonomous-vertex.md), [TSphere adı](../../07-decisions/ADR-0009-tsphere-name.md).
 
-[ADR-0001 — Kararların ve mimari notların kalıcı tutulması](../../07-decisions/ADR-0001-documentation.md).
+## Kısa kesintiler ve zaman bilgisi
 
-## Yapılan düzenleme
+Normalde Vertex–ClusterPilot bağlantısının açık kalmasını bekliyoruz. Vertex’teki dairesel tampon kısa kesintileri karşılayacak. Dolunca en eski kayıtların üzerine yazılacak; test ve kayıt durmayacak. Bağlantı düzelince tamponda kalan kayıtlar aktarılacak. Kayıpsız saklama veya kalıcı teslim onayına kadar koruma şartı yok. İlk biriktirme kararı [ADR-0005](../../07-decisions/ADR-0005-vertex-data-buffer.md), bu davranışı netleştiren [ADR-0006](../../07-decisions/ADR-0006-vertex-ring-buffer.md) ile değişti.
 
-Mevcut dokümantasyon deposuna karar defteri, karar kayıtları, haberleşme ve mimari çalışma notları eklendi. Sonraki görüşmelerde aynı düzenin izlenmesi için çalışma alanı talimatı oluşturuldu.
+Kayıtlar için milisaniye cinsinden zaman ve artan bir sıra numarası seçildi. Sıra numarası yalnızca ayırt edici; her testin başında sıfırlanması gerekmiyor. Sayaç genişliği, taşma ve yeniden başlama davranışları açık. STM32 saati Linux zamanıyla periyodik mesajlar üzerinden eşitlenecek. Ham CAN üzerinden saniye tabanlı RTC ayarlama kodu var; Linux’taki periyodik gönderici henüz doğrulanmadı. [ADR-0007](../../07-decisions/ADR-0007-measurement-time-sequence.md).
 
-## Açık konular
+## Mesaj tasarımının gelişimi
 
-Güncel mimarinin doğrulanması ve mesaj sözleşmelerinin ayrıntılandırılması. Bu görüşmede yeni bir teknik protokol veya bileşen sorumluluğu kararı verilmedi.
+Aşağıdaki ara tasarımlar tarihçedir. Güncel biçimler genel durumda **7 bayt**, telemetride **17 bayt**.
 
+| Konu | İlk yaklaşım | Son durum |
+|---|---|---|
+| Mesaj türü | Türü `dataLength` ile bulma ve her türe farklı uzunluk ayırma | Tür alanıyla ayrıştırma; uzunluk yalnızca şema kontrolü için kullanılıyor. [ADR-0010](../../07-decisions/ADR-0010-message-type-and-operation-mode.md), [ADR-0008](../../07-decisions/ADR-0008-unique-message-length.md) yerine geçti. |
+| Şarj ve ters mod | İki ayrı bayrak | Tek idle/şarj/deşarj alanı |
+| Oynatıcı ve charger durumu | Önce aynı baytta bit alanları; 2 bayt akımla ara hedef 6 bayt | Ayrı birer bayt; genel durum toplam 7 bayt |
+| Akım | Genel durumda 4 bayt | mA cinsinden işaretli 2 bayt |
+| Yapı adları | `GeneralStatusPayload`, `FastTelemetryPayload` | `VertexStatusPayload`, `VertexTelemetryPayload` |
+| Telemetri durumu | Sabit `state` alanı | Kaldırıldı |
+| Sıcaklık | Tek alan, ardından iki ayrı `int8_t` tam °C alanı | Pil ve ortam için ayrı `int16_t`, °C × 10 |
+| Geçersiz sıcaklık | `int8_t` tasarımında −128 | Güncel `int16_t` tasarımında −32768 |
+| Zaman | Önce hızlı context güncellemesinde saklanan zaman | Payload oluşturulurken doğrudan `TL_RTC_GetMs()` çağrısı |
 
-## Takip açıklaması — Ana merkez ve geçersiz klasörler
+Zamanı küçültüp iki veri çerçevesine inme seçeneği değerlendirildi; **uint64_t Unix milisaniye** korundu. Güncel telemetri 3 ISO-TP veri çerçevesiyle taşınıyor. Alıcının Flow Control çerçevesi de trafik hesabına dahil. [Sıcaklık ve zaman biçimi](../../07-decisions/ADR-0011-telemetry-time-temperature.md), [RTC okuma anı](../../07-decisions/ADR-0012-payload-time.md).
 
-Kullanıcı Defteri Kebir'i ana üs olarak kesinleştirdi; diğer klasörlerin kod kaynakları olduğunu ve `__` ile bitenlerin geçersiz olduğunu belirtti. [ADR-0002](../../07-decisions/ADR-0002-documentation-scope.md) ile kaydedildi; mimari kaynak kapsamı ve kalıcı çalışma talimatları güncellendi.
+## Firmware’deki karşılığı
 
-## Genel mimari ve protokol görüşmesinin başlangıcı
+Genel durumun 7 baytlık biçimi ve telemetrinin 17 baytlık biçimi uygulandı. Genel durumda mod kodları 0 idle, 1 şarj, 2 deşarj; reverse kontrolü öncelikli. Akım `int16_t` aralığı dışındaysa genel durum gönderilmiyor ve hata loglanıyor.
 
-Kullanıcı Cluster, Vertex ve Linux üzerinde çalışan ClusterPilot yapısını; TSphere üzerindeki MQTT üzerinden veri, komut ve yanıt akışını; gönderilemeyen verilerin SQLite'ta tutulmasını açıkladı. Bu anlatım [ADR-0003](../../07-decisions/ADR-0003-system-overview.md) ile kaydedildi. Haberleşme ayrıntıları için konu listesi çıkarıldı; ilk açık soru Vertex–ClusterPilot yerel protokolüdür.
+Telemetride pil ve ortam sıcaklıklarının alanları hazır, sensör okumaları henüz yok. Gerilim güncellemesi de yorum satırında. Zaman alanının adı `measurement_time_ms`, fakat son düzenlemede sensör edinim anını değil payload oluşturma anını gösteriyor. RTC’nin nominal adımı yaklaşık 3,9 ms; milisaniye birimi 1 ms doğruluk garantisi vermiyor.
 
-## CAN/ISO-TP ve mesaj tasarımının kapsamı
+Debug derlemesi geçti. Önceki paket düzenlemelerinde gerçek dispatcher/ISO-TP koduyla bilgisayarda boyut, alan yerleşimi, sıcaklık ve akım sınırları, çok çerçeveli aktarım; RTC yardımcı kodunda saniye altı hesaplar ve hata dönüşleri kontrol edildi. Son RTC çağrı yeri değişikliği derlemeyle doğrulandı. Kart ve sensör testi yapılmadı. ClusterPilot alıcısı eski biçimde; sıra numarası ve dairesel tampon firmware’de henüz yok.
 
-Kullanıcı yerel haberleşmenin CAN/ISO-TP olduğunu belirtti ve mevcut mesajların Vertex firmware'inden okunmasını istedi. Taşıma temelinden ziyade mesaj tipleri birlikte yeniden değerlendirilecek. Geçerli firmware kaynakları incelenerek [mevcut mesaj envanteri](../../03-software/vertex-message-inventory.md) oluşturuldu; gözlenen kod ile öneriler ayrıldı.
+Alanların güncel karşılığı: [genel durum](../../03-software/general-status-message.md), [telemetri](../../03-software/vertex-telemetry-message.md), [mesaj envanteri](../../03-software/vertex-message-inventory.md).
 
-## Bağımsız test yürütme kararı
+## Hat kapasitesi
 
-Kullanıcı testin Vertex firmware'i tarafından ClusterPilot'a muhtaç olmadan yürütüleceğini kesinleştirdi. [ADR-0004](../../07-decisions/ADR-0004-autonomous-vertex.md) oluşturuldu; mimari ve haberleşme notları güncellendi. Vertex'te kesinti sırasında veri saklama ve güç kesintisi sonrası devam etme davranışları henüz kararlaştırılmadı.
+16 Vertex ve 100 ms aralıkla saniyede 160 telemetri mesajı oluşuyor. 500 kbit/s CAN hattında ISO-TP, Flow Control, heartbeat ve durum mesajları dahil hesaplanan yük yaklaşık **%15–18,3**. Komutlar, tekrarlar ve tampon boşaltma trafiği bu hesaba dahil değil. [Hesabın ayrıntıları](../../03-software/communication-notes.md).
 
-## Vertex'te veri biriktirme kararı
+## Dokümantasyon düzeni
 
-Kullanıcı Vertex'in test verilerini biriktirip bağlantı problemi çözülünce aktaracağını kesinleştirdi. [ADR-0005](../../07-decisions/ADR-0005-vertex-data-buffer.md) oluşturuldu. Depolama ortamı ve kapasitesi, doluluk davranışı, güç kesintisinde koruma ve teslim/silme sözleşmesi açık bırakıldı.
-
-## Veri biriktirme kapsamının düzeltilmesi
-
-Kullanıcı kesintisiz bağlantının normal varsayım olduğunu ve Vertex'in kayıpsız saklama için değil kısa kesintiler için dairesel tampon kullanacağını açıkladı. Dolunca en eski kayıtların üzerine yazılacak; test ve kayıt devam edecek. [ADR-0006](../../07-decisions/ADR-0006-vertex-ring-buffer.md), önceki ADR-0005'in yerine geçti. Asistanın kalıcı teslim onayına kadar koruma önerisi kabul edilmedi.
-
-## Ölçüm zamanı ve saat eşitleme
-
-Kullanıcı ölçüm zamanı ve sıra numarası kullanımını kabul etti; STM32 saatinin Linux zamanı ile periyodik mesajlar üzerinden güncelleneceğini belirtti. [ADR-0007](../../07-decisions/ADR-0007-measurement-time-sequence.md) oluşturuldu. Vertex RTC ve CAN kodunda Unix saniyeleriyle saat ayarlama doğrulandı; Linux gönderim periyodu ve yeni ölçüm zamanının çözünürlüğü açık bırakıldı.
-
-## Ölçüm zamanının çözünürlüğü
-
-Kullanıcı ölçüm zamanı için milisaniye çözünürlüğünü kabul etti. ADR-0007 ve ilgili belgeler güncellendi. Mevcut saniye tabanlı RTC uygulamasının uyarlanması gerekecek; zaman alanının kodlanması ve saniye altı zamanın üretim yöntemi henüz belirlenmedi.
-
-## Sıra numarasının amacı
-
-Kullanıcı sıra numarasının artmasını, yalnızca ayırt edici olacağını belirtti. Test başında sıfırlama önerisi benimsenmedi; ADR-0007 ve ilgili notlar güncellendi. Sayaç genişliği, yeniden başlama ve taşma davranışları henüz seçilmedi.
-
-## Eski dokümantasyonun adlandırılması
-
-Kullanıcının talebiyle eski belgeler Cluster, ClusterPilot ve Vertex adlandırmasına uyarlandı. Sunucu ve ortak fiziksel altyapı bağlama göre ayrıldı. Dosya yolları, şema alanları ve donanım model adları korundu. [Adlandırma rehberi](../../01-project-general/terminology.md) kalıcı referans olarak eklendi.
-
-## Mesajlaşma taslağının derlenmesi
-
-Kullanıcının talebiyle konuşulan ayrıntılar [Mesajlaşma Protokolü — Çalışma Taslağı](../../03-software/communication-notes.md) içinde toplandı. Veri akışı, ölçüm kaydı, dairesel tampon, saat eşitleme ve komut/yanıt akışları diyagramlarla belgelendi. Kesinleşen davranışlar, mevcut kod gözlemleri ve henüz seçilmemiş paket/MQTT ayrıntıları ayrı gösterildi.
-
-## Mesaj türünün uzunlukla belirlenmesi
-
-Kullanıcı alıcı yazılımın CAN mesaj türünü `dataLength` üzerinden belirlediğini açıkladı. Farklı türlerin aynı uzunlukta olamayacağı [ADR-0008](../../07-decisions/ADR-0008-unique-message-length.md) ile kaydedildi; protokol taslağı ve kalıcı çalışma kuralları güncellendi.
-
-## Genel durum mesajı ve TSphere adı
-
-Kullanıcının talebiyle genel durum mesajı firmware'den tekrar doğrulandı; alanları, bayt konumları, durum kodları ve mevcut uygulama sınırları [ayrı belgede](../../03-software/general-status-message.md) gösterildi. Bulut sunucusunun adı [ADR-0009](../../07-decisions/ADR-0009-tsphere-name.md) ile TSphere olarak kaydedildi; MQTT hizmet adı olarak korundu.
-
-## Tür alanına geçiş ve çalışma modu
-
-Kullanıcı mesaj türünün uzunluk yerine tür alanından belirlenmesini ve genel durumda şarj etkinliği/ters mod alanlarının idle/şarj/deşarj çalışma modu olarak birleştirilmesini istedi. ADR-0010, ADR-0008'in yerine geçti; aktif kurallar güncellendi. Kod değişmedi. Alanlar ayrı baytlar olursa 9 bayt, oynatıcı durumu ve çalışma modu birlikte bit alanlarına kodlanırsa 8 bayt olacağı belgelendi; ikinci seçenek henüz öneridir.
-
-## Birleşik durum baytı kesinleşti
-
-Kullanıcı oynatıcı durumu ve çalışma modunun aynı baytta bit alanları olarak taşınacağını kesinleştirdi. ADR-0010 ve genel durum belgesi güncellendi; hedef paket 8 bayt oldu. Kesin bit konumları ve ham CAN'a geçiş ayrıntısı henüz seçilmedi; firmware kodu değiştirilmedi.
-
-## Genel durum akımı 2 bayt
-
-Kullanıcı akım alanının mA cinsinden işaretli 2 bayt (`int16_t`) olmasını istedi. ADR-0010, hedef alan tablosu ve aktif kurallar güncellendi; genel durum paketi hedefi 6 bayta indi. Mevcut firmware gözlemleri tarihsel doğruluk için 10 bayt/`int32_t` olarak korundu; kod değiştirilmedi.
-
-## Oynatıcı ve charger durumlarının ayrılması
-
-Kullanıcı oynatıcı durumu ile charger çalışma modunun ayrı birer bayt olmasını istedi. Önceki ortak bit alanı kararı ADR-0010 içinde tarihçesi korunarak güncellendi. Akım 2 bayt kaldı; hedef paket 7 bayt ve ISO-TP başlığıyla tek CAN çerçevesi oldu. Firmware değiştirilmedi.
-
-## Genel durumun firmware'e uygulanması
-
-Kullanıcı bu görüşmeden kodu güncelleme yetkisi verdi. Mevcut yerel değişiklikler korunarak genel durum 7 bayta geçirildi. Modlar 0 idle, 1 şarj, 2 deşarj; ters mod öncelikli yazılım context eşlemesi kullanıldı. `int16_t` dışı akımda paket atlanır ve loglanır. Debug derlemesi ile gerçek dispatcher/ISO-TP kodu üzerinden bilgisayarda paket/sınır kontrolleri geçti. Alıcı yazılım değiştirilmedi ve kart testi yapılmadı.
-
-## Telemetriden durum alanının kaldırılması
-
-Kullanıcının talebiyle `VertexTelemetryPayload.state` kaldırıldı. Tür, gerilim, akım ve sıcaklık alanları toplam 7 bayt; tür alanı açıkça uint8_t olarak sabitlendi. Debug derlemesi ve tek ISO-TP çerçevesi kontrolü geçti. Dokümantasyon güncellendi; alıcı kodu değiştirilmedi ve kart testi yapılmadı.
-
-## Ayrı pil ve ortam sıcaklıkları
-
-Kullanıcı telemetride pil ve ortam sıcaklığını ayrı işaretli, ondalıksız alanlar istedi. Firmware'de iki int8_t tam °C alanı uygulandı; geçerli aralık −127…+127. Uygulama tercihi olarak −128 ölçüm yok/geçersiz koduna ayrıldı. Sensör okumaları henüz yok; kaynaklar başlangıçta geçersizdir. 7 bayt paket boyutu korundu; Debug derlemesi ve paket/sınır kontrolleri geçti, kart testi yapılmadı.
-
-## Onda bir sıcaklık ve zaman alanı
-
-Kullanıcı iki sıcaklığı ayrı 2 bayt/×10 biçimine geçirmeyi ve zaman eklemeyi istedi. ADR-0011 ile kaydedildi; firmware'e 17 baytlık biçim ve Unix ms okuma eklendi. Context ölçüm zamanı gönderilir. Sıra numarası, ring buffer ve alıcı güncellemesi kapsam dışında kaldı. Mevcut RTC adımı ~3,9 ms. Derleme, ISO-TP ve RTC yardımcı kontrolleri geçti; kart/sensör testi yapılmadı.
+Eski terimler Cluster, ClusterPilot, Vertex ve TSphere adlarıyla eşleştirildi; teknik semboller ve dosya yolları korundu. Mesaj akışları diyagramlarla belgelendi. Defteri Kebir’de konuşma dökümü yerine doğrudan kararları, gerekçeleri ve uygulama durumunu anlatıyoruz. Dil sade ve doğal; geçmiş tasarımlar güncel durumdan ayrı tutuluyor.

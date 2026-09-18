@@ -14,7 +14,7 @@ Bu alan, proje görüşmelerinin kalıcı ve izlenebilir özetidir. Konuşmalar�
 
 ## Ana merkez ve kaynak kapsamı
 
-Kullanıcının kararıyla tüm karar ve dokümantasyon yönetiminin ana merkezi **tronloop-defteri-kebir** deposudur. Diğer klasörler kod ve tasarım kaynaklarıdır. **Adı `__` ile biten klasörler geçersizdir** ve güncel mimari incelemelerinde kullanılmaz. [ADR-0002](../07-decisions/ADR-0002-documentation-scope.md).
+Kararların ve dokümantasyonun ana merkezi **tronloop-defteri-kebir** deposudur. Diğer klasörler kod ve tasarım kaynaklarıdır. **Adı `__` ile biten klasörler geçersizdir** ve güncel mimari incelemelerinde kullanılmaz. [ADR-0002](../07-decisions/ADR-0002-documentation-scope.md).
 
 ## Adlandırma
 
@@ -30,10 +30,14 @@ Belgelerde **Cluster**, **ClusterPilot**, **Vertex** ve bulut sunucusu için **T
 | [Görüşme kayıtları](../06-meetings/notes/2026-09-18-documentation.md) | Görüşme özeti ve ilgili kararlar |
 | [Değişiklik geçmişi](../../CHANGELOG.md) | Belge değişikliklerinin özeti |
 
+## Yazım dili
+
+Bu defter projenin kendi notlarıdır. Kararları ve gerekçeleri doğrudan, sade bir Türkçeyle anlatıyoruz. Konuşmayı kimin ne istediği üzerinden özetlemek yerine sistemin nasıl çalışacağını yazıyoruz. Önerileri, tamamlanan işleri ve açık konuları ayrı tutuyoruz.
+
 ## Kayıt ilkeleri
 
 - **Öneri:** Değerlendirilen seçenek; henüz karar değildir.
-- **Kesinleşmiş karar:** Kullanıcının açıkça seçtiği veya kesinleştiğini belirttiği yaklaşım.
+- **Kesinleşmiş karar:** Projede uygulanmasına karar verilen yaklaşım.
 - **Doğrulanmış uygulama:** Kaynak dosya ve inceleme tarihiyle desteklenen mevcut davranış.
 - **Açık konu:** Henüz yanıtlanmamış soru veya doğrulanmamış ayrıntı.
 
@@ -49,7 +53,7 @@ Milisaniye çözünürlüğünde ölçüm zamanı ve artan ayırt edici sıra nu
 
 Mesaj türü tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk seçilen türe göre doğrulanır. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek; bu mod ve oynatıcı durumu ayrı birer bayt olarak taşınacak. Akım mA cinsinden işaretli `int16_t` (2 bayt) olacak; genel durum paketi 7 bayt olarak Vertex firmware’inde uygulandı. Debug derlemesi ve paket kontrolleri başarılı; alıcı güncellemesi ve kart testi henüz yapılmadı. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
 
-Kapasite değerlendirmesi için kullanıcı girdisi: **yaklaşık 16 Vertex, 100 ms ölçüm aralığı**. [Mesajlaşma belgesindeki hesap](../03-software/communication-notes.md); güncel 17 baytlık telemetriyle heartbeat ve durum dahil hesaplanan hat yükü yaklaşık %15–18,3’tür (500 kbit/s ve belgelenen varsayımlarla).
+Kapasite hesabının temeli: **yaklaşık 16 Vertex, 100 ms ölçüm aralığı**. [Mesajlaşma belgesindeki hesap](../03-software/communication-notes.md); güncel 17 baytlık telemetriyle heartbeat ve durum dahil hesaplanan hat yükü yaklaşık %15–18,3’tür (500 kbit/s ve belgelenen varsayımlarla).
 
 Güncel telemetri firmware biçimi **17 bayt**: iki ayrı 2 bayt sıcaklık (°C × 10) ve 8 bayt Unix ms zamanı içerir. [ADR-0011](../07-decisions/ADR-0011-telemetry-time-temperature.md). Sıra numarası ve dairesel tampon henüz kodda uygulanmadı.
 
@@ -58,7 +62,7 @@ Güncel telemetri firmware biçimi **17 bayt**: iki ayrı 2 bayt sıcaklık (°C
 | Kimlik | Konu | Durum | Kaynak |
 |---|---|---|---|
 | OPEN-001 | Mevcut mimari belgeleri ile güncel bileşenlerin eşleştirilmesi | Doğrulama bekliyor | 2026-09-18 dokümantasyon incelemesi |
-| OPEN-002 | Haberleşme hatlarının ve mesaj sözleşmelerinin ayrıntılandırılması | Davranış taslağı hazır; paket ve konu şemaları açık | 2026-09-18 kullanıcı talebi |
+| OPEN-002 | Haberleşme hatlarının ve mesaj sözleşmelerinin ayrıntılandırılması | Davranış taslağı hazır; paket ve konu şemaları açık | 2026-09-18 proje notları |
 
 ## Kaynak ve kapsam
 

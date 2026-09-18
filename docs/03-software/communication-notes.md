@@ -12,7 +12,7 @@ guncelleyen: "Codex"
 
 ## Kapsam ve karar durumu
 
-Bu belge, görüşmede kesinleşen mesajlaşma davranışlarını ve henüz tasarlanacak mesaj sözleşmelerini bir araya getirir. **Kesinleşti** kullanıcı kararını, **mevcut kod** kaynaklardan gözlemi, **öneri** değerlendirme seçeneğini, **açık** henüz seçilmemiş ayrıntıyı ifade eder. Belgenin taslak olması, aşağıda bağlantısı verilen kabul edilmiş kararları geçersiz kılmaz.
+Bu belge, görüşmede kesinleşen mesajlaşma davranışlarını ve henüz tasarlanacak mesaj sözleşmelerini bir araya getirir. **Kesinleşti** uygulanacak tasarımı, **mevcut kod** kaynaklardan gözlemi, **öneri** değerlendirme seçeneğini, **açık** henüz seçilmemiş ayrıntıyı ifade eder. Belgenin taslak olması, aşağıda bağlantısı verilen kabul edilmiş kararları geçersiz kılmaz.
 
 Adlandırma: **Cluster**, Vertex birimlerini içeren test grubudur; **ClusterPilot**, Linux sunucusudur; **Vertex**, testi firmware üzerinde bağımsız yürüten pil test birimidir. `__` ile biten klasörler kaynak alınmaz.
 
@@ -166,13 +166,13 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 | Hedef gönderim aralıkları | 100 ms, 500 ms, 3000 ms | Yeni protokolün gönderim sıklığı olarak onaylanmadı |
 | Gelen komut başlığı | command, version, sequence, flags; her biri bir bayt, toplam dört bayt | Yeni başlık ve ölçüm sıra alanıyla ilişkisi açık |
 | Komut uygulama/yanıt | İncelenen ayrıştırıcı komutları logluyor; cihaz işlemleri yorum satırında; ağ yanıtı üretmiyor | Komut yürütme ve yanıt sözleşmesi tasarlanacak |
-| Ölçüm zamanı | Telemetride uint64_t Unix ms, context güncelleme zamanı; RTC subsecond okuması eklendi | Uygulandı; mevcut adım yaklaşık 3,9 ms, Linux eşitleme ayrıntıları açık |
+| Ölçüm zamanı | Telemetride uint64_t Unix ms, payload oluşturma zamanı; RTC doğrudan okunur | Uygulandı; mevcut adım yaklaşık 3,9 ms, Linux eşitleme ayrıntıları açık |
 | Ölçüm sıra numarası | İncelenen periyodik paketlerde ölçüm sayacı yok | Artan ayırt edici eklenecek |
 | Dairesel tampon | İstenen davranışın uygulanmış olduğu doğrulanmadı | ADR-0006 davranışı uygulanacak |
 
-Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Genel durum kodu kullanıcının talebiyle güncellendi ve Debug derlemesi ile bilgisayarda paket kontrolleri geçti; bu, donanım doğrulaması değildir.
+Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Genel durum kodu güncellendi ve Debug derlemesi ile bilgisayarda paket kontrolleri geçti; bu, donanım doğrulaması değildir.
 
-`VertexTelemetryPayload` artık **17 bayt**: tür (1), gerilim (2), akım (2), pil sıcaklığı (2), ortam sıcaklığı (2), Unix milisaniye zamanı (8). Sıcaklıklar int16_t ve °C × 10; −32768 geçersiz işaretidir. Context ölçüm zamanı taşınır, sıra numarası henüz yoktur. [Güncel şema ve doğrulama](vertex-telemetry-message.md).
+`VertexTelemetryPayload` artık **17 bayt**: tür (1), gerilim (2), akım (2), pil sıcaklığı (2), ortam sıcaklığı (2), Unix milisaniye zamanı (8). Sıcaklıklar int16_t ve °C × 10; −32768 geçersiz işaretidir. Payload oluşturulurken RTC’den okunan zaman taşınır, sıra numarası henüz yoktur. [Güncel şema ve doğrulama](vertex-telemetry-message.md).
 
 ## 8.1. VertexStatusPayload — genel durum mesajı
 
@@ -195,11 +195,11 @@ Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçeves
 | Komutlar | İşlem listesi, hedefleme, ilişkilendirme, hata kodları ve yeniden deneme |
 | Bulut ve panel | Kalıcı depolama tüketicisi, panel bağlantısı ve yanıtın panele iletilmesi |
 
-Yeni kararlar ilgili ADR kaydına bağlanarak bu belgeye işlenecek; öneriler kullanıcı kabul etmeden kesin sözleşme olarak sunulmayacak.
+Yeni kararlar ilgili ADR kaydına bağlanarak bu belgeye işlenecek; değerlendirme aşamasındaki öneriler kesinleşmiş protokol gibi yazılmayacak.
 
-## Değerlendirme: Telemetriyi tek çerçeveye sığdırma — öneri
+## Önceki değerlendirme: Tek çerçeve hedefi
 
-Kullanıcı zaman verisinin tek çerçeve hedefiyle çatıştığını belirterek bu hedeften vazgeçmeyi sordu. **Asistan önerisi:** Telemetri için tek CAN çerçevesi zorunluluğunu kaldırmak; ölçüm zamanı ve sıra numarasını koruyarak ISO-TP'nin çok çerçeveli taşımasını kullanmak. Bu öneri henüz kullanıcı kararı değildir; kod ve mevcut 7 baytlık biçim değiştirilmedi.
+İlk değerlendirmede zaman ve sıra bilgisini korumak için telemetrinin birden fazla ISO-TP çerçevesiyle taşınması önerildi. O sırada 7 baytlık biçim kullanılıyordu. Sonrasında 17 baytlık biçime geçildi; aşağıdaki 19 baytlık yerleşim ise uygulanmamış bir alternatif olarak kaldı. Güncel karar [ADR-0011](../07-decisions/ADR-0011-telemetry-time-temperature.md), zamanın okunduğu an ise [ADR-0012](../07-decisions/ADR-0012-payload-time.md) içinde.
 
 Gerekçe: Vertex dairesel tamponundan gecikmeli gelen kaydın ClusterPilot'a ulaşma zamanı ölçüm zamanı değildir. Sıra numarası tek başına mutlak zamanı sağlamaz. Ayrı zaman referansı ve fark kodlama mümkün olsa da yeniden bağlanma, saat düzeltme ve kayıp referans takibi ek tasarım gerektirir.
 
@@ -211,9 +211,9 @@ Kaynak: [Linux ISO-TP taşıma ve akış kontrolü](https://kernel.org/doc/html/
 
 ## Kapasite hesabı: Güncel 17 bayt, 16 Vertex, 100 ms
 
-**Kullanıcı girdisi:** Yaklaşık 16 Vertex, Vertex başına 100 ms ölçüm aralığı. **Hesap:** Tek 500 kbit/s klasik CAN hattı, 11 bit kimlikler, normal ISO-TP adresleme, 17 baytlık mevcut telemetri, hata/tekrar yok. Alıcı her aktarımda tek Flow Control gönderiyor (blocksize 0 veya en az 2). Tüm CAN veri çerçeveleri ve Flow Control için 8 veri baytlık muhafazakâr hesap kullanıldı; firmware'de dolgu etkin.
+**Çalışma ölçeği:** Yaklaşık 16 Vertex, Vertex başına 100 ms ölçüm aralığı. **Hesap:** Tek 500 kbit/s klasik CAN hattı, 11 bit kimlikler, normal ISO-TP adresleme, 17 baytlık mevcut telemetri, hata/tekrar yok. Alıcı her aktarımda tek Flow Control gönderiyor (blocksize 0 veya en az 2). Tüm CAN veri çerçeveleri ve Flow Control için 8 veri baytlık muhafazakâr hesap kullanıldı; firmware'de dolgu etkin.
 
-19 baytlık önceki öneri yerine uygulanmış ve kullanıcı tarafından korunması onaylanmış **17 bayt** esas alındı. Debug ARM derleyicisiyle boyutlar doğrulandı: telemetri 17, durum 7, heartbeat 2 bayt.
+19 baytlık önceki öneri yerine firmware’de uygulanmış **17 bayt** esas alındı. Debug ARM derleyicisiyle boyutlar doğrulandı: telemetri 17, durum 7, heartbeat 2 bayt.
 
 ### Telemetri parçalama ve hız
 

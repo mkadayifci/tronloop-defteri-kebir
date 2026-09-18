@@ -12,8 +12,7 @@ guncelleyen: "Codex"
 
 - **Tarih:** 2026-09-18
 - **Durum:** Kabul edildi
-- **Kararı veren:** Kullanıcı
-- **Kaynak:** Bu görüşmede Defteri Kebir'in ana üs olduğu ve `__` ile biten klasörlerin geçersiz olduğu yönündeki açık kullanıcı talimatı.
+- **Kaynak:** 2026-09-18 tarihli proje notları.
 
 ## Bağlam ve karar
 
@@ -33,6 +32,6 @@ Bu görüşmede alternatif tartışılmadı.
 
 ## İlişkili kayıtlar
 
-[ADR-0001](ADR-0001-documentation.md) kararını tamamlar; onu yürürlükten kaldırmaz. Önceki kayıtta asistan tercihi olarak belirtilen dokümantasyon deposu seçimi bu kararla kullanıcı tarafından kesinleştirilmiştir.
+[ADR-0001](ADR-0001-documentation.md) kararını tamamlar; onu yürürlükten kaldırmaz. Dokümantasyonun ana merkezi bu kayıtla Defteri Kebir olarak belirlendi.
 
 [Mimari çalışma notları](../03-software/architecture-notes.md)
