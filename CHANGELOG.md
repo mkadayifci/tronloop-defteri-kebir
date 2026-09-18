@@ -22,6 +22,9 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.09.3] - 2026-09-18
 
 ### Güncellendi
+- Kullanıcı onayıyla telemetri yapı adı `VertexTelemetryPayload` olarak güncellendi; alanlar, tür kodu ve gönderim periyodu korunuyor.
+- Genel durumun C yapı adı `VertexStatusPayload` olarak değiştirildi; tel biçimi, tür kodu ve gönderim davranışı korunuyor.
+- 7 baytlık genel durum Vertex firmware’inde uygulandı: charger_mode 0/1/2, işaretli 2 bayt mA, boyut/ofset kontrolleri ve aralık dışı akımda paket atlama. Debug derlemesi ve gerçek dispatcher/ISO-TP koduyla bilgisayar üzerinde paket kontrolleri başarılı; alıcı ve kart doğrulaması yapılmadı.
 - Genel durum hedefinde oynatıcı durumu ve charger çalışma modu ayrı birer bayta ayrıldı. Akım 2 bayt kaldı; toplam 7 bayt uygulama verisi ISO-TP başlığıyla tek CAN çerçevesine sığıyor.
 - ISO-TP kütüphanesinde tek çerçeve uygulama verisi sınırı 7 bayt ve dolgu ayarı doğrulandı; hedef 6 baytlık genel durumun ISO-TP ile tek CAN çerçevesinde taşınabileceği belgelendi.
 - Genel durum hedefindeki akım alanı mA cinsinden `int16_t` (2 bayt) olarak seçildi; birleşik durum baytıyla toplam hedef boyut 6 bayta güncellendi. Mevcut firmware kodu değişmedi.

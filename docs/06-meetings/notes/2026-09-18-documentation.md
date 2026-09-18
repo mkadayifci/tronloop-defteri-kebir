@@ -94,3 +94,7 @@ Kullanıcı akım alanının mA cinsinden işaretli 2 bayt (`int16_t`) olmasın�
 ## Oynatıcı ve charger durumlarının ayrılması
 
 Kullanıcı oynatıcı durumu ile charger çalışma modunun ayrı birer bayt olmasını istedi. Önceki ortak bit alanı kararı ADR-0010 içinde tarihçesi korunarak güncellendi. Akım 2 bayt kaldı; hedef paket 7 bayt ve ISO-TP başlığıyla tek CAN çerçevesi oldu. Firmware değiştirilmedi.
+
+## Genel durumun firmware'e uygulanması
+
+Kullanıcı bu görüşmeden kodu güncelleme yetkisi verdi. Mevcut yerel değişiklikler korunarak genel durum 7 bayta geçirildi. Modlar 0 idle, 1 şarj, 2 deşarj; ters mod öncelikli yazılım context eşlemesi kullanıldı. `int16_t` dışı akımda paket atlanır ve loglanır. Debug derlemesi ile gerçek dispatcher/ISO-TP kodu üzerinden bilgisayarda paket/sınır kontrolleri geçti. Alıcı yazılım değiştirilmedi ve kart testi yapılmadı.

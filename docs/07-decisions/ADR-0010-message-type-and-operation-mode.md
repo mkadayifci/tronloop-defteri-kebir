@@ -47,7 +47,7 @@ Pil akımı mA cinsinden **`int16_t` (2 bayt)** olarak taşınır. Değer aralı
 
 Mevcut ISO-TP kütüphanesi 7 bayt uygulama verisini bir bayt ISO-TP başlığıyla tek klasik CAN çerçevesinde taşır. Hedef genel durum bu sınıra sığar; ham CAN'a geçmek gerekmez. Uygulama verisi 7 bayt, CAN veri alanı 8 bayttır.
 
-Charger modunun sayısal kodları ve firmware'deki güvenilir kaynak durumu henüz seçilmedi. Akım `int16_t` aralığı dışına çıkarsa uygulanacak kodlama/hata davranışı da açık; sessiz taşma geçerli ölçüm olarak yorumlanmamalıdır.
+Uygulama sırasında mod kodları 0 idle, 1 şarj, 2 deşarj olarak seçildi. Reverse bayrağına öncelik verilir, ardından enabled kontrol edilir; kaynak donanım geri okuması değil yazılım context durumudur. Akım aralık dışındaysa genel durum paketi o tur atlanır ve hata loglanır; sessiz daraltma yapılmaz.
 
 ## Kararın gelişimi
 
@@ -55,6 +55,6 @@ Charger modunun sayısal kodları ve firmware'deki güvenilir kaynak durumu hen�
 
 ## Uygulama durumu
 
-Karar ve çalışma kuralları güncellendi. Firmware/alıcı kodu değiştirilmedi; mevcut genel durum paketi hâlâ iki ayrı bayrak içeren 10 baytlık pakettir.
+Kullanıcının kod güncelleme talebiyle Vertex firmware’i 7 baytlık biçime geçirildi. Debug derlemesi ve bilgisayar üzerinde gerçek dispatcher/ISO-TP koduyla paket kontrolleri başarılı. Alıcı yazılım değiştirilmedi; 7 baytlık biçime uyarlanması gerekir. Kart üzerinde test yapılmadı.
 
 [Genel durum mesajı](../03-software/general-status-message.md) · [Mesajlaşma protokolü](../03-software/communication-notes.md)

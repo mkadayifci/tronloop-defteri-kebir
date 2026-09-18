@@ -170,13 +170,13 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 | Ölçüm sıra numarası | İncelenen periyodik paketlerde ölçüm sayacı yok | Artan ayırt edici eklenecek |
 | Dairesel tampon | İstenen davranışın uygulanmış olduğu doğrulanmadı | ADR-0006 davranışı uygulanacak |
 
-Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Bu belge kapsamında kod değiştirilmedi; kaynak incelemesi donanım doğrulaması değildir.
+Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Genel durum kodu kullanıcının talebiyle güncellendi ve Debug derlemesi ile bilgisayarda paket kontrolleri geçti; bu, donanım doğrulaması değildir.
 
 ## 8.1. Genel durum mesajının ayrıntıları
 
-Mevcut genel durum mesajı **10 bayt**, tür alanı **0x03**, hedef gönderim aralığı **3000 ms**: tür, pil gerilimi (mV), senaryo oynatıcı durumu, şarj etkinlik bayrağı, ters mod bayrağı ve pil akımı (mA) taşır. [Bayt yerleşimi, durum kodları, veri kaynakları ve örnek paket](general-status-message.md). Ölçüm zamanı ve sıra numarası bu mevcut pakette henüz yoktur.
+Mevcut genel durum mesajı **7 bayt**, tür alanı **0x03**, hedef gönderim aralığı **3000 ms**: tür, pil gerilimi (mV), senaryo oynatıcı durumu, charger çalışma modu (0 idle, 1 şarj, 2 deşarj) ve işaretli 2 bayt pil akımı (mA) taşır. [Bayt yerleşimi, durum kodları, veri kaynakları ve örnek paket](general-status-message.md). Ölçüm zamanı ve sıra numarası bu mevcut pakette henüz yoktur.
 
-**Yeni karar:** Genel durum tasarımında iki şarj bayrağı yerine tek **idle / şarj / deşarj çalışma modu** kullanılacak. Oynatıcı durumu ayrı anlamını korur. Bu değişiklik firmware'e henüz uygulanmadı. Oynatıcı durumu ve charger çalışma modu ayrı birer `uint8_t` (1 bayt) olarak taşınacak. Akım mA cinsinden işaretli `int16_t` olarak 2 bayt taşınacak; hedef paket **7 bayt**. Charger modunun sayısal kodları henüz seçilmedi. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md).
+**Yeni karar:** Genel durum tasarımında iki şarj bayrağı yerine tek **idle / şarj / deşarj çalışma modu** kullanılacak. Oynatıcı durumu ayrı anlamını korur. Bu değişiklik Vertex firmware’ine uygulandı; alıcı yazılım henüz güncellenmedi. Oynatıcı durumu ve charger çalışma modu ayrı birer `uint8_t` (1 bayt) olarak taşınacak. Akım mA cinsinden işaretli `int16_t` olarak 2 bayt taşınacak; hedef paket **7 bayt**. Mod kodları 0 idle, 1 şarj, 2 deşarj; reverse bayrağı önceliklidir. Akım aralık dışındaysa genel durum paketi atlanıp loglanır. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md).
 
 Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçevesinde taşır. Bu nedenle 7 baytlık hedef genel durum ISO-TP ile tek çerçevede gönderilebilir. Telde `0x07` ISO-TP başlığı (1 bayt) + 7 bayt veri bulunur; ek dolgu yoktur. Alıcı uygulama verisi 7 bayttır. 8 bayt uygulama verisi çok çerçeveli gönderim gerektirir. [Kaynak incelemesi](general-status-message.md).
 

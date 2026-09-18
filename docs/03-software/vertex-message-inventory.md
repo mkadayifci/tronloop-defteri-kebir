@@ -12,7 +12,7 @@ guncelleyen: "Codex"
 
 ## Kapsam ve kanıt
 
-Kullanıcı CAN/ISO-TP temelini koruyarak mesaj tiplerini birlikte yeniden değerlendirmek istiyor. Aşağıdakiler 2026-09-18 tarihinde yerel çalışma ağacından okunan mevcut davranıştır; yeni protokol kararı veya donanım üzerinde test sonucu değildir. Firmware kodu değiştirilmedi.
+Kullanıcı CAN/ISO-TP temelini koruyarak mesaj tiplerini birlikte yeniden değerlendirmek istiyor. Aşağıdakiler 2026-09-18 tarihinde yerel çalışma ağacından okunan mevcut davranıştır; yeni protokol kararı veya donanım üzerinde test sonucu değildir. Genel durum paketi kullanıcının talebiyle 7 bayta güncellendi; diğer mesajlar mevcut kaynak gözlemleridir.
 
 Kaynak yolları çalışma alanı köküne göredir:
 
@@ -30,15 +30,15 @@ CAN/ISO-TP bağlantısı, sabit `0x100` cihaz kimliği ve ayrı ayrı 1024 bayt 
 
 | Tür | Mevcut kod | Hedef aralık | İçerik |
 |---|---|---|---|
-| Hızlı telemetri | `0x01` | 100 ms | Pil gerilimi `uint16` mV, akımı `int16` mA, sıcaklığı `int16` 0,1 °C, durum `uint8` |
+| Telemetri (`VertexTelemetryPayload`) | `0x01` | 100 ms | Pil gerilimi `uint16` mV, akımı `int16` mA, sıcaklığı `int16` 0,1 °C, durum `uint8` |
 | Heartbeat | `0x02` | 500 ms | Context içindeki senaryo oynatıcı durumu |
-| Genel durum | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger enabled/reverse bayrakları, ölçülen pil akımı `int32` mA |
+| Genel durum | `0x03` | 3000 ms | Pil gerilimi, oynatıcı durumu, charger modu (0 idle, 1 şarj, 2 deşarj), ölçülen pil akımı `int16` mA |
 
 Aralıklar hedef deneme zamanlarıdır; teslim garantisi değildir. Hızlı telemetri ve heartbeat ISO-TP meşgulse o tur gönderilmez. Genel durum meşgul bağlantının boşalmasını bekler ve diğer periyodik mesajlardan önce denenir.
 
-Genel durum paketi sabit 10 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. Diğer iki pakette tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
+Genel durum paketi sabit 7 bayttır. [Alanlar, bayt yerleşimi ve durum kodları](general-status-message.md) ayrı belgede açıklanmıştır. Diğer iki pakette tür alanı C enum olarak tanımlanmıştır; `packed` olması bu alanın tek bayt olduğunu kanıtlamaz. Tel üzerindeki boyutları yalnızca yorumlardan çıkarmamak gerekir.
 
-Hızlı telemetride `state` sabit `1` gönderilir. Heartbeat context durumunu, genel durum ise doğrudan senaryo oynatıcısının durumunu kullanır. Genel durumdaki charger bayrakları donanım geri okuması değildir; başlık açıklaması gerilim ölçümünün henüz güncellenmediğini belirtir. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
+Hızlı telemetride `state` sabit `1` gönderilir. Heartbeat context durumunu, genel durum ise doğrudan senaryo oynatıcısının durumunu kullanır. Genel durumdaki charger modu context bayraklarından üretilir, donanım geri okuması değildir; başlık açıklaması gerilim ölçümünün henüz güncellenmediğini belirtir. Ölçüm alanının pakette bulunması, geçerli ölçüm üretildiği anlamına gelmez.
 
 ## ClusterPilot → Vertex: mevcut komutlar
 
@@ -74,4 +74,4 @@ Sonraki tasarımda komutun alınması ile uygulanması, mesajların kimlikleri, 
 
 ## Yeni tasarımda tür alanı ve uzunluk doğrulaması
 
-[ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008'in yerine geçmiştir. Tür, mesajın tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk, seçilen türe göre doğrulanır. Genel durumdaki iki şarj bayrağı tek idle/şarj/deşarj çalışma moduyla değiştirilecek ve bu mod ve oynatıcı durumu ayrı birer baytta taşınacak (akım `int16_t` mA olarak 2 bayt; hedef 7 bayt); yukarıdaki envanter mevcut kodu anlatır ve bu değişiklik henüz kodda uygulanmadı.
+[ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008'in yerine geçmiştir. Tür, mesajın tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk, seçilen türe göre doğrulanır. Genel durumdaki iki şarj bayrağı tek idle/şarj/deşarj çalışma moduyla değiştirildi. Mod ve oynatıcı durumu ayrı birer bayttır; akım `int16_t` mA olarak 2 bayt, toplam 7 bayttır. Bu değişiklik firmware’de uygulandı; alıcı uyarlaması henüz yapılmadı.

@@ -47,7 +47,7 @@ Testi Vertex firmware’i ClusterPilot’a sürekli ihtiyaç duymadan yürütür
 
 Milisaniye çözünürlüğünde ölçüm zamanı ve artan ayırt edici sıra numarası kayıtlarda yer alacak; sayaç için test başında sıfırlama şartı yoktur. STM32 saati Linux/Unix zamanı ile periyodik mesajlar üzerinden eşitlenecek. [ADR-0007](../07-decisions/ADR-0007-measurement-time-sequence.md).
 
-Mesaj türü tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk seçilen türe göre doğrulanır. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek; bu mod ve oynatıcı durumu ayrı birer bayt olarak taşınacak. Akım mA cinsinden işaretli `int16_t` (2 bayt) olacak; hedef genel durum paketi 7 bayt. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
+Mesaj türü tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk seçilen türe göre doğrulanır. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek; bu mod ve oynatıcı durumu ayrı birer bayt olarak taşınacak. Akım mA cinsinden işaretli `int16_t` (2 bayt) olacak; genel durum paketi 7 bayt olarak Vertex firmware’inde uygulandı. Debug derlemesi ve paket kontrolleri başarılı; alıcı güncellemesi ve kart testi henüz yapılmadı. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
 
 ## Açık konular
 
