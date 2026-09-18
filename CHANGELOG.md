@@ -22,6 +22,14 @@ Format: `[v{YIL}.{AY}.{HAFTA}] - YYYY-MM-DD`
 ## [v2026.09.3] - 2026-09-18
 
 ### Güncellendi
+- CAN bant hesabı güncel 17 bayt telemetriye göre doğrulandı: 16 Vertex × 10 Hz, ISO-TP Flow Control ve periyodik diğer mesajlarla 75,184–91,440 kbit/s, 500 kbit/s hatta %15,037–18,288.
+- Kullanıcı, zaman alanını küçültme seçenekleri sonrasında uint64_t Unix milisaniye ve 17 baytlık telemetri biçiminin korunmasını onayladı; kod değişmedi.
+- ADR-0011 uygulandı: telemetri sıcaklıkları ayrı int16_t °C×10, zaman uint64_t Unix ms oldu; paket 17 bayt. RTC subsecond API ve context ölçüm zamanı eklendi. Debug derlemesi, çok çerçeveli ISO-TP ve RTC kontrolleri başarılı.
+- 16 Vertex ve 100 ms ölçüm aralığı için 500 kbit/s CAN kapasite hesabı eklendi: öneri 19 baytlık telemetri, heartbeat ve durum toplamı belirtilen varsayımlarla yaklaşık %15–18,3 hat yükü. Yeni mesaj biçimi henüz onaylanmadı.
+- Telemetride tek CAN çerçevesi hedefi ile ölçüm zamanı/sıra bilgisi arasındaki ödünleşim ve çok çerçeveli ISO-TP önerisi kaydedildi; yeni karar veya kod değişikliği yapılmadı.
+- Telemetri sıcaklığı ayrı 1 bayt pil/ortam alanlarına ayrıldı: int8_t, tam °C, −127…+127; −128 geçersiz/ölçüm yok. Ortam context kaynağı eklendi, henüz uygulanmayan sıcaklık okumaları başlangıçta geçersiz işaretleniyor. Paket 7 bayt kaldı; derleme ve bilgisayarda paket/sınır kontrolleri geçti.
+- `VertexTelemetryPayload` içindeki sabit `state` kaldırıldı; tür alanı uint8_t ve toplam boyut 7 bayt olarak sabitlendi. Debug derlemesi ve gerçek dispatcher/ISO-TP ile tek çerçeve doğrulaması başarılı.
+- `VertexTelemetryPayload` boyutu mevcut Debug ARM derleyicisiyle 8 bayt olarak doğrulandı; alan yerleşimi envantere eklendi.
 - Mesaj envanteri güncel C yapı adlarıyla düzenlendi; yapı adları ile değiştirilmemiş tür sabitleri ayrı sütunlarda gösterildi. Protokol taslağındaki adlar da eşitlendi.
 - Kullanıcı onayıyla telemetri yapı adı `VertexTelemetryPayload` olarak güncellendi; alanlar, tür kodu ve gönderim periyodu korunuyor.
 - Genel durumun C yapı adı `VertexStatusPayload` olarak değiştirildi; tel biçimi, tür kodu ve gönderim davranışı korunuyor.

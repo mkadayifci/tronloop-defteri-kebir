@@ -55,3 +55,7 @@ Kullanıcı sıra numarasının artmaya devam etmesini ve yalnızca kayıtları 
 ## İlişkili belgeler
 
 [Dairesel tampon](ADR-0006-vertex-ring-buffer.md) · [Haberleşme notları](../03-software/communication-notes.md)
+
+## Uygulama güncellemesi — ADR-0011
+
+Telemetriye uint64_t Unix milisaniye alanı eklendi; zaman hızlı context ölçümünde kaydediliyor. `TL_RTC_GetMs()` RTC subsecond alanını kullanıyor; mevcut prescaler nominal ~3,9 ms adımlı. Önceki yalnız saniye çözünürlüklü uygulama gözlemi `TL_RTC_Get()` için geçerli kalır, yeni API ayrı eklenmiştir. Sıra numarası ve Linux saat eşitleme ayrıntıları henüz uygulanmadı. [Güncel telemetri](../03-software/vertex-telemetry-message.md).

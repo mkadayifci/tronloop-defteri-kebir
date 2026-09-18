@@ -166,11 +166,13 @@ Bu tablo yeni protokolün kesinleşmiş mesaj kodları değildir.
 | Hedef gönderim aralıkları | 100 ms, 500 ms, 3000 ms | Yeni protokolün gönderim sıklığı olarak onaylanmadı |
 | Gelen komut başlığı | command, version, sequence, flags; her biri bir bayt, toplam dört bayt | Yeni başlık ve ölçüm sıra alanıyla ilişkisi açık |
 | Komut uygulama/yanıt | İncelenen ayrıştırıcı komutları logluyor; cihaz işlemleri yorum satırında; ağ yanıtı üretmiyor | Komut yürütme ve yanıt sözleşmesi tasarlanacak |
-| Ölçüm zamanı | İncelenen periyodik paketlerde yeni zaman alanı yok; RTC API'si saniye tabanlı | Milisaniye ölçüm zamanı eklenecek |
+| Ölçüm zamanı | Telemetride uint64_t Unix ms, context güncelleme zamanı; RTC subsecond okuması eklendi | Uygulandı; mevcut adım yaklaşık 3,9 ms, Linux eşitleme ayrıntıları açık |
 | Ölçüm sıra numarası | İncelenen periyodik paketlerde ölçüm sayacı yok | Artan ayırt edici eklenecek |
 | Dairesel tampon | İstenen davranışın uygulanmış olduğu doğrulanmadı | ADR-0006 davranışı uygulanacak |
 
 Kaynak ve alan ayrıntıları: [Vertex mevcut mesaj envanteri](vertex-message-inventory.md). Genel durum kodu kullanıcının talebiyle güncellendi ve Debug derlemesi ile bilgisayarda paket kontrolleri geçti; bu, donanım doğrulaması değildir.
+
+`VertexTelemetryPayload` artık **17 bayt**: tür (1), gerilim (2), akım (2), pil sıcaklığı (2), ortam sıcaklığı (2), Unix milisaniye zamanı (8). Sıcaklıklar int16_t ve °C × 10; −32768 geçersiz işaretidir. Context ölçüm zamanı taşınır, sıra numarası henüz yoktur. [Güncel şema ve doğrulama](vertex-telemetry-message.md).
 
 ## 8.1. VertexStatusPayload — genel durum mesajı
 
@@ -194,3 +196,52 @@ Mevcut ISO-TP kütüphanesi en fazla 7 bayt uygulama verisini tek CAN çerçeves
 | Bulut ve panel | Kalıcı depolama tüketicisi, panel bağlantısı ve yanıtın panele iletilmesi |
 
 Yeni kararlar ilgili ADR kaydına bağlanarak bu belgeye işlenecek; öneriler kullanıcı kabul etmeden kesin sözleşme olarak sunulmayacak.
+
+## Değerlendirme: Telemetriyi tek çerçeveye sığdırma — öneri
+
+Kullanıcı zaman verisinin tek çerçeve hedefiyle çatıştığını belirterek bu hedeften vazgeçmeyi sordu. **Asistan önerisi:** Telemetri için tek CAN çerçevesi zorunluluğunu kaldırmak; ölçüm zamanı ve sıra numarasını koruyarak ISO-TP'nin çok çerçeveli taşımasını kullanmak. Bu öneri henüz kullanıcı kararı değildir; kod ve mevcut 7 baytlık biçim değiştirilmedi.
+
+Gerekçe: Vertex dairesel tamponundan gecikmeli gelen kaydın ClusterPilot'a ulaşma zamanı ölçüm zamanı değildir. Sıra numarası tek başına mutlak zamanı sağlamaz. Ayrı zaman referansı ve fark kodlama mümkün olsa da yeniden bağlanma, saat düzeltme ve kayıp referans takibi ek tasarım gerektirir.
+
+Olası basit yerleşim: mevcut 7 bayt + 8 bayt Unix milisaniye + 4 bayt sıra numarası = 19 bayt. Bu boyutlar yalnızca öneridir; önceki kararlarda zaman/sayaç alan boyutu seçilmemiştir. Genel durum mesajı 7 bayt olarak tek çerçevede kalabilir.
+
+Bedeli daha fazla CAN çerçevesi ve akış kontrol trafiğidir. Kapasite kararı için Vertex sayısı, ölçüm sıklığı, diğer trafik ve bağlantı sonrası birikmiş veri gönderimi birlikte değerlendirilmelidir. Gerektiğinde birden fazla ölçümü temel zaman ve zaman farklarıyla gruplamak ayrı optimizasyon seçeneğidir.
+
+Kaynak: [Linux ISO-TP taşıma ve akış kontrolü](https://kernel.org/doc/html/latest/networking/iso15765-2.html).
+
+## Kapasite hesabı: Güncel 17 bayt, 16 Vertex, 100 ms
+
+**Kullanıcı girdisi:** Yaklaşık 16 Vertex, Vertex başına 100 ms ölçüm aralığı. **Hesap:** Tek 500 kbit/s klasik CAN hattı, 11 bit kimlikler, normal ISO-TP adresleme, 17 baytlık mevcut telemetri, hata/tekrar yok. Alıcı her aktarımda tek Flow Control gönderiyor (blocksize 0 veya en az 2). Tüm CAN veri çerçeveleri ve Flow Control için 8 veri baytlık muhafazakâr hesap kullanıldı; firmware'de dolgu etkin.
+
+19 baytlık önceki öneri yerine uygulanmış ve kullanıcı tarafından korunması onaylanmış **17 bayt** esas alındı. Debug ARM derleyicisiyle boyutlar doğrulandı: telemetri 17, durum 7, heartbeat 2 bayt.
+
+### Telemetri parçalama ve hız
+
+- Vertex başına 10 ölçüm/s, toplam **160 ölçüm/s**.
+- 17 bayt = First Frame içinde 6 + iki Consecutive Frame içinde 7 ve 4 bayt.
+- Ölçüm başına **3 veri çerçevesi + 1 Flow Control = 4 CAN çerçevesi**.
+- Telemetri toplamı **640 CAN çerçevesi/s**.
+- Yalnız uygulama verisi: 160 × 17 = **2720 bayt/s = 21,76 kbit/s**. Bu değer CAN/ISO-TP başlıklarını ve kontrol trafiğini içermez.
+
+### Hat üzerindeki toplam yük
+
+Standart 8 veri baytlı CAN çerçevesi için 3 bit çerçeveler arası boşluk dahil **111 bit**, bit stuffing için muhafazakâr üst hesap **135 bit** kullanıldı. Aralık, stuffing olmayan alt hesap ile üst sınır hesabını gösterir; ölçülmüş ortalama değildir.
+
+| Trafik | CAN çerçevesi/s | Hat tüketimi, kbit/s | 500 kbit/s hat yükü |
+|---|---:|---:|---:|
+| Telemetri, 100 ms | 640 | 71,040–86,400 | %14,208–17,280 |
+| Heartbeat, 500 ms | 32 | 3,552–4,320 | %0,710–0,864 |
+| VertexStatusPayload, 3000 ms | 5,333 | 0,592–0,720 | %0,118–0,144 |
+| **Toplam** | **677,333** | **75,184–91,440** | **%15,037–18,288** |
+
+**Sonuç:** Bu varsayımlarla ortalama sürekli yük yaklaşık **%15–18,3**, geriye kalan nominal hat kapasitesi yaklaşık **%82–85**. 17 ve 19 bayt aynı ISO-TP veri çerçevesi sayısını gerektirdiği ve dolgu kullanıldığı için önceki hesapla sonuç aynıdır.
+
+Komutlar, saat eşitleme, hata/yeniden denemeler ve kesinti sonrası tampon boşaltma dahil değildir. Flow Control blocksize=1, ek bekletme çerçeveleri, genişletilmiş CAN kimlikleri veya farklı dolgu ayarları sonucu değiştirir. 100 ms toplu gönderim anındaki gecikme ve yazılımın ölçüm/gönderim zamanlaması bu ortalama bant hesabıyla garanti edilmez. Tampon boşaltma canlı trafiğe yer bırakacak şekilde sınırlandırılmalı.
+
+16 Vertex için ayrı CAN/ISO-TP adresleri ve RX filtrelemesi gerekir; mevcut sabit 0x100 kimliğinin tüm cihazlarda kullanılması uygun değildir. Kaynaklardaki bloklayan işlemler ve meşgulken telemetri atlama davranışı ayrıca değerlendirilmelidir. Hesap cihaz üzerinde ölçülmüş performans değildir.
+
+Kaynaklar: [Linux ISO-TP akış kontrolü](https://kernel.org/doc/html/latest/networking/iso15765-2.html), [Kvaser CAN çerçeve yapısı](https://kvaser.com/can-protocol-tutorial/); parçalama/dolgu ve paket boyutları yerel firmware kaynaklarından doğrulandı.
+
+## Güncel uygulama — ADR-0011
+
+Telemetri 17 bayta geçirildi; kapasite hesabı da bu güncel biçime göre yenilendi. 17 bayt da normal adreslemede 3 veri + bir Flow Control varsayımıyla aynı çerçeve sayısına sahiptir. Yeni sıcaklık ve zaman biçimi için [güncel telemetri belgesi](vertex-telemetry-message.md) esas alınır. RTC saniye altı okuması eklendi; önceki yalnız saniye tabanlı mevcut uygulama notları bu konuda tarihsel kalmıştır. Sıra numarası ve dairesel tampon henüz uygulanmadı.

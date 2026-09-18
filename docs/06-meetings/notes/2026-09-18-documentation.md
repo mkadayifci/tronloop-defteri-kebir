@@ -98,3 +98,15 @@ Kullanıcı oynatıcı durumu ile charger çalışma modunun ayrı birer bayt ol
 ## Genel durumun firmware'e uygulanması
 
 Kullanıcı bu görüşmeden kodu güncelleme yetkisi verdi. Mevcut yerel değişiklikler korunarak genel durum 7 bayta geçirildi. Modlar 0 idle, 1 şarj, 2 deşarj; ters mod öncelikli yazılım context eşlemesi kullanıldı. `int16_t` dışı akımda paket atlanır ve loglanır. Debug derlemesi ile gerçek dispatcher/ISO-TP kodu üzerinden bilgisayarda paket/sınır kontrolleri geçti. Alıcı yazılım değiştirilmedi ve kart testi yapılmadı.
+
+## Telemetriden durum alanının kaldırılması
+
+Kullanıcının talebiyle `VertexTelemetryPayload.state` kaldırıldı. Tür, gerilim, akım ve sıcaklık alanları toplam 7 bayt; tür alanı açıkça uint8_t olarak sabitlendi. Debug derlemesi ve tek ISO-TP çerçevesi kontrolü geçti. Dokümantasyon güncellendi; alıcı kodu değiştirilmedi ve kart testi yapılmadı.
+
+## Ayrı pil ve ortam sıcaklıkları
+
+Kullanıcı telemetride pil ve ortam sıcaklığını ayrı işaretli, ondalıksız alanlar istedi. Firmware'de iki int8_t tam °C alanı uygulandı; geçerli aralık −127…+127. Uygulama tercihi olarak −128 ölçüm yok/geçersiz koduna ayrıldı. Sensör okumaları henüz yok; kaynaklar başlangıçta geçersizdir. 7 bayt paket boyutu korundu; Debug derlemesi ve paket/sınır kontrolleri geçti, kart testi yapılmadı.
+
+## Onda bir sıcaklık ve zaman alanı
+
+Kullanıcı iki sıcaklığı ayrı 2 bayt/×10 biçimine geçirmeyi ve zaman eklemeyi istedi. ADR-0011 ile kaydedildi; firmware'e 17 baytlık biçim ve Unix ms okuma eklendi. Context ölçüm zamanı gönderilir. Sıra numarası, ring buffer ve alıcı güncellemesi kapsam dışında kaldı. Mevcut RTC adımı ~3,9 ms. Derleme, ISO-TP ve RTC yardımcı kontrolleri geçti; kart/sensör testi yapılmadı.

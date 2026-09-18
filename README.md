@@ -35,6 +35,7 @@ guncelleyen: "Codex"
 - [Malzeme Listesi (BOM)](docs/02-hardware/bill-of-materials.md)
 - [Yazılım Mimarisi](docs/03-software/architecture.md)
 - [Mesajlaşma Protokolü — Çalışma Taslağı](docs/03-software/communication-notes.md)
+- [Telemetri Mesajı — Sıcaklıklar ve Ölçüm Zamanı](docs/03-software/vertex-telemetry-message.md)
 - [Genel Durum Mesajı — Alanlar ve Bayt Yerleşimi](docs/03-software/general-status-message.md)
 - [Test Protokolü](docs/04-tests/test-protocol.md)
 - [Literatür Taraması](docs/05-research/literature.md)

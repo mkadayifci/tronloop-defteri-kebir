@@ -24,6 +24,7 @@ Her karar ayrı bir `ADR-NNNN-kisa-baslik.md` dosyasında tutulur. Kimlikler tek
 | [ADR-0008](ADR-0008-unique-message-length.md) | 2026-09-18 | Farklı CAN mesaj türleri için benzersiz veri uzunluğu | Yerine ADR-0010 geçti |
 | [ADR-0009](ADR-0009-tsphere-name.md) | 2026-09-18 | Bulut sunucusunun TSphere olarak adlandırılması | Kabul edildi |
 | [ADR-0010](ADR-0010-message-type-and-operation-mode.md) | 2026-09-18 | Tür alanıyla ayrıştırma ve idle/şarj/deşarj çalışma modu | Kabul edildi |
+| [ADR-0011](ADR-0011-telemetry-time-temperature.md) | 2026-09-18 | Telemetride ayrı 2 bayt sıcaklıklar ve ölçüm zamanı | Kabul edildi |
 
 ## Yeni karar şablonu
 

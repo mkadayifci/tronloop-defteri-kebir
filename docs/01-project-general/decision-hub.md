@@ -49,6 +49,10 @@ Milisaniye çözünürlüğünde ölçüm zamanı ve artan ayırt edici sıra nu
 
 Mesaj türü tür alanından belirlenir; farklı türler aynı uzunlukta olabilir. Uzunluk seçilen türe göre doğrulanır. Genel durumdaki şarj/ters mod bayrakları tek idle/şarj/deşarj çalışma moduyla değiştirilecek; bu mod ve oynatıcı durumu ayrı birer bayt olarak taşınacak. Akım mA cinsinden işaretli `int16_t` (2 bayt) olacak; genel durum paketi 7 bayt olarak Vertex firmware’inde uygulandı. Debug derlemesi ve paket kontrolleri başarılı; alıcı güncellemesi ve kart testi henüz yapılmadı. [ADR-0010](../07-decisions/ADR-0010-message-type-and-operation-mode.md), ADR-0008’in yerine geçmiştir.
 
+Kapasite değerlendirmesi için kullanıcı girdisi: **yaklaşık 16 Vertex, 100 ms ölçüm aralığı**. [Mesajlaşma belgesindeki hesap](../03-software/communication-notes.md); güncel 17 baytlık telemetriyle heartbeat ve durum dahil hesaplanan hat yükü yaklaşık %15–18,3’tür (500 kbit/s ve belgelenen varsayımlarla).
+
+Güncel telemetri firmware biçimi **17 bayt**: iki ayrı 2 bayt sıcaklık (°C × 10) ve 8 bayt Unix ms zamanı içerir. [ADR-0011](../07-decisions/ADR-0011-telemetry-time-temperature.md). Sıra numarası ve dairesel tampon henüz kodda uygulanmadı.
+
 ## Açık konular
 
 | Kimlik | Konu | Durum | Kaynak |
